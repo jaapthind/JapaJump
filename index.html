@@ -141,6 +141,33 @@
             min-width: 150px; 
         }
 
+        .hud-btn {
+            padding: 12px 25px; 
+            border-radius: 25px; 
+            text-align: center; 
+            min-width: 150px; 
+            cursor: pointer;
+            pointer-events: auto;
+            background: linear-gradient(45deg, var(--jim-gold), #ffa500);
+            color: black;
+            border: 2px solid white;
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
+            transition: transform 0.2s;
+        }
+
+        .hud-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .hud-btn .label {
+            color: black;
+            opacity: 0.9;
+        }
+
+        .hud-btn .value {
+            color: black;
+        }
+
         .label { 
             font-size: 10px; 
             font-weight: 900; 
@@ -466,7 +493,7 @@
         <button class="play-btn" onclick="beginGame()">START CLIMB</button>
         <div style="display: flex; gap: 20px; margin-top: 10px;">
             <button class="instr-btn" onclick="showInstr(true)">INSTRUCTIONS</button>
-            <button class="shop-btn-main" onclick="openShop()">UPGRADE SHOP</button>
+            <button class="shop-btn-main" onclick="openShop(false)">UPGRADE SHOP</button>
         </div>
     </div>
 
@@ -493,7 +520,7 @@
             </div>
             <div class="shop-grid" id="shop-grid-container">
                 </div>
-            <button class="shop-close-btn" onclick="closeShop()">RETURN TO MENU</button>
+            <button class="shop-close-btn" onclick="closeShop()">RETURN</button>
         </div>
     </div>
 
@@ -508,6 +535,11 @@
         <div class="hud-card glass-ui"><div class="label">Highscore</div><div id="hi-val" class="value">0m</div></div>
         <div class="hud-card glass-ui"><div class="label">Checkpoint</div><div id="zone-val" class="value">Start</div></div>
         <div class="hud-card glass-ui" style="border: 2px solid var(--jim-gold);"><div class="label">Credits</div><div id="cred-val" class="value val-gold">0</div></div>
+        
+        <div class="hud-btn" onclick="openShop(true)">
+            <div class="label">Upgrade</div>
+            <div class="value">SHOP</div>
+        </div>
     </div>
 
     <div class="energy-hud" id="energy-hud">
@@ -685,18 +717,27 @@
         });
     }
 
-   function openShop() {
-    game.active = false; // This stops the game engine from freezing the UI
-    renderShop();
-    document.getElementById('shop-screen').style.display = 'flex';
-    document.getElementById('start-menu').style.display = 'none';
-}
+    let isMidRunPause = false;
+
+    function openShop(midRun = false) {
+        isMidRunPause = midRun;
+        game.active = false; 
+        renderShop();
+        document.getElementById('shop-screen').style.display = 'flex';
+        document.getElementById('start-menu').style.display = 'none';
+    }
 
     function closeShop() {
-    document.getElementById('shop-screen').style.display = 'none';
-    document.getElementById('start-menu').style.display = 'flex';
-    // We keep game.active false so it stays on the menu
-}
+        document.getElementById('shop-screen').style.display = 'none';
+        
+        if (isMidRunPause) {
+            game.active = true;
+            cancelAnimationFrame(game.raf);
+            game.raf = requestAnimationFrame(update);
+        } else {
+            document.getElementById('start-menu').style.display = 'flex';
+        }
+    }
 
     // ==========================================
     // ENGINE INITIALIZATION
@@ -725,7 +766,8 @@
         lastCPHeight: 0,
         voidLevel: 20500, 
         hellMode: false,
-        confetti: []
+        confetti: [],
+        raf: null
     };
 
     const player = {
@@ -853,9 +895,8 @@
         game.active = true;
         
         updateHUDValues();
-        requestAnimationFrame(update);
-        cancelAnimationFrame(game.raf); // Add this to kill any old loops
-        game.raf = requestAnimationFrame(update); // Start the new one
+        cancelAnimationFrame(game.raf); 
+        game.raf = requestAnimationFrame(update); 
     }
 
     function spawnConfetti() {
@@ -925,7 +966,8 @@
 
         if(left || right) {
             game.energy -= (0.38 * solarMod * hellDrainMult); 
-            player.vx += left ? (player.onG ? -1.5 : -0.6) : (player.onG ? 1.5 : 0.6);
+            // REVERTED TO ORIGINAL PHYSICS ACCELERATION
+            player.vx += left ? -1.5 : 1.5;
             player.facing = left ? -1 : 1; 
             player.walk += 0.35;
             
@@ -934,7 +976,9 @@
                 addCredits(scrubMod);
             }
         } else { 
-            player.vx *= (player.onG ? 0.10 : 0.95); // Hard brakes on ground            player.walk = 0; 
+            // REVERTED TO ORIGINAL PHYSICS SLIDING/FRICTION
+            player.vx *= (player.onG ? bootMod : 0.95); // Apply boots only on ground
+            player.walk = 0; 
             game.energy -= (0.05 * solarMod * hellDrainMult); 
         }
 
@@ -943,7 +987,7 @@
 
         player.x += player.vx; 
         
-        // Gravity with Hover Modification
+        // Gravity with Hover Modification REVERTED TO ORIGINAL BASE
         player.vy += (0.8 - hovMod); 
         player.y += player.vy;
         
@@ -979,7 +1023,7 @@
             }
         });
 
-        // Upgraded Jump Physics
+        // Upgraded Jump Physics REVERTED TO ORIGINAL BASE
         const jump = game.keys['ArrowUp'] || game.keys['Space'] || game.keys['KeyW'];
         if(jump && !game.keys.locked) {
             if(player.onG) { 
@@ -1026,7 +1070,7 @@
         }
 
         draw();
-        requestAnimationFrame(update);
+        game.raf = requestAnimationFrame(update);
     }
 
     function triggerCPToast(h) {
@@ -1155,7 +1199,8 @@
                         game.energy = game.maxEnergy; 
                         game.quizActive = false; 
                         document.getElementById('quiz-overlay').style.display = 'none'; 
-                        requestAnimationFrame(update); 
+                        cancelAnimationFrame(game.raf);
+                        game.raf = requestAnimationFrame(update); 
                     }, 800);
                 } else {
                     b.classList.add('wrong-flash');
