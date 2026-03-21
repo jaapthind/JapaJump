@@ -1100,7 +1100,6 @@
 
         document.getElementById('alt-val').innerText = game.score + 'm';
         let displayPct = Math.max(0, (game.energy / game.maxEnergy) * 100);
-        document.getElementById('pct-val').innerText = Math.floor(displayPct) + '%';
         document.getElementById('energy-fill').style.width = displayPct + '%';
         document.getElementById('fuel-num').innerText = Math.max(0, Math.floor(game.energy));
         
