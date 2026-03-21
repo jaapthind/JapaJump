@@ -8,11 +8,8 @@
     
     <style>
         :root {
-            /* UI Glassmorphism Variables */
             --glass-bg: rgba(255, 255, 255, 0.15);
             --glass-border: rgba(255, 255, 255, 0.25);
-            
-            /* Game Color Palette (ORIGINAL PRESERVED) */
             --jim-blue: #4facfe; 
             --jim-red: #ff4b2b; 
             --jim-green: #4CAF50;
@@ -294,7 +291,6 @@
             z-index: 50; 
         }
 
-        /* ADVANCED SHOP UI STYLES */
         #shop-screen {
             background: var(--shop-bg);
             backdrop-filter: blur(30px);
@@ -497,12 +493,11 @@
         ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.3); border-radius: 5px; }
         ::-webkit-scrollbar-thumb:hover { background: var(--jim-blue); }
 
-        /* AUTHENTICATION STYLES */
         #auth-overlay {
             display: flex; 
             background: rgba(0,0,0,0.95);
             backdrop-filter: blur(10px);
-            z-index: 10005; /* Ensures it sits above everything when loaded */
+            z-index: 10005; 
         }
 
         .auth-container {
@@ -554,23 +549,10 @@
             flex: 1;
         }
 
-        .btn-signin {
-            background: transparent;
-            color: var(--jim-blue);
-        }
-
-        .btn-signin:hover {
-            background: rgba(79, 172, 254, 0.1);
-        }
-
-        .btn-signup {
-            background: var(--jim-blue);
-            color: black;
-        }
-
-        .btn-signup:hover {
-            box-shadow: 0 0 20px rgba(79, 172, 254, 0.5);
-        }
+        .btn-signin { background: transparent; color: var(--jim-blue); }
+        .btn-signin:hover { background: rgba(79, 172, 254, 0.1); }
+        .btn-signup { background: var(--jim-blue); color: black; }
+        .btn-signup:hover { box-shadow: 0 0 20px rgba(79, 172, 254, 0.5); }
 
         .leaderboard-entry {
             display: flex;
@@ -867,7 +849,7 @@
         thrusters: { name: 'Ion Thrusters', desc: 'Increases jump power & lowers cost.', max: 5, baseCost: 200, costMult: 1.8, getEffect: t => ({ force: t * 1.5, costSave: t * 3 }) },
         battery: { name: 'Supercapacitor', desc: 'Expands energy capacity (+300).', max: 5, baseCost: 250, costMult: 2.0, getEffect: t => 1000 + (t * 300) },
         scrubbers: { name: 'Carbon Scrubbers', desc: 'Passively prints Credits moving.', max: 5, baseCost: 300, costMult: 2.2, getEffect: t => t * 0.05 },
-        radar: { name: 'Quantum Radar', desc: 'Shifts camera to see further up.', max: 3, baseCost: 350, costMult: 2.0, getEffect: t => t * 40 },
+        radar: { name: 'Quantum Radar', desc: 'Shifts camera to see further up.', max: 3, baseCost: 350, costMult: 2.0, getEffect: t => t * 150 },
         recycler: { name: 'Kinetic Recycler', desc: 'Restores energy when landing.', max: 5, baseCost: 400, costMult: 1.9, getEffect: t => t * 15 },
         hazard: { name: 'Hazard Shielding', desc: 'Reduces extreme Devil Zone drain.', max: 3, baseCost: 800, costMult: 2.5, getEffect: t => 1.0 - (t * 0.2) },
         multiplier: { name: 'Credit Multiplier', desc: 'Increases Credit Quiz rewards.', max: 5, baseCost: 1000, costMult: 2.5, getEffect: t => 1.0 + (t * 0.5) },
@@ -1081,7 +1063,7 @@
         
         let cy = 0, lastX = 2500; 
         for(let i=0; i < 1500; i++) {
-            let alt = Math.abs(Math.floor(cy / 10)); 
+            let alt = Math.max(0, Math.floor(-cy / 10)); 
             let isHell = alt > (9000 + albedoBonus);
             let isFinal = alt >= 10000;
             let isCP = alt > 0 && alt % 500 === 0;
@@ -1119,9 +1101,18 @@
         
         document.getElementById('fuel-max-num').innerText = Math.floor(game.maxEnergy);
         
-        game.camY = -300; player.y = 0; game.voidLevel = 500; player.x = 2500; player.vx = 0; player.vy = 0;
-        game.lastCPHeight = 0; player.lastSafeX = 2500; player.lastSafeY = 0;
-        game.hellMode = false; document.getElementById('app').style.background = 'var(--jim-sky)';
+        game.camY = -300; 
+        player.y = 0; 
+        game.voidLevel = 500; 
+        player.x = 2500; 
+        player.vx = 0; 
+        player.vy = 0;
+        
+        game.lastCPHeight = 0; 
+        player.lastSafeX = 2500; 
+        player.lastSafeY = 0;
+        game.hellMode = false; 
+        document.getElementById('app').style.background = 'var(--jim-sky)';
         document.getElementById('vignette').style.opacity = '0';
 
         generateLevel();
@@ -1157,7 +1148,6 @@
         const hovMod = SHOP_ITEMS.hover.getEffect(gameSave.upgrades.hover);
         const speedLimit = SHOP_ITEMS.speed.getEffect(gameSave.upgrades.speed);
         const coolMod = SHOP_ITEMS.cooling.getEffect(gameSave.upgrades.cooling);
-        
         const windMod = SHOP_ITEMS.wind.getEffect(gameSave.upgrades.wind);
         const geoMod = SHOP_ITEMS.geo.getEffect(gameSave.upgrades.geo);
         const greenMod = SHOP_ITEMS.green.getEffect(gameSave.upgrades.green);
@@ -1169,6 +1159,7 @@
         const gliderMod = SHOP_ITEMS.glider.getEffect(gameSave.upgrades.glider);
         const shieldMod = SHOP_ITEMS.shield.getEffect(gameSave.upgrades.shield);
         const aeroMod = SHOP_ITEMS.aero.getEffect(gameSave.upgrades.aero);
+        const hydroMod = SHOP_ITEMS.hydro.getEffect(gameSave.upgrades.hydro);
 
         player.maxJumps = 2 + kelpMod;
 
@@ -1200,6 +1191,10 @@
 
         if(geoMod > 0) game.energy = Math.min(game.maxEnergy, game.energy + geoMod);
         if(player.vy > 10 && windMod > 0) game.energy = Math.min(game.maxEnergy, game.energy + windMod);
+        
+        if (!player.onG && tidalMod > 0 && Math.abs(player.vx) > 1) {
+            game.energy = Math.min(game.maxEnergy, game.energy + (Math.abs(player.vx) * tidalMod * 0.05));
+        }
 
         let lim = speedLimit + (player.onG ? 0 : gliderMod);
         player.vx = Math.min(Math.max(player.vx, -lim), lim);
@@ -1213,7 +1208,6 @@
             if(player.vy > 0 && player.x + 40 > p.x && player.x < p.x + p.w && player.y + player.h > p.y && player.y + player.h < p.y + p.h + 20) {
                 if(!player.onG) {
                     if(recyMod > 0) game.energy = Math.min(game.maxEnergy, game.energy + recyMod);
-                    if(tidalMod > 0 && Math.abs(player.vx) > 3) game.energy = Math.min(game.maxEnergy, game.energy + Math.abs(player.vx) * tidalMod);
                 }
 
                 player.y = p.y - player.h; player.vy = 0; player.onG = true; player.jumps = 0;
@@ -1222,13 +1216,17 @@
                     game.active = false; doConfetti(); document.getElementById('win-screen').style.display = 'flex';
                 }
 
-                let cur = Math.abs(Math.floor(player.y / 10));
+                let cur = Math.max(0, Math.floor(-player.y / 10));
                 if (cur >= game.lastCPHeight + 500) {
                     game.lastCPHeight = Math.floor(cur / 500) * 500;
                     player.lastSafeX = p.x + p.w/2; player.lastSafeY = p.y;
                     game.voidLevel = p.y + 700; 
                     triggerCPToast(game.lastCPHeight);
                     if(carbonMod > 0) addCredits(carbonMod);
+                    if(hydroMod > 0) {
+                        game.energy = Math.min(game.maxEnergy, game.energy + hydroMod);
+                        showCreditToast("HYDRO BOOST!");
+                    }
                 }
             }
         });
@@ -1256,7 +1254,7 @@
         if(!jump) game.keys.locked = false;
 
         game.camX += (player.x - canvas.width/2 - game.camX) * 0.1;
-        game.camY += (player.y - canvas.height/2 + radarMod - game.camY) * 0.1;
+        game.camY += (player.y - canvas.height/2 - radarMod - game.camY) * 0.1;
 
         if(player.y > game.voidLevel) { 
             let plateRestore = SHOP_ITEMS.plating.getEffect(gameSave.upgrades.plating);
@@ -1267,7 +1265,7 @@
 
         if(game.energy <= 0) { triggerQuiz(); return; }
 
-        game.score = Math.abs(Math.floor(player.y / 10));
+        game.score = Math.max(0, Math.floor(-player.y / 10));
         if(game.score > gameSave.highscore) { 
             gameSave.highscore = game.score; 
             saveGame(); 
@@ -1278,6 +1276,7 @@
     }
 
     function triggerCPToast(h) {
+        if(h === 0) return;
         const toast = document.getElementById('checkpoint-toast');
         toast.innerText = h + "m REACHED"; toast.style.opacity = 1;
         if(game.hellMode) toast.style.color = "red";
