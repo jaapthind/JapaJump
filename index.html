@@ -1175,8 +1175,6 @@
         player.maxJumps = 2 + kelpMod;
 
         // --- HELL ZONE TRIGGER AT 9000m ---
-        const albedoMod = SHOP_ITEMS.albedo.getEffect(gameSave.upgrades.albedo);
-
         if (game.score >= (9000 + albedoMod) && !game.hellMode) {
             game.hellMode = true;
             document.getElementById('app').style.background = 'var(--jim-hell)'; 
