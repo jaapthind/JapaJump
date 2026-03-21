@@ -3,21 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JIMKIT: DON'T LOOK DOWN - OFFICIAL & ADVANCED ENTERPRISE SHOP</title>
-    <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <title>JIMKIT: DON'T LOOK DOWN - OFFICIAL</title>
+    <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Inter:wght@900&display=swap" rel="stylesheet">
     
     <style>
-        /**
-         * ==========================================
-         * CORE STYLESHEET & CSS VARIABLE ARCHITECTURE
-         * ==========================================
-         */
         :root {
             /* UI Glassmorphism Variables */
             --glass-bg: rgba(255, 255, 255, 0.15);
             --glass-border: rgba(255, 255, 255, 0.25);
-            --glass-hover: rgba(255, 255, 255, 0.25);
-            --glass-active: rgba(255, 255, 255, 0.35);
             
             /* Game Color Palette */
             --jim-blue: #4facfe; 
@@ -27,11 +20,7 @@
             --jim-sky: #87CEEB; 
             --jim-hell: #2a0000;
             --jim-gold: #FFD700;
-            --jim-dark: #121212;
-            
-            /* Advanced Shop Variables */
-            --shop-card-bg: rgba(10, 10, 20, 0.6);
-            --shop-accent: #00d2ff;
+            --shop-bg: rgba(10, 10, 15, 0.95);
         }
 
         body { 
@@ -39,8 +28,6 @@
             background: #000; 
             overflow: hidden; 
             font-family: 'Inter', sans-serif; 
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
         }
 
         #app { 
@@ -48,7 +35,7 @@
             width: 100vw; 
             height: 100vh; 
             background: var(--jim-sky); 
-            transition: background 4s cubic-bezier(0.4, 0.0, 0.2, 1); 
+            transition: background 4s; 
         }
         
         /* Advanced Glassmorphism Utilities */
@@ -57,9 +44,8 @@
             backdrop-filter: blur(25px) saturate(200%);
             -webkit-backdrop-filter: blur(25px) saturate(200%);
             border: 1px solid var(--glass-border);
-            box-shadow: 0 15px 35px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.1);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.4);
             color: white;
-            border-radius: 20px;
         }
 
         .overlay { 
@@ -80,9 +66,8 @@
             font-family: 'Bungee', cursive; 
             font-size: 110px; 
             color: white; 
-            text-shadow: 0 10px 0px rgba(0,0,0,0.1), 0 0 40px rgba(255,255,255,0.2); 
+            text-shadow: 0 10px 0px rgba(0,0,0,0.1); 
             margin: 0; 
-            letter-spacing: -2px;
         }
         
         .play-btn {  
@@ -95,9 +80,8 @@
             border-radius: 60px; 
             cursor: pointer;
             box-shadow: 0 12px 0px #ccc; 
-            transition: all 0.15s ease; 
+            transition: 0.1s; 
             margin-top: 20px;
-            text-transform: uppercase;
         }
 
         .play-btn:active { 
@@ -105,7 +89,7 @@
             box-shadow: 0 6px 0px #ccc; 
         }
 
-        .instr-btn, .shop-open-btn {
+        .instr-btn {
             background: var(--glass-bg); 
             color: white; 
             border: 1px solid var(--glass-border);
@@ -116,19 +100,26 @@
             cursor: pointer; 
             margin-top: 15px; 
             backdrop-filter: blur(10px); 
-            transition: all 0.2s ease;
-        }
-        
-        .instr-btn:hover, .shop-open-btn:hover {
-            background: var(--glass-hover);
-            transform: scale(1.05);
+            transition: 0.2s;
         }
 
-        .shop-open-btn {
+        .shop-btn-main {
             background: linear-gradient(45deg, var(--jim-gold), #ffa500);
-            color: #000;
-            border: none;
-            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.4);
+            color: black;
+            border: 2px solid white;
+            padding: 15px 60px;
+            font-family: 'Bungee', cursive;
+            font-size: 24px;
+            border-radius: 50px;
+            cursor: pointer;
+            margin-top: 15px;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.4);
+            transition: 0.2s;
+        }
+
+        .shop-btn-main:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.8);
         }
 
         /* Head Up Display (HUD) Architecture */
@@ -150,17 +141,11 @@
             min-width: 150px; 
         }
 
-        .hud-currency {
-            background: linear-gradient(135deg, rgba(255, 215, 0, 0.2), rgba(255, 165, 0, 0.2));
-            border-color: var(--jim-gold);
-        }
-
         .label { 
             font-size: 10px; 
             font-weight: 900; 
             opacity: 0.8; 
             text-transform: uppercase; 
-            letter-spacing: 1px;
         }
 
         .value { 
@@ -168,7 +153,10 @@
             font-size: 28px; 
         }
 
-        .val-gold { color: var(--jim-gold); text-shadow: 0 0 10px rgba(255, 215, 0, 0.5); }
+        .val-gold {
+            color: var(--jim-gold);
+            text-shadow: 0 2px 10px rgba(255, 215, 0, 0.3);
+        }
 
         .energy-hud { 
             position: absolute; 
@@ -189,15 +177,13 @@
             overflow: hidden; 
             position: relative; 
             backdrop-filter: blur(15px); 
-            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
         }
 
         #energy-fill { 
             width: 100%; 
             height: 100%; 
-            background: linear-gradient(90deg, var(--jim-red), var(--jim-blue), var(--jim-green)); 
-            background-size: 200% 100%;
-            transition: width 0.15s cubic-bezier(0.4, 0, 0.2, 1); 
+            background: linear-gradient(90deg, var(--jim-red), var(--jim-blue)); 
+            transition: width 0.1s; 
         }
 
         .energy-text { 
@@ -208,7 +194,6 @@
             color: white; 
             font-family: 'Bungee'; 
             font-size: 22px; 
-            text-shadow: 1px 1px 3px rgba(0,0,0,0.8);
         }
 
         /* Modal Overlay Systems */
@@ -244,32 +229,19 @@
             font-size: 18px; 
             font-weight: 700; 
             color: white; 
-            transition: all 0.2s ease; 
-        }
-
-        .opt:hover {
-            background: rgba(255,255,255,0.15);
-            transform: translateX(5px);
+            transition: 0.2s; 
         }
 
         .opt.correct-flash { 
             background: var(--jim-green) !important; 
             border-color: white !important; 
             box-shadow: 0 0 20px var(--jim-green); 
-            transform: scale(1.02);
         }
 
         .opt.wrong-flash { 
             background: var(--jim-red) !important; 
             border-color: white !important; 
             box-shadow: 0 0 20px var(--jim-red); 
-            animation: shake 0.4s;
-        }
-
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-10px); }
-            75% { transform: translateX(10px); }
         }
 
         #checkpoint-toast { 
@@ -283,18 +255,17 @@
             opacity: 0; 
             transition: 1s; 
             z-index: 200; 
-            text-shadow: 0 5px 15px rgba(0,0,0,0.5);
         }
 
         #credit-toast {
             position: absolute;
             font-family: 'Bungee';
-            font-size: 30px;
+            font-size: 40px;
             color: var(--jim-gold);
-            pointer-events: none;
             opacity: 0;
             z-index: 10001;
-            text-shadow: 0 2px 10px rgba(0,0,0,0.8);
+            pointer-events: none;
+            text-shadow: 0 5px 15px rgba(0,0,0,0.8);
             transition: all 1s ease-out;
         }
 
@@ -308,30 +279,30 @@
             z-index: 50; 
         }
 
-        /**
-         * ==========================================
-         * ADVANCED SHOP SYSTEM STYLES
-         * ==========================================
-         */
+        /* ==========================================
+           ADVANCED SHOP UI STYLES
+           ========================================== */
         #shop-screen {
-            background: rgba(0,0,0,0.9);
+            background: var(--shop-bg);
             backdrop-filter: blur(30px);
         }
 
         .shop-container {
-            width: 900px;
+            width: 1100px;
             max-width: 95vw;
-            height: 80vh;
+            height: 85vh;
             display: flex;
             flex-direction: column;
+            padding: 30px;
+            border-radius: 30px;
         }
 
         .shop-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 0 20px 20px 20px;
             border-bottom: 2px solid var(--glass-border);
+            padding-bottom: 20px;
             margin-bottom: 20px;
         }
 
@@ -344,83 +315,81 @@
         }
 
         .shop-balance {
-            background: var(--glass-bg);
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid var(--jim-gold);
             padding: 10px 30px;
             border-radius: 30px;
-            border: 1px solid var(--jim-gold);
             font-family: 'Bungee';
-            font-size: 24px;
+            font-size: 28px;
             color: white;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 15px;
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.2);
         }
 
         .shop-grid {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
+            grid-template-columns: repeat(3, 1fr);
             gap: 20px;
             overflow-y: auto;
-            padding-right: 10px;
+            padding-right: 15px;
             padding-bottom: 20px;
         }
 
         .shop-card {
-            background: var(--shop-card-bg);
+            background: rgba(255, 255, 255, 0.05);
             border: 1px solid var(--glass-border);
             border-radius: 20px;
-            padding: 25px;
+            padding: 20px;
             display: flex;
             flex-direction: column;
-            gap: 15px;
-            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
             position: relative;
-            overflow: hidden;
+            transition: all 0.2s;
         }
 
         .shop-card:hover {
             transform: translateY(-5px);
-            border-color: var(--shop-accent);
-            box-shadow: 0 10px 30px rgba(0, 210, 255, 0.15);
-        }
-
-        .shop-card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--jim-blue);
+            box-shadow: 0 10px 25px rgba(0, 210, 255, 0.2);
         }
 
         .shop-item-title {
             font-family: 'Bungee';
-            font-size: 22px;
+            font-size: 20px;
             color: white;
-            margin: 0;
+            margin: 0 0 10px 0;
+            line-height: 1.2;
         }
 
         .shop-item-desc {
             font-size: 14px;
-            color: #aaa;
-            margin: 5px 0 0 0;
-            line-height: 1.4;
+            color: #ccc;
+            margin: 0 0 15px 0;
+            line-height: 1.5;
+            min-height: 45px;
         }
 
         .shop-tier-box {
             display: flex;
             gap: 5px;
-            margin-top: 10px;
+            margin-bottom: 15px;
+            background: rgba(0,0,0,0.3);
+            padding: 8px;
+            border-radius: 8px;
         }
 
         .tier-pip {
-            width: 25px;
+            flex: 1;
             height: 8px;
             background: rgba(255,255,255,0.1);
             border-radius: 4px;
-            transition: 0.3s;
         }
 
         .tier-pip.filled {
-            background: var(--shop-accent);
-            box-shadow: 0 0 10px var(--shop-accent);
+            background: var(--jim-blue);
+            box-shadow: 0 0 10px var(--jim-blue);
         }
 
         .tier-pip.maxed {
@@ -429,36 +398,37 @@
         }
 
         .shop-buy-btn {
-            background: rgba(255,255,255,0.1);
+            background: rgba(0, 0, 0, 0.3);
             border: 1px solid var(--glass-border);
             color: white;
             padding: 15px;
             border-radius: 12px;
             font-family: 'Bungee';
-            font-size: 18px;
+            font-size: 16px;
             cursor: pointer;
-            transition: 0.2s;
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-top: auto;
+            transition: 0.2s;
         }
 
         .shop-buy-btn:hover:not(:disabled) {
-            background: var(--shop-accent);
-            border-color: var(--shop-accent);
-            color: #000;
+            background: var(--jim-blue);
+            border-color: var(--jim-blue);
+            color: black;
         }
 
         .shop-buy-btn:disabled {
-            opacity: 0.5;
+            opacity: 0.4;
             cursor: not-allowed;
-            background: rgba(0,0,0,0.5);
+            background: rgba(0,0,0,0.8);
+            border-color: transparent;
         }
 
-        .shop-close {
+        .shop-close-btn {
             background: transparent;
-            border: 1px solid var(--glass-border);
+            border: 2px solid white;
             color: white;
             padding: 15px 40px;
             border-radius: 30px;
@@ -470,16 +440,17 @@
             transition: 0.2s;
         }
 
-        .shop-close:hover {
+        .shop-close-btn:hover {
             background: white;
             color: black;
         }
 
-        /* Scrollbar custom */
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); border-radius: 4px; }
-        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.4); }
+        /* Scrollbar customization */
+        ::-webkit-scrollbar { width: 10px; }
+        ::-webkit-scrollbar-track { background: rgba(0,0,0,0.3); border-radius: 5px; }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.3); border-radius: 5px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--jim-blue); }
+
     </style>
 </head>
 <body>
@@ -492,10 +463,10 @@
     <div id="start-menu" class="overlay">
         <h1 class="logo">japa jump</h1>
         <p style="color: white; font-weight: 900; letter-spacing: 4px; opacity: 0.9;">SDG 13: CLIMATE ACTION</p>
-        <button class="play-btn" onclick="GameController.beginGame()">START CLIMB</button>
-        <div style="display: flex; gap: 15px;">
-            <button class="instr-btn" onclick="UIController.showInstr(true)">INSTRUCTIONS</button>
-            <button class="shop-open-btn" onclick="ShopSystem.openShop()">ENTER SHOP</button>
+        <button class="play-btn" onclick="beginGame()">START CLIMB</button>
+        <div style="display: flex; gap: 20px; margin-top: 10px;">
+            <button class="instr-btn" onclick="showInstr(true)">INSTRUCTIONS</button>
+            <button class="shop-btn-main" onclick="openShop()">UPGRADE SHOP</button>
         </div>
     </div>
 
@@ -505,26 +476,24 @@
             <p>🏃 <b>MOVE:</b> WASD / Arrows</p>
             <p>🚀 <b>JUMP:</b> Space / W (Double-jump enabled)</p>
             <p>🔥 <b>DEVIL ZONE:</b> 1500m+. Platforms get tiny. Red sky.</p>
-            <p>💰 <b>CREDITS:</b> Earn Carbon Credits by answering quiz questions correctly to buy permanent upgrades.</p>
+            <p>💰 <b>CREDITS:</b> Answer questions right to earn Credits. Spend them in the Shop for permanent upgrades!</p>
             <p>🏁 <b>WIN:</b> Land on the Golden Platform at 2200m.</p>
-            <button class="play-btn" style="width:100%; font-size:24px;" onclick="UIController.showInstr(false)">GOT IT</button>
+            <button class="play-btn" style="width:100%; font-size:24px;" onclick="showInstr(false)">GOT IT</button>
         </div>
     </div>
 
     <div id="shop-screen" class="overlay">
-        <div class="shop-container glass-ui" style="padding: 30px;">
+        <div class="shop-container glass-ui">
             <div class="shop-header">
-                <h2 class="shop-title">UPGRADE TERMINAL</h2>
+                <h2 class="shop-title">TECH SHOP</h2>
                 <div class="shop-balance">
                     <span>CREDITS:</span>
                     <span id="shop-balance-val" class="val-gold">0</span>
                 </div>
             </div>
-            
-            <div class="shop-grid" id="shop-items-container">
+            <div class="shop-grid" id="shop-grid-container">
                 </div>
-            
-            <button class="shop-close" onclick="ShopSystem.closeShop()">RETURN TO MENU</button>
+            <button class="shop-close-btn" onclick="closeShop()">RETURN TO MENU</button>
         </div>
     </div>
 
@@ -534,14 +503,14 @@
         <button class="play-btn" style="background: #ff4b2b; color: white;" onclick="window.close(); alert('Game Closed');">EXIT GAME</button>
     </div>
 
-    <div class="hud">
+    <div class="hud" id="main-hud">
         <div class="hud-card glass-ui"><div class="label">Altitude</div><div id="alt-val" class="value">0m</div></div>
         <div class="hud-card glass-ui"><div class="label">Highscore</div><div id="hi-val" class="value">0m</div></div>
         <div class="hud-card glass-ui"><div class="label">Checkpoint</div><div id="zone-val" class="value">Start</div></div>
-        <div class="hud-card glass-ui hud-currency"><div class="label">Credits</div><div id="cred-val" class="value val-gold">0</div></div>
+        <div class="hud-card glass-ui" style="border: 2px solid var(--jim-gold);"><div class="label">Credits</div><div id="cred-val" class="value val-gold">0</div></div>
     </div>
 
-    <div class="energy-hud">
+    <div class="energy-hud" id="energy-hud">
         <div class="bar-bg">
             <div id="energy-fill"></div>
             <div class="energy-text">ENERGY: <span id="fuel-num">1000</span> / <span id="fuel-max-num">1000</span></div>
@@ -550,9 +519,13 @@
 
     <div id="quiz-overlay">
         <div class="modal glass-ui">
-            <h2 id="modal-title" style="font-family:'Bungee'; margin:0; font-size: 40px;">REFUELING...</h2>
-            <div style="background: rgba(255, 215, 0, 0.2); border: 1px solid var(--jim-gold); border-radius: 10px; padding: 5px 15px; display: inline-block; margin-top: 10px; font-weight: bold; color: var(--jim-gold);">REWARD: +50 CREDITS</div>
-            <p id="q-text" style="font-size: 22px; font-weight: 900; margin: 30px 0; line-height: 1.4;"></p>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h2 id="modal-title" style="font-family:'Bungee'; margin:0; font-size: 40px; color: var(--jim-red);">SYSTEM FAILURE</h2>
+                <div style="background: rgba(255,215,0,0.2); border: 2px solid var(--jim-gold); color: var(--jim-gold); padding: 5px 15px; border-radius: 10px; font-family: 'Bungee';">
+                    REWARD: +<span id="quiz-reward-amt">50</span> CR
+                </div>
+            </div>
+            <p id="q-text" style="font-size: 22px; font-weight: 900; margin: 30px 0;"></p>
             <div id="opt-box"></div>
         </div>
     </div>
@@ -562,19 +535,171 @@
 
 <script>
     /**
-     * @fileoverview Japa Jump - SDG 13 Enterprise Edition with Persistent Shop System
-     * @version 2.5.0
-     * @description Advanced HTML5 Canvas Platformer. Features robust state management, 
-     * localStorage serialization, dynamic procedural generation, and complex AABB physics.
+     * @fileoverview Japa Jump - SDG 13 Climate Action Platformer (Ultimate Edition)
+     * @version 3.0.0
+     * @description Advanced HTML5 Canvas Platformer with integrated educational mechanics, 
+     * robust local storage saving, and a 15-item comprehensive upgrade shop.
      */
 
     // ==========================================
-    // CORE SYSTEM INITIALIZATION
+    // SAVE SYSTEM & DATA PERSISTENCE
+    // ==========================================
+    
+    const SAVE_KEY = 'japa_jump_ultimate_save';
+    
+    const DEFAULT_SAVE = {
+        highscore: 0,
+        credits: 0,
+        upgrades: {
+            solar: 0,       // Reduces idle and movement energy drain
+            boots: 0,       // Increases horizontal sliding/preserves momentum
+            thrusters: 0,   // Increases jump height and lowers jump cost
+            battery: 0,     // Increases maximum energy capacity
+            scrubbers: 0,   // Passively generates credits while running
+            radar: 0,       // Shifts the camera to see further down/up
+            recycler: 0,    // Restores a chunk of energy upon landing safely
+            hazard: 0,      // Reduces the massive energy drain inside the Hell Zone
+            multiplier: 0,  // Increases the credit payout from answering quiz questions
+            hover: 0,       // Slightly reduces gravity to make falling slower
+            bypass: 0,      // Grants a percentage chance to instantly bypass a quiz failure
+            speed: 0,       // Increases the maximum terminal velocity for moving left/right
+            magnet: 0,      // Generates free energy platforms randomly
+            plating: 0,     // Allows the player to hit the void once without dying (resets)
+            cooling: 0      // Reduces the energy penalty for double jumping specifically
+        }
+    };
+
+    let gameSave = JSON.parse(localStorage.getItem(SAVE_KEY)) || {};
+    // Ensure all keys exist to prevent undefined errors when updating code
+    gameSave = { ...DEFAULT_SAVE, ...gameSave, upgrades: { ...DEFAULT_SAVE.upgrades, ...gameSave.upgrades } };
+
+    function saveGame() {
+        localStorage.setItem(SAVE_KEY, JSON.stringify(gameSave));
+        updateHUDValues();
+    }
+
+    function addCredits(amt) {
+        gameSave.credits += amt;
+        saveGame();
+    }
+
+    function spendCredits(amt) {
+        if (gameSave.credits >= amt) {
+            gameSave.credits -= amt;
+            saveGame();
+            return true;
+        }
+        return false;
+    }
+
+    // ==========================================
+    // 15-ITEM SHOP CONFIGURATION
+    // ==========================================
+    
+    const SHOP_ITEMS = {
+        solar: { name: 'Solar Panels', desc: 'Reduces overall energy drain over time.', max: 5, baseCost: 100, costMult: 1.5, getEffect: t => 1.0 - (t * 0.1) },
+        boots: { name: 'Kinetic Mag-Boots', desc: 'Improves friction, allowing you to slide further.', max: 5, baseCost: 150, costMult: 1.6, getEffect: t => 0.82 + (t * 0.02) },
+        thrusters: { name: 'Ion Thrusters', desc: 'Increases jump power and lowers jump energy cost.', max: 5, baseCost: 200, costMult: 1.8, getEffect: t => ({ force: t * 1.5, costSave: t * 3 }) },
+        battery: { name: 'Supercapacitor', desc: 'Expands maximum energy core capacity.', max: 5, baseCost: 250, costMult: 2.0, getEffect: t => 1000 + (t * 300) },
+        scrubbers: { name: 'Carbon Scrubbers', desc: 'Passively prints Credits while you are moving.', max: 5, baseCost: 300, costMult: 2.2, getEffect: t => t * 0.05 },
+        radar: { name: 'Quantum Radar', desc: 'Shifts the camera to see platforms further ahead.', max: 3, baseCost: 350, costMult: 2.0, getEffect: t => t * 40 },
+        recycler: { name: 'Kinetic Recycler', desc: 'Restores a burst of energy every time you land safely.', max: 5, baseCost: 400, costMult: 1.9, getEffect: t => t * 15 },
+        hazard: { name: 'Hazard Shielding', desc: 'Reduces the extreme energy penalty inside the Hell Zone.', max: 3, baseCost: 800, costMult: 2.5, getEffect: t => 1.0 - (t * 0.2) },
+        multiplier: { name: 'Credit Multiplier', desc: 'Increases the Credit reward from Quiz Terminals.', max: 5, baseCost: 1000, costMult: 2.5, getEffect: t => 1.0 + (t * 0.5) },
+        hover: { name: 'Hover Tech', desc: 'Slightly reduces gravity, extending your airtime.', max: 3, baseCost: 600, costMult: 2.0, getEffect: t => t * 0.05 },
+        bypass: { name: 'Auto-Bypass', desc: 'Percentage chance to instantly pass a Quiz without answering.', max: 4, baseCost: 1200, costMult: 3.0, getEffect: t => t * 0.10 },
+        speed: { name: 'Aero-Suit', desc: 'Increases the maximum horizontal movement speed limit.', max: 4, baseCost: 500, costMult: 1.8, getEffect: t => 14 + (t * 1.5) },
+        magnet: { name: 'Platform Magnet', desc: 'Makes platforms slightly wider automatically.', max: 3, baseCost: 700, costMult: 2.0, getEffect: t => t * 15 },
+        plating: { name: 'Void Plating', desc: 'Restores a small amount of energy instantly if you hit the void.', max: 3, baseCost: 1500, costMult: 2.5, getEffect: t => t * 100 },
+        cooling: { name: 'Cooling System', desc: 'Specifically reduces the massive cost of Double Jumping.', max: 5, baseCost: 450, costMult: 1.7, getEffect: t => t * 4 }
+    };
+
+    function calculateCost(id) {
+        const item = SHOP_ITEMS[id];
+        const tier = gameSave.upgrades[id];
+        if (tier >= item.max) return -1;
+        return Math.floor(item.baseCost * Math.pow(item.costMult, tier));
+    }
+
+    function buyUpgrade(id) {
+        const cost = calculateCost(id);
+        if (cost !== -1 && spendCredits(cost)) {
+            gameSave.upgrades[id]++;
+            saveGame();
+            renderShop();
+            
+            // Visual feedback inside the shop
+            for(let i=0; i<30; i++) {
+                game.confetti.push({
+                    x: window.innerWidth / 2 + (Math.random() - 0.5) * 400,
+                    y: window.innerHeight / 2 + (Math.random() - 0.5) * 400,
+                    s: 5 + Math.random() * 8,
+                    v: -5 + Math.random() * 10,
+                    vx: (Math.random() - 0.5) * 10,
+                    c: `hsl(${Math.random() * 60 + 40}, 100%, 60%)`, // Gold/Yellow spectrum
+                    life: 1.0
+                });
+            }
+            if(!game.active) requestAnimationFrame(renderShopConfetti);
+        }
+    }
+
+    function renderShop() {
+        const container = document.getElementById('shop-grid-container');
+        container.innerHTML = '';
+        
+        document.getElementById('shop-balance-val').innerText = Math.floor(gameSave.credits);
+
+        Object.keys(SHOP_ITEMS).forEach(key => {
+            const item = SHOP_ITEMS[key];
+            const currentTier = gameSave.upgrades[key];
+            const cost = calculateCost(key);
+            const isMax = currentTier >= item.max;
+            const canAfford = !isMax && gameSave.credits >= cost;
+
+            let pipsHTML = '';
+            for(let i = 0; i < item.max; i++) {
+                let pipClass = 'tier-pip';
+                if (i < currentTier) {
+                    pipClass += isMax ? ' maxed' : ' filled';
+                }
+                pipsHTML += `<div class="${pipClass}"></div>`;
+            }
+
+            const card = document.createElement('div');
+            card.className = 'shop-card';
+            card.innerHTML = `
+                <div style="display: flex; justify-content: space-between;">
+                    <h3 class="shop-item-title">${item.name}</h3>
+                </div>
+                <div class="shop-tier-box">${pipsHTML}</div>
+                <p class="shop-item-desc">${item.desc}</p>
+                <button class="shop-buy-btn" onclick="buyUpgrade('${key}')" ${(!canAfford || isMax) ? 'disabled' : ''}>
+                    <span>${isMax ? 'MAXED OUT' : 'UPGRADE'}</span>
+                    <span style="color: ${isMax ? '#666' : 'var(--jim-gold)'}; font-weight: bold;">
+                        ${isMax ? '---' : cost + ' CR'}
+                    </span>
+                </button>
+            `;
+            container.appendChild(card);
+        });
+    }
+
+    function openShop() {
+        renderShop();
+        document.getElementById('shop-screen').style.display = 'flex';
+    }
+
+    function closeShop() {
+        document.getElementById('shop-screen').style.display = 'none';
+    }
+
+    // ==========================================
+    // ENGINE INITIALIZATION
     // ==========================================
     const canvas = document.getElementById('stage');
     const ctx = canvas.getContext('2d');
     
-    // Responsive dynamic viewport scaling
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 
@@ -583,246 +708,11 @@
         canvas.height = window.innerHeight;
     });
 
-    /**
-     * Mathematical & Procedural Generation Utilities
-     */
-    class MathUtils {
-        static lerp(start, end, amt) {
-            return (1 - amt) * start + amt * end;
-        }
-        static clamp(val, min, max) {
-            return Math.min(Math.max(val, min), max);
-        }
-    }
-
-    // ==========================================
-    // DATA PERSISTENCE & SAVE MANAGEMENT
-    // ==========================================
-    
-    /**
-     * Singleton class managing local storage serialization and deserialization.
-     * Handles Highscores, Currency, and Shop Upgrade states.
-     */
-    class SaveManager {
-        constructor() {
-            this.saveKey = 'japa_jump_enterprise_save_v1';
-            this.defaultState = {
-                highscore: 0,
-                credits: 0,
-                upgrades: {
-                    solar: 0,      // Reduces energy drain
-                    boots: 0,      // Better momentum conservation (friction)
-                    thrusters: 0,  // Increases jump height / lowers cost
-                    battery: 0     // Increases maximum energy capacity
-                }
-            };
-            this.data = this.load();
-        }
-
-        load() {
-            try {
-                const stored = localStorage.getItem(this.saveKey);
-                if (stored) {
-                    // Merge saved data with default schema to prevent undefined errors on updates
-                    return { ...this.defaultState, ...JSON.parse(stored), upgrades: { ...this.defaultState.upgrades, ...JSON.parse(stored).upgrades } };
-                }
-            } catch (e) {
-                console.error("Save file corrupted. Loading defaults.", e);
-            }
-            return JSON.parse(JSON.stringify(this.defaultState));
-        }
-
-        save() {
-            localStorage.setItem(this.saveKey, JSON.stringify(this.data));
-            this.updateHUD();
-        }
-
-        addCredits(amount) {
-            this.data.credits += amount;
-            this.save();
-        }
-
-        spendCredits(amount) {
-            if (this.data.credits >= amount) {
-                this.data.credits -= amount;
-                this.save();
-                return true;
-            }
-            return false;
-        }
-
-        updateHUD() {
-            document.getElementById('hi-val').innerText = this.data.highscore + 'm';
-            document.getElementById('cred-val').innerText = this.data.credits;
-            document.getElementById('shop-balance-val').innerText = this.data.credits;
-        }
-    }
-    
-    const SaveSystem = new SaveManager();
-
-    // ==========================================
-    // SHOP CONFIGURATION & LOGIC
-    // ==========================================
-    
-    /**
-     * Enterprise Configuration mapping for all purchasable upgrades.
-     * Defines maximum tiers, cost scaling algorithms, and mechanical impact functions.
-     */
-    const SHOP_CONFIG = {
-        solar: {
-            id: 'solar',
-            name: 'Monocrystalline Solar Panels',
-            desc: 'Advanced photovoltaic cells attached to your suit. Reduces idle and movement energy drain.',
-            maxTier: 5,
-            baseCost: 100,
-            costMult: 1.8,
-            // Effect: Returns the multiplier for energy drain (e.g., Level 5 = 50% drain reduction)
-            getEffect: (tier) => 1.0 - (tier * 0.10) 
-        },
-        boots: {
-            id: 'boots',
-            name: 'Kinetic Mag-Boots',
-            desc: 'Enhances horizontal momentum preservation. Slide further and maintain speed easier.',
-            maxTier: 5,
-            baseCost: 150,
-            costMult: 1.6,
-            // Effect: Adjusts the base friction of 0.82 closer to 1.0 (Level 5 = 0.92 friction)
-            getEffect: (tier) => 0.82 + (tier * 0.02)
-        },
-        thrusters: {
-            id: 'thrusters',
-            name: 'Ion Plasma Thrusters',
-            desc: 'Upgrades vertical propulsion systems. Jump higher while burning slightly less energy.',
-            maxTier: 5,
-            baseCost: 200,
-            costMult: 2.0,
-            // Effect: Object containing jump force boost and energy cost reduction
-            getEffect: (tier) => ({
-                jumpBoost: tier * 1.2,    // Adds up to -6.0 to vy
-                energySave: tier * 3      // Saves up to 15 energy per jump
-            })
-        },
-        battery: {
-            id: 'battery',
-            name: 'Graphene Supercapacitor',
-            desc: 'Expands the maximum volumetric capacity of your main energy core.',
-            maxTier: 5,
-            baseCost: 250,
-            costMult: 2.2,
-            // Effect: Adds flat capacity to the base 1000 max energy (Level 5 = 2500 max energy)
-            getEffect: (tier) => 1000 + (tier * 300)
-        }
-    };
-
-    class ShopController {
-        constructor() {
-            this.container = document.getElementById('shop-items-container');
-            this.buildUI();
-        }
-
-        openShop() {
-            this.buildUI(); // Rebuild to ensure buttons are correctly enabled/disabled based on current credits
-            document.getElementById('shop-screen').style.display = 'flex';
-        }
-
-        closeShop() {
-            document.getElementById('shop-screen').style.display = 'none';
-        }
-
-        calculateCost(key) {
-            const config = SHOP_CONFIG[key];
-            const currentTier = SaveSystem.data.upgrades[key];
-            if (currentTier >= config.maxTier) return "MAX";
-            return Math.floor(config.baseCost * Math.pow(config.costMult, currentTier));
-        }
-
-        purchaseUpgrade(key) {
-            const config = SHOP_CONFIG[key];
-            const currentTier = SaveSystem.data.upgrades[key];
-            
-            if (currentTier >= config.maxTier) return;
-            
-            const cost = this.calculateCost(key);
-            
-            if (SaveSystem.spendCredits(cost)) {
-                SaveSystem.data.upgrades[key]++;
-                SaveSystem.save();
-                this.buildUI(); // Refresh UI
-                
-                // Visual feedback
-                this.triggerPurchaseVFX();
-            }
-        }
-
-        triggerPurchaseVFX() {
-            for(let i = 0; i < 50; i++) {
-                game.confetti.push({
-                    x: (window.innerWidth / 2) + ((Math.random() - 0.5) * 500), 
-                    y: (window.innerHeight / 2) + ((Math.random() - 0.5) * 500),
-                    s: 4 + Math.random() * 8,
-                    v: -10 + Math.random() * 20,
-                    vx: (Math.random() - 0.5) * 15,
-                    c: `hsl(50, 100%, ${50 + Math.random() * 50}%)`, // Gold variants
-                    life: 1.0
-                });
-            }
-            requestAnimationFrame(renderConfettiOnly);
-        }
-
-        buildUI() {
-            this.container.innerHTML = '';
-            
-            Object.keys(SHOP_CONFIG).forEach(key => {
-                const config = SHOP_CONFIG[key];
-                const currentTier = SaveSystem.data.upgrades[key];
-                const isMax = currentTier >= config.maxTier;
-                const cost = this.calculateCost(key);
-                const canAfford = !isMax && SaveSystem.data.credits >= cost;
-
-                // Generate Tier Pips
-                let pipsHTML = '';
-                for(let i = 0; i < config.maxTier; i++) {
-                    let classes = 'tier-pip';
-                    if (i < currentTier) classes += isMax ? ' maxed' : ' filled';
-                    pipsHTML += `<div class="${classes}"></div>`;
-                }
-
-                const cardHTML = `
-                    <div class="shop-card">
-                        <div class="shop-card-header">
-                            <div>
-                                <h3 class="shop-item-title">${config.name}</h3>
-                                <div class="shop-tier-box">${pipsHTML}</div>
-                            </div>
-                        </div>
-                        <p class="shop-item-desc">${config.desc}</p>
-                        <button class="shop-buy-btn" 
-                                onclick="ShopSystem.purchaseUpgrade('${key}')" 
-                                ${(!canAfford || isMax) ? 'disabled' : ''}>
-                            <span>${isMax ? 'SYSTEM MAXED' : 'UPGRADE'}</span>
-                            <span style="color: ${isMax ? '#aaa' : 'var(--jim-gold)'}">
-                                ${isMax ? '---' : cost + ' CR'}
-                            </span>
-                        </button>
-                    </div>
-                `;
-                
-                this.container.insertAdjacentHTML('beforeend', cardHTML);
-            });
-        }
-    }
-    
-    const ShopSystem = new ShopController();
-
-    // ==========================================
-    // GAME STATE & ENTITY DATA
-    // ==========================================
-    
     let game = {
         active: false, 
         quizActive: false,
         energy: 1000, 
-        maxEnergy: 1000, // Dynamic based on upgrades
+        maxEnergy: 1000,
         score: 0, 
         camX: 0, 
         camY: 19500,
@@ -845,6 +735,7 @@
         walk: 0, 
         canDJ: true, 
         onG: false,
+        platformVelocity: 0, 
         lastSafeX: 2500, 
         lastSafeY: 19800
     };
@@ -905,336 +796,300 @@
         { q: "What color is SDG 13?", a: ["Dark Green", "Red", "Blue"], c: 0 }
     ];
 
-    // ==========================================
-    // UI & MENU MANAGEMENT CONTROLLERS
-    // ==========================================
-    
-    class UIController {
-        static showInstr(isVisible) { 
-            document.getElementById('instr-screen').style.display = isVisible ? 'flex' : 'none'; 
-        }
-
-        static triggerCPToast(h) {
-            const toast = document.getElementById('checkpoint-toast');
-            toast.innerText = h + "m REACHED"; 
-            toast.style.opacity = 1;
-            if(game.hellMode) {
-                toast.style.color = "red";
-            }
-            setTimeout(() => toast.style.opacity = 0, 2000);
-            document.getElementById('zone-val').innerText = h + "m";
-        }
-
-        static triggerCreditToast(amount) {
-            const toast = document.getElementById('credit-toast');
-            toast.innerText = `+${amount} CREDITS`;
-            
-            // Randomize position near center
-            const rx = (window.innerWidth / 2) + ((Math.random() - 0.5) * 200);
-            const ry = (window.innerHeight / 2) + ((Math.random() - 0.5) * 100);
-            
-            toast.style.left = rx + 'px';
-            toast.style.top = ry + 'px';
-            
-            toast.style.opacity = 1;
-            toast.style.transform = 'translateY(-50px) scale(1.2)';
-            
-            setTimeout(() => {
-                toast.style.opacity = 0;
-                toast.style.transform = 'translateY(-100px) scale(1)';
-            }, 1500);
-        }
+    function showInstr(s) { 
+        document.getElementById('instr-screen').style.display = s ? 'flex' : 'none'; 
     }
 
-    // ==========================================
-    // GAMEPLAY CONTROLLERS
-    // ==========================================
-
-    class GameController {
-        static generateLevel() {
-            game.platforms = [];
-            game.platforms.push({x: 2350, y: 19950, w: 300, h: 50, color: '#2ecc71'});
-            
-            let currentY = 19800;
-            let lastX = 2500;
-            
-            for(let i = 0; i < 1500; i++) {
-                let alt = Math.abs(Math.floor((currentY - 19800) / 10));
-                
-                let isHell = alt > 1500;
-                let isFinal = alt >= 2200;
-                
-                let pWidth = isFinal ? 400 : (isHell ? (45 + Math.random() * 10) : (80 + Math.random() * 30));
-                let verticalGap = (isHell) ? 210 : (150 + Math.random() * 80);
-                let horizontalDrift = isHell ? 350 : 550;
-                
-                let randomX = isFinal ? 2300 : lastX + (Math.random() * (horizontalDrift * 2) - horizontalDrift);
-                
-                if (randomX < 1100) randomX = 1300; 
-                if (randomX > 3900) randomX = 3700;
-                
-                game.platforms.push({ 
-                    x: randomX, 
-                    y: currentY, 
-                    w: pWidth, 
-                    h: 32, 
-                    color: isFinal ? 'gold' : (isHell ? '#ff1a1a' : '#fff'),
-                    isHell: isHell, 
-                    isFinal: isFinal
-                });
-                
-                if(isFinal) break; 
-                
-                lastX = randomX; 
-                currentY -= verticalGap; 
-            }
-        }
-
-        static beginGame() {
-            document.getElementById('start-menu').style.display = 'none';
-            this.generateLevel();
-            
-            // Initialize dynamic stats based on Shop Upgrades
-            const batteryTier = SaveSystem.data.upgrades.battery;
-            game.maxEnergy = SHOP_CONFIG.battery.getEffect(batteryTier);
-            game.energy = game.maxEnergy;
-            
-            document.getElementById('fuel-max-num').innerText = Math.floor(game.maxEnergy);
-            
-            SaveSystem.updateHUD(); // Set initial highscore and credits
-            
-            game.active = true;
-            requestAnimationFrame(updateLoop);
-        }
-
-        static spawnConfetti() {
-            for(let i = 0; i < 100; i++) {
-                game.confetti.push({
-                    x: Math.random() * canvas.width, 
-                    y: -20,
-                    s: 5 + Math.random() * 10,
-                    v: 2 + Math.random() * 5,
-                    vx: (Math.random() - 0.5) * 4,
-                    c: `hsl(${Math.random() * 360}, 70%, 60%)`,
-                    life: 1.0
-                });
-            }
-        }
-    }
-
-    // ==========================================
-    // CORE PHYSICS & LOGIC LOOP
-    // ==========================================
-    
-    // Input bindings
-    window.onkeydown = e => { 
-        if(["ArrowUp","Space","ArrowLeft","ArrowRight","KeyW","KeyA","KeyS","KeyD"].includes(e.code)) {
-            e.preventDefault(); 
-        }
-        game.keys[e.code] = true; 
-    };
-    
-    window.onkeyup = e => {
-        game.keys[e.code] = false;
-    };
-
-    function updateLoop() {
-        if(!game.active || game.quizActive) return;
+    function generateLevel() {
+        game.platforms = [];
         
-        // Hell Mode Environmental Trigger
+        // Fetch Magnet Upgrade value
+        const magnetBonus = SHOP_ITEMS.magnet.getEffect(gameSave.upgrades.magnet);
+
+        game.platforms.push({x: 2350, y: 19950, w: 300 + magnetBonus, h: 50, color: '#2ecc71'});
+        
+        let cy = 19800;
+        let lastX = 2500;
+        
+        for(let i=0; i < 1500; i++) {
+            let alt = Math.abs(Math.floor((cy - 19800)/10));
+            let isHell = alt > 1500;
+            let isFinal = alt >= 2200;
+            
+            let pW = isFinal ? 400 : (isHell ? (45 + Math.random() * 10) : (80 + Math.random() * 30));
+            pW += magnetBonus; // Apply shop upgrade
+
+            let verticalGap = (isHell) ? 210 : (150 + Math.random() * 80);
+            let drift = isHell ? 350 : 550;
+            let rx = isFinal ? 2300 : lastX + (Math.random() * (drift * 2) - drift);
+            
+            if (rx < 1100) rx = 1300; 
+            if (rx > 3900) rx = 3700;
+            
+            game.platforms.push({ 
+                x: rx, y: cy, w: pW, h: 32, 
+                color: isFinal ? 'gold' : (isHell ? '#ff1a1a' : '#fff'),
+                isHell: isHell, isFinal: isFinal
+            });
+            if(isFinal) break; 
+            lastX = rx; cy -= verticalGap; 
+        }
+    }
+
+    function beginGame() {
+        document.getElementById('start-menu').style.display = 'none';
+        
+        // Apply max energy from Shop Upgrades
+        game.maxEnergy = SHOP_ITEMS.battery.getEffect(gameSave.upgrades.battery);
+        game.energy = game.maxEnergy;
+        
+        document.getElementById('fuel-max-num').innerText = game.maxEnergy;
+        
+        generateLevel();
+        game.active = true;
+        
+        updateHUDValues();
+        requestAnimationFrame(update);
+    }
+
+    function spawnConfetti() {
+        for(let i=0; i<100; i++) {
+            game.confetti.push({
+                x: Math.random() * canvas.width, y: -20,
+                s: 5 + Math.random() * 10,
+                v: 2 + Math.random() * 5,
+                vx: (Math.random() - 0.5) * 4,
+                c: `hsl(${Math.random() * 360}, 70%, 60%)`,
+                life: 1.0
+            });
+        }
+    }
+
+    // Secondary loop for shop particles when paused
+    function renderShopConfetti() {
+        if(game.active) return;
+        ctx.clearRect(0,0, canvas.width, canvas.height);
+        let alive = false;
+        game.confetti.forEach((c, i) => {
+            c.x += c.vx; c.y += c.v; c.life -= 0.015;
+            if (c.life > 0 && c.y < canvas.height) {
+                alive = true;
+                ctx.globalAlpha = Math.max(0, c.life);
+                ctx.fillStyle = c.c;
+                ctx.fillRect(c.x, c.y, c.s, c.s);
+            } else {
+                game.confetti.splice(i, 1);
+            }
+        });
+        ctx.globalAlpha = 1.0;
+        if(alive) requestAnimationFrame(renderShopConfetti);
+    }
+
+    function update() {
+        if(!game.active || game.quizActive) return;
+
+        // Apply Global Shop Modifiers
+        const solarMod = SHOP_ITEMS.solar.getEffect(gameSave.upgrades.solar);
+        const bootMod = SHOP_ITEMS.boots.getEffect(gameSave.upgrades.boots);
+        const thrustMod = SHOP_ITEMS.thrusters.getEffect(gameSave.upgrades.thrusters);
+        const scrubMod = SHOP_ITEMS.scrubbers.getEffect(gameSave.upgrades.scrubbers);
+        const radarMod = SHOP_ITEMS.radar.getEffect(gameSave.upgrades.radar);
+        const recyMod = SHOP_ITEMS.recycler.getEffect(gameSave.upgrades.recycler);
+        const hazMod = SHOP_ITEMS.hazard.getEffect(gameSave.upgrades.hazard);
+        const hovMod = SHOP_ITEMS.hover.getEffect(gameSave.upgrades.hover);
+        const speedLimit = SHOP_ITEMS.speed.getEffect(gameSave.upgrades.speed);
+        const coolMod = SHOP_ITEMS.cooling.getEffect(gameSave.upgrades.cooling);
+
         if (game.score >= 1500 && !game.hellMode) {
             game.hellMode = true;
             document.getElementById('app').style.background = 'var(--jim-hell)';
             document.getElementById('vignette').style.opacity = '1';
         }
+
+        window.onkeydown = e => { 
+            if(["ArrowUp","Space","ArrowLeft","ArrowRight","KeyW","KeyA","KeyS","KeyD"].includes(e.code)) e.preventDefault(); 
+            game.keys[e.code] = true; 
+        };
+        window.onkeyup = e => game.keys[e.code] = false;
+
+        const left = game.keys['ArrowLeft'] || game.keys['KeyA'];
+        const right = game.keys['ArrowRight'] || game.keys['KeyD'];
         
-        // Fetch dynamic stats from Shop System
-        const solarTier = SaveSystem.data.upgrades.solar;
-        const bootsTier = SaveSystem.data.upgrades.boots;
-        const thrustersTier = SaveSystem.data.upgrades.thrusters;
-        
-        const energyDrainMod = SHOP_CONFIG.solar.getEffect(solarTier);
-        const frictionMod = SHOP_CONFIG.boots.getEffect(bootsTier);
-        const thrusterEffect = SHOP_CONFIG.thrusters.getEffect(thrustersTier);
-        
-        // Horizontal Physics & Input Handling
-        const leftInput = game.keys['ArrowLeft'] || game.keys['KeyA'];
-        const rightInput = game.keys['ArrowRight'] || game.keys['KeyD'];
-        
-        if(leftInput || rightInput) {
-            game.energy -= (0.38 * energyDrainMod); 
-            player.vx = leftInput ? -12 : 12; 
-            player.facing = leftInput ? -1 : 1; 
+        let hellDrainMult = game.hellMode ? hazMod : 1.0; // Apply hazard shield in Hell Mode
+
+        if(left || right) {
+            game.energy -= (0.38 * solarMod * hellDrainMult); 
+            player.vx += left ? -1.5 : 1.5; 
+            player.facing = left ? -1 : 1; 
             player.walk += 0.35;
+            
+            // Passive Scrubber Income
+            if(Math.random() < 0.05 && scrubMod > 0) {
+                addCredits(scrubMod);
+            }
         } else { 
-            // Apply Upgraded Friction
-            player.vx *= frictionMod; 
+            player.vx *= (player.onG ? bootMod : 0.95); // Apply boots only on ground
             player.walk = 0; 
-            game.energy -= (0.05 * energyDrainMod); 
+            game.energy -= (0.05 * solarMod * hellDrainMult); 
         }
-        
+
+        // Clamp to Upgraded Speed Limit
+        player.vx = Math.min(Math.max(player.vx, -speedLimit), speedLimit);
+
         player.x += player.vx; 
-        player.vy += 0.8; // Gravity constant
+        
+        // Gravity with Hover Modification
+        player.vy += (0.8 - hovMod); 
         player.y += player.vy;
         
-        // Collision Detection System (AABB Intersects)
         player.onG = false;
+
         game.platforms.forEach(p => {
-            if(player.vy > 0 && 
-               player.x + 40 > p.x && 
-               player.x < p.x + p.w && 
-               player.y + player.h > p.y && 
-               player.y + player.h < p.y + p.h + 20) {
+            if(player.vy > 0 && player.x + 40 > p.x && player.x < p.x + p.w && player.y + player.h > p.y && player.y + player.h < p.y + p.h + 20) {
                 
+                // Recycler Upgrade Effect (Trigger once per landing)
+                if(!player.onG && recyMod > 0) {
+                    game.energy = Math.min(game.maxEnergy, game.energy + recyMod);
+                }
+
                 player.y = p.y - player.h; 
                 player.vy = 0; 
                 player.onG = true; 
                 player.canDJ = true;
                 
-                // Win Condition Check
                 if(p.isFinal) { 
                     game.active = false; 
-                    GameController.spawnConfetti();
+                    spawnConfetti();
                     document.getElementById('win-screen').style.display = 'flex';
                 }
-                
-                // Checkpoint Management Logic
-                let currentAltitude = Math.abs(Math.floor((player.y - 19800) / 10));
-                if (currentAltitude >= game.lastCPHeight + 500) {
-                    game.lastCPHeight = Math.floor(currentAltitude / 500) * 500;
-                    player.lastSafeX = p.x + p.w / 2; 
+
+                let cur = Math.abs(Math.floor((player.y - 19800)/10));
+                if (cur >= game.lastCPHeight + 500) {
+                    game.lastCPHeight = Math.floor(cur / 500) * 500;
+                    player.lastSafeX = p.x + p.w/2; 
                     player.lastSafeY = p.y;
                     game.voidLevel = p.y + 750; 
-                    UIController.triggerCPToast(game.lastCPHeight);
+                    triggerCPToast(game.lastCPHeight);
                 }
             }
         });
-        
-        // Vertical Physics (Upgraded Jumping mechanics)
-        const jumpInput = game.keys['ArrowUp'] || game.keys['Space'] || game.keys['KeyW'];
-        if(jumpInput && !game.keys.locked) {
+
+        // Upgraded Jump Physics
+        const jump = game.keys['ArrowUp'] || game.keys['Space'] || game.keys['KeyW'];
+        if(jump && !game.keys.locked) {
             if(player.onG) { 
-                player.vy = -18.5 - thrusterEffect.jumpBoost; 
-                game.energy -= Math.max(5, 20 - thrusterEffect.energySave); 
-            } else if(player.canDJ) { 
-                player.vy = -16 - (thrusterEffect.jumpBoost * 0.8); 
+                player.vy = -18.5 - thrustMod.force; 
+                game.energy -= Math.max(5, 20 - thrustMod.costSave); 
+            }
+            else if(player.canDJ) { 
+                player.vy = -16 - (thrustMod.force * 0.8); 
                 player.canDJ = false; 
-                game.energy -= Math.max(10, 28 - thrusterEffect.energySave); 
+                game.energy -= Math.max(5, 28 - thrustMod.costSave - coolMod); 
             }
             game.keys.locked = true;
         }
-        if(!jumpInput) game.keys.locked = false;
-        
-        // Camera Lerping (Linear Interpolation)
+        if(!jump) game.keys.locked = false;
+
+        // Camera Lerping with Radar Offset
         game.camX += (player.x - canvas.width/2 - game.camX) * 0.1;
-        game.camY += (player.y - canvas.height/2 - game.camY) * 0.1;
-        
-        // Void Death & Checkpoint Respawn
+        game.camY += (player.y - canvas.height/2 + radarMod - game.camY) * 0.1;
+
         if(player.y > game.voidLevel) { 
-            game.energy = 0; 
+            // Plating check
+            let plateRestore = SHOP_ITEMS.plating.getEffect(gameSave.upgrades.plating);
+            if(plateRestore > 0) {
+                game.energy = plateRestore; // Sets to a fixed survival amount instead of 0
+                showCreditToast("VOID PLATING ACTIVATED");
+            } else {
+                game.energy = 0; 
+            }
             player.x = player.lastSafeX - 25; 
             player.y = player.lastSafeY - 60; 
             player.vx = 0; 
             player.vy = 0;
         }
-        
-        // Energy Depletion Trigger
+
         if(game.energy <= 0) { 
             triggerQuiz(); 
             return; 
         }
-        
-        // Score & Highscore updating via SaveSystem
-        game.score = Math.abs(Math.floor((player.y - 19800) / 10));
-        if(game.score > SaveSystem.data.highscore) {
-            SaveSystem.data.highscore = game.score;
-            SaveSystem.save(); // Persist instantly
+
+        game.score = Math.abs(Math.floor((player.y - 19800)/10));
+        if(game.score > gameSave.highscore) {
+            gameSave.highscore = game.score;
+            saveGame();
         }
-        
-        // Execute render cycle
-        renderGame();
-        requestAnimationFrame(updateLoop);
+
+        draw();
+        requestAnimationFrame(update);
     }
 
-    // ==========================================
-    // RENDER ENGINE
-    // ==========================================
-    
-    function renderGame() {
+    function triggerCPToast(h) {
+        const toast = document.getElementById('checkpoint-toast');
+        toast.innerText = h + "m REACHED"; 
+        toast.style.opacity = 1;
+        if(game.hellMode) toast.style.color = "red";
+        setTimeout(() => toast.style.opacity = 0, 2000);
+        document.getElementById('zone-val').innerText = h + "m";
+    }
+
+    function showCreditToast(msg) {
+        const toast = document.getElementById('credit-toast');
+        toast.innerText = msg;
+        
+        toast.style.left = (window.innerWidth / 2 + (Math.random() - 0.5) * 200) + 'px';
+        toast.style.top = (window.innerHeight / 2 + (Math.random() - 0.5) * 100) + 'px';
+        
+        toast.style.opacity = 1;
+        toast.style.transform = 'translateY(-50px)';
+        
+        setTimeout(() => { 
+            toast.style.opacity = 0; 
+            toast.style.transform = 'translateY(-100px)';
+        }, 1500);
+    }
+
+    function updateHUDValues() {
+        document.getElementById('hi-val').innerText = gameSave.highscore + 'm';
+        document.getElementById('cred-val').innerText = Math.floor(gameSave.credits);
+        document.getElementById('shop-balance-val').innerText = Math.floor(gameSave.credits);
+    }
+
+    function draw() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         
-        // Render platforms with frustum culling optimization
         game.platforms.forEach(o => {
-            let sx = o.x - game.camX;
-            let sy = o.y - game.camY;
-            
+            let sx = o.x - game.camX, sy = o.y - game.camY;
             if(sy < -300 || sy > canvas.height + 300) return;
             
             ctx.fillStyle = o.color; 
+            if(o.isHell) { ctx.shadowBlur = 20; ctx.shadowColor = "red"; }
+            if(o.isFinal) { ctx.shadowBlur = 40; ctx.shadowColor = "gold"; }
             
-            if(o.isHell) { 
-                ctx.shadowBlur = 20; 
-                ctx.shadowColor = "red"; 
-            }
-            if(o.isFinal) { 
-                ctx.shadowBlur = 40; 
-                ctx.shadowColor = "gold"; 
-            }
-            
-            ctx.fillRect(sx, sy, o.w, o.h); 
-            ctx.shadowBlur = 0;
-            
-            ctx.fillStyle = "rgba(0,0,0,0.3)"; 
-            ctx.fillRect(sx, sy + o.h/2, o.w, o.h/2);
+            ctx.fillRect(sx, sy, o.w, o.h); ctx.shadowBlur = 0;
+            ctx.fillStyle = "rgba(0,0,0,0.3)"; ctx.fillRect(sx, sy + o.h/2, o.w, o.h/2);
         });
         
-        // Render Player Avatar via transformation matrix
         ctx.save();
         ctx.translate(player.x - game.camX + player.w/2, player.y - game.camY + player.h/2);
         ctx.scale(player.facing, 1);
-        
-        // Body Base
-        ctx.fillStyle = game.hellMode ? "#1a1a1a" : "#4CAF50"; 
-        ctx.beginPath(); 
-        ctx.roundRect(-25, -25, 50, 50, 12); 
-        ctx.fill();
-        
-        // Visor/Mask
-        ctx.fillStyle = game.hellMode ? "#800" : "#FF9800"; 
-        ctx.fillRect(-28, -28, 56, 18);
-        
-        // Animation cycle calculation
+        ctx.fillStyle = game.hellMode ? "#1a1a1a" : "#4CAF50"; ctx.beginPath(); ctx.roundRect(-25, -25, 50, 50, 12); ctx.fill();
+        ctx.fillStyle = game.hellMode ? "#800" : "#FF9800"; ctx.fillRect(-28, -28, 56, 18);
         let leg = Math.sin(player.walk) * 15;
+        ctx.fillStyle = "#111"; ctx.fillRect(-18, 18, 14, 15 + leg); ctx.fillRect(4, 18, 14, 15 - leg);
+        ctx.fillStyle = game.hellMode ? "red" : "white"; ctx.fillRect(10, -5, 8, 8); ctx.fillRect(25, -5, 8, 8);
         
-        // Render Legs
-        ctx.fillStyle = "#111"; 
-        ctx.fillRect(-18, 18, 14, 15 + leg); 
-        ctx.fillRect(4, 18, 14, 15 - leg);
-        
-        // Eyes/Glow details
-        ctx.fillStyle = game.hellMode ? "red" : "white"; 
-        ctx.fillRect(10, -5, 8, 8); 
-        ctx.fillRect(25, -5, 8, 8);
-        
-        // Render Shop Upgrades Visually
-        if (SaveSystem.data.upgrades.solar > 0) {
-            ctx.fillStyle = "rgba(0, 200, 255, 0.5)";
-            ctx.fillRect(-20, -20, 15, 8);
-            ctx.fillRect(-20, -10, 15, 8);
-        }
-        
-        if (SaveSystem.data.upgrades.thrusters > 0 && !player.onG) {
-            ctx.fillStyle = "rgba(0, 200, 255, 0.8)";
+        // Thruster visual if upgraded
+        if(gameSave.upgrades.thrusters > 0 && !player.onG) {
+            ctx.fillStyle = "rgba(0, 210, 255, 0.7)";
             ctx.beginPath();
             ctx.moveTo(-15, 25);
-            ctx.lineTo(-5, 40 + (Math.random() * 10 * SaveSystem.data.upgrades.thrusters));
+            ctx.lineTo(-5, 40 + Math.random()*15);
             ctx.lineTo(5, 25);
             ctx.fill();
         }
-        
         ctx.restore();
 
-        // Render Confetti Particle System (In-Game)
         game.confetti.forEach((c, i) => {
             c.y += c.v; 
             c.x += c.vx;
@@ -1243,45 +1098,24 @@
             if(c.y > canvas.height) game.confetti.splice(i, 1);
         });
 
-        // Sync Data to DOM Elements
         document.getElementById('alt-val').innerText = game.score + 'm';
-        
-        let energyPct = Math.max(0, (game.energy / game.maxEnergy) * 100);
-        document.getElementById('pct-val').innerText = Math.floor(energyPct) + '%';
-        document.getElementById('energy-fill').style.width = energyPct + '%';
+        let displayPct = Math.max(0, (game.energy / game.maxEnergy) * 100);
+        document.getElementById('pct-val').innerText = Math.floor(displayPct) + '%';
+        document.getElementById('energy-fill').style.width = displayPct + '%';
         document.getElementById('fuel-num').innerText = Math.max(0, Math.floor(game.energy));
+        
+        updateHUDValues(); // Ensure credits update passively if moving
     }
 
-    // Secondary render loop strictly for shop purchase confetti when game is paused
-    function renderConfettiOnly() {
-        if (game.active) return; // Handled by main loop if game is running
-        
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        let activeParticles = false;
-        
-        game.confetti.forEach((c, i) => {
-            c.y += c.v; 
-            c.x += c.vx;
-            c.life -= 0.01;
-            ctx.fillStyle = c.c; 
-            ctx.globalAlpha = Math.max(0, c.life);
-            ctx.fillRect(c.x, c.y, c.s, c.s);
-            if(c.y > canvas.height || c.life <= 0) {
-                game.confetti.splice(i, 1);
-            } else {
-                activeParticles = true;
-            }
-        });
-        
-        ctx.globalAlpha = 1.0;
-        if (activeParticles) requestAnimationFrame(renderConfettiOnly);
-    }
-
-    // ==========================================
-    // QUIZ LOGIC CONTROLLER & ECONOMY INTEGRATION
-    // ==========================================
-    
     function triggerQuiz() { 
+        // Auto-Bypass Upgrade Logic
+        const bypassChance = SHOP_ITEMS.bypass.getEffect(gameSave.upgrades.bypass);
+        if (Math.random() < bypassChance) {
+            showCreditToast("AUTO-BYPASS TRIGGERED!");
+            game.energy = game.maxEnergy;
+            return; // Skip quiz entirely
+        }
+
         game.quizActive = true; 
         document.getElementById('quiz-overlay').style.display = 'flex'; 
         displayQuestion(); 
@@ -1289,54 +1123,51 @@
 
     function displayQuestion() {
         const q = Q_BANK[Math.floor(Math.random() * Q_BANK.length)];
-        
-        // Map original index to retain answer validation after shuffle
         let answers = q.a.map((text, index) => ({ text, originalIndex: index }));
         answers.sort(() => Math.random() - 0.5);
         
+        const multEffect = SHOP_ITEMS.multiplier.getEffect(gameSave.upgrades.multiplier);
+        const rewardAmount = Math.floor(50 * multEffect);
+        document.getElementById('quiz-reward-amt').innerText = rewardAmount;
+        
         document.getElementById('q-text').innerText = q.q;
-        const box = document.getElementById('opt-box'); 
-        box.innerHTML = '';
+        const box = document.getElementById('opt-box'); box.innerHTML = '';
         
         answers.forEach((ans) => {
-            const btn = document.createElement('button'); 
-            btn.className = 'opt glass-ui'; 
-            btn.innerText = ans.text;
+            const b = document.createElement('button'); 
+            b.className = 'opt glass-ui'; 
+            b.innerText = ans.text;
             
-            btn.onclick = () => {
-                Array.from(box.children).forEach(b => b.disabled = true);
+            b.onclick = () => {
+                Array.from(box.children).forEach(btn => btn.disabled = true);
                 
                 if(ans.originalIndex === q.c) {
-                    btn.classList.add('correct-flash');
+                    b.classList.add('correct-flash');
                     
-                    // Award Enterprise Carbon Credits
-                    SaveSystem.addCredits(50);
-                    UIController.triggerCreditToast(50);
-                    
+                    addCredits(rewardAmount);
+                    showCreditToast("+" + rewardAmount + " CR");
+
                     setTimeout(() => { 
-                        game.energy = game.maxEnergy; // Refill to dynamic max
+                        game.energy = game.maxEnergy; 
                         game.quizActive = false; 
                         document.getElementById('quiz-overlay').style.display = 'none'; 
-                        requestAnimationFrame(updateLoop); 
+                        requestAnimationFrame(update); 
                     }, 800);
                 } else {
-                    btn.classList.add('wrong-flash');
-                    
-                    Array.from(box.children).forEach(b => { 
-                        if (b.innerText === q.a[q.c]) {
-                            b.classList.add('correct-flash');
-                        }
+                    b.classList.add('wrong-flash');
+                    Array.from(box.children).forEach(btn => { 
+                        if (btn.innerText === q.a[q.c]) btn.classList.add('correct-flash'); 
                     });
                     
                     setTimeout(displayQuestion, 1500);
                 }
             };
-            box.appendChild(btn);
+            box.appendChild(b);
         });
     }
 
-    // Initialize Save Data into UI on load
-    SaveSystem.updateHUD();
+    // Initialize UI on load
+    updateHUDValues();
 </script>
 </body>
 </html>
