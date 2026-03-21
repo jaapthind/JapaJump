@@ -643,9 +643,9 @@
             <h2 style="font-family:'Bungee'; margin-top:0;">GUIDE</h2>
             <p>🏃 <b>MOVE:</b> WASD / Arrows</p>
             <p>🚀 <b>JUMP:</b> Space / W (Double-jump enabled)</p>
-            <p>🔥 <b>DEVIL ZONE:</b> 1500m+. Platforms get tiny. Red sky.</p>
+            <p>🔥 <b>DEVIL ZONE:</b> 9,000 meters+. Platforms get tiny. Red sky.</p>
             <p>💰 <b>CREDITS:</b> Answer questions right to earn Credits. Spend them in the Shop for permanent upgrades!</p>
-            <p>🏁 <b>WIN:</b> Land on the Golden Platform at 2200m.</p>
+            <p>🏁 <b>WIN:</b> Land on the Golden Platform at 10,000 METERS.</p>
             <button class="play-btn" style="width:100%; font-size:24px;" onclick="showInstr(false)">GOT IT</button>
         </div>
     </div>
@@ -700,7 +700,7 @@
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                 <h2 id="modal-title" style="font-family:'Bungee'; margin:0; font-size: 40px; color: var(--jim-red);">SYSTEM FAILURE</h2>
                 <div style="background: rgba(255,215,0,0.2); border: 2px solid var(--jim-gold); color: var(--jim-gold); padding: 5px 15px; border-radius: 10px; font-family: 'Bungee';">
-                    REWARD: +<span id="quiz-reward-amt">50</span> CR
+                    REWARD: +<span id="quiz-reward-amt">100</span> CR
                 </div>
             </div>
             <p id="q-text" style="font-size: 22px; font-weight: 900; margin: 30px 0;"></p>
@@ -1082,11 +1082,13 @@
         const ozoneBonus = SHOP_ITEMS.ozone.getEffect(gameSave.upgrades.ozone);
         const albedoBonus = SHOP_ITEMS.albedo.getEffect(gameSave.upgrades.albedo);
 
-        game.platforms.push({x: 2350, y: 19950, w: 300 + magnetBonus, h: 50, color: '#2ecc71'});
+        // 1. The Starting Ground Platform
+        game.platforms.push({x: 2350, y: 150, w: 300 + magnetBonus, h: 50, color: '#2ecc71'});
         
-        let cy = 19800, lastX = 2500;
+        let cy = 0, lastX = 2500; 
         for(let i=0; i < 1500; i++) {
-            let alt = Math.abs(Math.floor((cy - 19800)/10));
+            // 2. Altitude is now just the absolute value of cy divided by 10
+            let alt = Math.abs(Math.floor(cy / 10)); 
             let isHell = alt > (9000 + albedoBonus);
             let isFinal = alt >= 10000;
             let isCP = alt > 0 && alt % 500 === 0;
@@ -1095,6 +1097,7 @@
             pW += magnetBonus; 
             if(isCP) pW += ozoneBonus;
 
+            // 3. Move cy into the negatives (climbing up the canvas)
             let verticalGap = (isHell) ? 210 : (150 + Math.random() * 80);
             let drift = isHell ? 350 : 550;
             let rx = isFinal ? 2300 : lastX + (Math.random() * (drift * 2) - drift);
@@ -1105,8 +1108,10 @@
                 color: isFinal ? 'gold' : (isHell ? '#ff1a1a' : '#fff'),
                 isHell: isHell, isFinal: isFinal, isCP: isCP
             });
+
             if(isFinal) break; 
-            lastX = rx; cy -= verticalGap; 
+            lastX = rx; 
+            cy -= verticalGap; // Subtracting moves the next platform HIGHER
         }
     }
 
@@ -1122,7 +1127,7 @@
         
         document.getElementById('fuel-max-num').innerText = Math.floor(game.maxEnergy);
         
-        game.camY = 19500; player.y = 19800; player.x = 2500; player.vx = 0; player.vy = 0;
+        game.camY = -300; player.y = 0; game.voidLevel = 500; player.x = 2500; player.vx = 0; player.vy = 0;
         game.hellMode = false; document.getElementById('app').style.background = 'var(--jim-sky)';
         document.getElementById('vignette').style.opacity = '0';
 
@@ -1231,7 +1236,7 @@
                 if (cur >= game.lastCPHeight + 500) {
                     game.lastCPHeight = Math.floor(cur / 500) * 500;
                     player.lastSafeX = p.x + p.w/2; player.lastSafeY = p.y;
-                    game.voidLevel = p.y + 750; 
+                    game.voidLevel = p.y + 700; 
                     triggerCPToast(game.lastCPHeight);
                     if(carbonMod > 0) addCredits(carbonMod);
                 }
@@ -1273,7 +1278,7 @@
 
         if(game.energy <= 0) { triggerQuiz(); return; }
 
-        game.score = Math.abs(Math.floor((player.y - 19800)/10));
+        game.score = Math.abs(Math.floor(player.y / 10));
         if(game.score > gameSave.highscore) { 
             gameSave.highscore = game.score; 
             saveGame(); 
@@ -1370,7 +1375,7 @@
         answers.sort(() => Math.random() - 0.5);
         
         const multEffect = SHOP_ITEMS.multiplier.getEffect(gameSave.upgrades.multiplier);
-        const rewardAmount = Math.floor(50 * multEffect);
+        const rewardAmount = Math.floor(100 * multEffect);
         document.getElementById('quiz-reward-amt').innerText = rewardAmount;
         document.getElementById('q-text').innerText = q.q;
         const box = document.getElementById('opt-box'); box.innerHTML = '';
