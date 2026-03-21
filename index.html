@@ -685,14 +685,18 @@
         });
     }
 
-    function openShop() {
-        renderShop();
-        document.getElementById('shop-screen').style.display = 'flex';
-    }
+   function openShop() {
+    game.active = false; // This stops the game engine from freezing the UI
+    renderShop();
+    document.getElementById('shop-screen').style.display = 'flex';
+    document.getElementById('start-menu').style.display = 'none';
+}
 
     function closeShop() {
-        document.getElementById('shop-screen').style.display = 'none';
-    }
+    document.getElementById('shop-screen').style.display = 'none';
+    document.getElementById('start-menu').style.display = 'flex';
+    // We keep game.active false so it stays on the menu
+}
 
     // ==========================================
     // ENGINE INITIALIZATION
@@ -850,6 +854,8 @@
         
         updateHUDValues();
         requestAnimationFrame(update);
+        cancelAnimationFrame(game.raf); // Add this to kill any old loops
+        game.raf = requestAnimationFrame(update); // Start the new one
     }
 
     function spawnConfetti() {
