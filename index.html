@@ -508,10 +508,12 @@
         .auth-container {
             padding: 40px; 
             border-radius: 30px; 
-            width: 400px; 
+            width: 450px; 
             text-align: center;
             border: 2px solid var(--glass-border);
             box-shadow: 0 0 50px rgba(79, 172, 254, 0.2);
+            max-height: 90vh;
+            overflow-y: auto;
         }
 
         .auth-input {
@@ -526,6 +528,7 @@
             font-size: 16px;
             outline: none;
             transition: 0.2s;
+            box-sizing: border-box;
         }
 
         .auth-input:focus {
@@ -536,7 +539,7 @@
         .auth-btn-group {
             display: flex;
             gap: 15px;
-            margin-top: 25px;
+            margin-top: 15px;
             justify-content: center;
         }
 
@@ -548,6 +551,7 @@
             cursor: pointer;
             border: 2px solid var(--jim-blue);
             transition: 0.2s;
+            flex: 1;
         }
 
         .btn-signin {
@@ -568,6 +572,22 @@
             box-shadow: 0 0 20px rgba(79, 172, 254, 0.5);
         }
 
+        .leaderboard-entry {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 15px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 8px;
+            margin-bottom: 5px;
+            border: 1px solid var(--glass-border);
+            font-family: 'Inter', sans-serif;
+            font-weight: bold;
+        }
+
+        .leaderboard-entry.top-1 { border-color: var(--jim-gold); color: var(--jim-gold); background: rgba(255, 215, 0, 0.1); }
+        .leaderboard-entry.top-2 { border-color: silver; color: silver; }
+        .leaderboard-entry.top-3 { border-color: #cd7f32; color: #cd7f32; }
+
     </style>
 </head>
 <body>
@@ -579,18 +599,32 @@
 
     <div id="auth-overlay" class="overlay">
         <div class="auth-container glass-ui">
-            <h2 style="font-family:'Bungee'; margin-top: 0; color: var(--jim-blue); font-size: 35px;">PILOT LOGIN</h2>
-            <p style="color: #ccc; font-size: 14px; margin-bottom: 25px;">Enter credentials to sync telemetry data.</p>
+            <h2 style="font-family:'Bungee'; color: var(--jim-blue); font-size: 35px; margin-top: 0; margin-bottom: 5px;">PILOT TERMINAL</h2>
+            <p style="color: #ccc; font-size: 14px; margin-bottom: 20px;">Access global telemetry network.</p>
             
             <input type="text" id="auth-user" class="auth-input" placeholder="USERNAME" autocomplete="off">
-            <input type="password" id="auth-pass" class="auth-input" placeholder="PASSWORD">
+            <input type="email" id="auth-email" class="auth-input" placeholder="EMAIL (REQUIRED FOR SIGNUP/RESET)">
             
-            <div class="auth-btn-group">
-                <button class="auth-btn btn-signin" onclick="handleAuth('signin')">SIGN IN</button>
-                <button class="auth-btn btn-signup" onclick="handleAuth('signup')">SIGN UP</button>
+            <div style="position: relative; width: 85%; margin: 0 auto;">
+                <input type="password" id="auth-pass" class="auth-input" style="width: 100%; margin: 10px 0;" placeholder="PASSWORD">
+                <button onclick="togglePass()" style="position: absolute; right: 15px; top: 25px; background: none; border: none; cursor: pointer; color: #ccc; font-size: 16px; padding:0;">👁️</button>
             </div>
             
-            <p id="auth-msg" style="color: var(--jim-red); margin-top: 20px; font-weight: bold; min-height: 20px;"></p>
+            <div class="auth-btn-group" style="width: 85%; margin: 15px auto 0;">
+                <button class="auth-btn btn-signin" onclick="handleAuth('signin')">LOGIN</button>
+                <button class="auth-btn btn-signup" onclick="handleAuth('signup')">CREATE</button>
+            </div>
+            
+            <button onclick="handleAuth('resetPassword')" style="background:none; border:none; color:var(--jim-sky); cursor:pointer; font-size:12px; margin-top:15px; font-family:'Inter'; text-decoration:underline;">Forgot Password? (Send Email)</button>
+            
+            <p id="auth-msg" style="color: var(--jim-red); margin-top: 15px; font-weight: bold; min-height: 20px;"></p>
+
+            <div id="leaderboard-box" style="margin-top: 20px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 15px; width: 85%; margin-left: auto; margin-right: auto;">
+                <h3 style="font-family:'Bungee'; font-size: 18px; color: var(--jim-gold); margin-bottom: 10px;">GLOBAL TOP 10</h3>
+                <div id="leaderboard-list" style="font-size: 14px; text-align: left;">
+                    <div style="text-align:center; color:#ccc;">Fetching satellite data...</div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -680,49 +714,117 @@
 <script>
     const SAVE_KEY = 'japa_jump_v5_save';
     // IMPORTANT: Make sure this URL is correct and deployed as a Web App accessible by "Anyone"
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyhq4BGDXR24sne2HCKpQkv5su2eqD4JEx6oEceiuoizwQIUxkxW_sbFtID4GaaUUpxfA/exec'; 
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyshKlt_8DryXYGZV9wFyuOAN7TvRDdmvtISW2wKDVt58h2FJck_rf7DEhZNQgvrpvzXw/exec'; 
     
     let currentUser = null;
+    let scoreSyncInterval = null;
 
-    // Fixed Auth Logic
+    function togglePass() {
+        const p = document.getElementById('auth-pass');
+        p.type = p.type === "password" ? "text" : "password";
+    }
+
+    async function updateLeaderboard() {
+        try {
+            const res = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'getLeaderboard' }) });
+            const list = await res.json();
+            const container = document.getElementById('leaderboard-list');
+            
+            if (!list || list.length === 0) {
+                container.innerHTML = '<div style="text-align:center; color:#ccc;">No data available yet.</div>';
+                return;
+            }
+
+            container.innerHTML = list.map((u, i) => {
+                let rankClass = '';
+                if(i === 0) rankClass = 'top-1';
+                else if(i === 1) rankClass = 'top-2';
+                else if(i === 2) rankClass = 'top-3';
+                
+                return `
+                <div class="leaderboard-entry ${rankClass}">
+                    <span><span style="opacity:0.6; margin-right:5px;">#${i+1}</span> ${u[0]}</span>
+                    <span>${u[2]}m</span>
+                </div>`;
+            }).join('');
+        } catch (e) { 
+            console.log("LB Error", e); 
+            document.getElementById('leaderboard-list').innerHTML = '<div style="text-align:center; color:var(--jim-red);">Failed to connect to satellite.</div>';
+        }
+    }
+
+    async function syncScore() {
+        if (!currentUser || gameSave.highscore <= 0) return;
+        try {
+            await fetch(SCRIPT_URL, {
+                method: 'POST',
+                body: JSON.stringify({ action: 'updateScore', username: currentUser, score: gameSave.highscore })
+            });
+        } catch(e) { console.log("Silent score sync fail"); }
+    }
+
     async function handleAuth(action) {
         const user = document.getElementById('auth-user').value;
         const pass = document.getElementById('auth-pass').value;
+        const email = document.getElementById('auth-email').value;
         const msg = document.getElementById('auth-msg');
 
-        if (!user || !pass) { 
+        if (action === 'resetPassword') {
+            if(!user || !email) { msg.style.color="var(--jim-red)"; msg.innerText = "ENTER USERNAME & EMAIL TO RESET"; return; }
+        } else if (!user || !pass) { 
             msg.style.color = "var(--jim-red)";
-            msg.innerText = "FILL ALL FIELDS"; 
+            msg.innerText = "FILL USERNAME & PASSWORD"; 
+            return; 
+        }
+
+        if (action === 'signup' && !email) {
+            msg.style.color = "var(--jim-red)";
+            msg.innerText = "EMAIL REQUIRED FOR SIGNUP"; 
             return; 
         }
         
         msg.style.color = "white";
-        msg.innerText = "CONNECTING TO SECURE SERVER...";
+        msg.innerText = "COMMUNICATING WITH SERVER...";
         
         try {
             const response = await fetch(SCRIPT_URL, {
                 method: 'POST',
-                body: JSON.stringify({ action: action, username: user, password: pass })
+                body: JSON.stringify({ action: action, username: user, password: pass, email: email })
             });
             
             const result = await response.text();
 
             if (result === "success") {
                 msg.style.color = "var(--jim-green)";
-                msg.innerText = "ACCOUNT CREATED! NOW CLICK SIGN IN.";
+                msg.innerText = "ACCOUNT CREATED! NOW CLICK LOGIN.";
+                updateLeaderboard();
             } else if (result === "exists") {
                 msg.style.color = "var(--jim-orange)";
                 msg.innerText = "USERNAME ALREADY TAKEN";
             } else if (result === "fail") {
                 msg.style.color = "var(--jim-red)";
-                msg.innerText = "INCORRECT USERNAME OR PASSWORD";
+                msg.innerText = "INCORRECT CREDENTIALS";
+            } else if (result === "email_sent") {
+                msg.style.color = "var(--jim-green)";
+                msg.innerText = "PASSWORD RECOVERY SENT TO EMAIL!";
+            } else if (result === "not_found") {
+                msg.style.color = "var(--jim-red)";
+                msg.innerText = "ACCOUNT OR EMAIL NOT FOUND";
             } else {
                 // Success Sign In - 'result' is the highscore from the sheet
                 currentUser = user;
-                gameSave.highscore = parseInt(result) || 0;
+                let remoteScore = parseInt(result) || 0;
+                
+                // Keep whichever is higher, local or remote
+                if(remoteScore > gameSave.highscore) {
+                    gameSave.highscore = remoteScore;
+                }
+                
                 document.getElementById('auth-overlay').style.display = 'none';
-                document.getElementById('start-menu').style.display = 'flex'; // Show start menu after login
-                saveGame(); // Sync local data
+                document.getElementById('start-menu').style.display = 'flex';
+                saveGame();
+                syncScore(); // Sync immediately in case local was higher
+                scoreSyncInterval = setInterval(syncScore, 15000); // Sync every 15s
             }
         } catch (e) {
             msg.style.color = "var(--jim-red)";
@@ -730,6 +832,9 @@
             console.error(e);
         }
     }
+
+    // Load leaderboard on boot
+    updateLeaderboard();
 
     const DEFAULT_SAVE = {
         highscore: 0,
@@ -1177,7 +1282,11 @@
         if(game.energy <= 0) { triggerQuiz(); return; }
 
         game.score = Math.abs(Math.floor((player.y - 19800)/10));
-        if(game.score > gameSave.highscore) { gameSave.highscore = game.score; saveGame(); }
+        if(game.score > gameSave.highscore) { 
+            gameSave.highscore = game.score; 
+            saveGame(); 
+            syncScore(); // Sync whenever there's a new high score
+        }
 
         draw();
         game.raf = requestAnimationFrame(update);
