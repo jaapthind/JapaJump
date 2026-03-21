@@ -2,1020 +2,804 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>JIMKIT: DON'T LOOK DOWN - ENTERPRISE EDITION</title>
-    <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JIMKIT: DON'T LOOK DOWN - OFFICIAL</title>
+    <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Inter:wght@900&display=swap" rel="stylesheet">
+    
     <style>
         :root {
-            --glass-bg: rgba(25, 25, 35, 0.25);
-            --glass-border: rgba(255, 255, 255, 0.15);
-            --glass-highlight: rgba(255, 255, 255, 0.05);
-            --jim-blue: #00d2ff; --jim-blue-dark: #3a7bd5;
-            --jim-red: #ff416c; --jim-red-dark: #ff4b2b;
-            --jim-green: #00b09b; --jim-green-dark: #96c93d;
-            --jim-gold: #f6d365; --jim-gold-dark: #fda085;
-            --jim-sky: #0f2027; --jim-sky-mid: #203a43; --jim-sky-light: #2c5364;
-            --jim-hell: #2b0000; --jim-hell-mid: #4a0000; --jim-hell-light: #730000;
+            /* UI Glassmorphism Variables */
+            --glass-bg: rgba(255, 255, 255, 0.15);
+            --glass-border: rgba(255, 255, 255, 0.25);
+            
+            /* Game Color Palette */
+            --jim-blue: #4facfe; 
+            --jim-red: #ff4b2b; 
+            --jim-green: #4CAF50;
+            --jim-orange: #FF9800; 
+            --jim-sky: #87CEEB; 
+            --jim-hell: #2a0000;
         }
 
-        * { box-sizing: border-box; user-select: none; -webkit-user-select: none; }
-        body { margin: 0; background: #000; overflow: hidden; font-family: 'Inter', sans-serif; touch-action: none; }
-        
+        body { 
+            margin: 0; 
+            background: #000; 
+            overflow: hidden; 
+            font-family: 'Inter', sans-serif; 
+        }
+
         #app { 
-            position: relative; width: 100vw; height: 100vh; 
-            background: linear-gradient(to bottom, var(--jim-sky), var(--jim-sky-mid), var(--jim-sky-light));
-            transition: background 5s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative; 
+            width: 100vw; 
+            height: 100vh; 
+            background: var(--jim-sky); 
+            transition: background 4s; 
         }
-
+        
+        /* Advanced Glassmorphism Utilities */
         .glass-ui {
             background: var(--glass-bg);
-            backdrop-filter: blur(30px) saturate(150%);
-            -webkit-backdrop-filter: blur(30px) saturate(150%);
+            backdrop-filter: blur(25px) saturate(200%);
+            -webkit-backdrop-filter: blur(25px) saturate(200%);
             border: 1px solid var(--glass-border);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.5), inset 0 1px 0 var(--glass-highlight);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.4);
             color: white;
         }
 
-        .overlay { position: absolute; inset: 0; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        #win-screen, #instr-screen, #game-over-screen, #pause-screen { display: none; }
-        
-        .logo-container { position: relative; animation: float 4s ease-in-out infinite; }
-        .logo { font-family: 'Bungee', cursive; font-size: clamp(60px, 8vw, 130px); color: white; text-transform: uppercase; margin: 0; background: linear-gradient(to right, #fff, #ddd); -webkit-background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(0 15px 25px rgba(0,0,0,0.5)); }
-        
-        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
-        @keyframes pulseGlow { 0%, 100% { box-shadow: 0 0 20px var(--jim-blue); } 50% { box-shadow: 0 0 50px var(--jim-blue), 0 0 100px var(--jim-blue-dark); } }
-        @keyframes scanline { 0% { transform: translateY(-100vh); } 100% { transform: translateY(100vh); } }
-
-        .crt-overlay { position: absolute; inset: 0; pointer-events: none; background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03)); background-size: 100% 4px, 6px 100%; z-index: 9000; opacity: 0.6; mix-blend-mode: overlay; }
-        .crt-scan { position: absolute; top: 0; left: 0; width: 100%; height: 20px; background: rgba(255,255,255,0.05); opacity: 0.5; animation: scanline 8s linear infinite; pointer-events: none; z-index: 9001; }
-
-        .btn {
-            background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0));
-            border: 1px solid var(--glass-border); color: white; padding: 20px 60px;
-            font-family: 'Bungee', cursive; font-size: 28px; border-radius: 15px; cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-            position: relative; overflow: hidden; margin-top: 20px;
-            text-shadow: 0 2px 5px rgba(0,0,0,0.5); backdrop-filter: blur(10px);
+        .overlay { 
+            position: absolute; 
+            inset: 0; 
+            z-index: 9999; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
         }
-        .btn::before { content: ''; position: absolute; top: 0; left: -100%; width: 50%; height: 100%; background: linear-gradient(to right, transparent, rgba(255,255,255,0.3), transparent); transform: skewX(-25deg); transition: 0.5s; }
-        .btn:hover::before { left: 150%; }
-        .btn:hover { transform: translateY(-5px) scale(1.05); box-shadow: 0 15px 25px rgba(0,0,0,0.5); background: rgba(255,255,255,0.2); border-color: white; }
-        .btn:active { transform: translateY(2px) scale(0.98); }
-        .btn-primary { background: linear-gradient(135deg, var(--jim-blue), var(--jim-blue-dark)); border: none; animation: pulseGlow 3s infinite; }
 
-        .hud-grid { position: absolute; top: 20px; left: 20px; right: 20px; display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; pointer-events: none; z-index: 100; }
-        .hud-card { padding: 15px 20px; border-radius: 15px; text-align: left; display: flex; flex-direction: column; position: relative; overflow: hidden; }
-        .hud-card::after { content:''; position: absolute; top:0; right:0; width: 40px; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05)); }
-        .label { font-size: 11px; font-weight: 900; opacity: 0.6; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 5px; color: #aaa; }
-        .value { font-family: 'Bungee', cursive; font-size: 32px; text-shadow: 0 2px 10px rgba(0,0,0,0.5); }
-        .val-blue { color: var(--jim-blue); } .val-green { color: var(--jim-green); } .val-gold { color: var(--jim-gold); }
+        #win-screen, #instr-screen { 
+            display: none; 
+        }
+        
+        .logo { 
+            font-family: 'Bungee', cursive; 
+            font-size: 110px; 
+            color: white; 
+            text-shadow: 0 10px 0px rgba(0,0,0,0.1); 
+            margin: 0; 
+        }
+        
+        .play-btn {  
+            background: white; 
+            color: var(--jim-blue); 
+            border: none; 
+            padding: 25px 100px;  
+            font-family: 'Bungee', cursive; 
+            font-size: 35px; 
+            border-radius: 60px; 
+            cursor: pointer;
+            box-shadow: 0 12px 0px #ccc; 
+            transition: 0.1s; 
+            margin-top: 20px;
+        }
 
-        .energy-hud { position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); width: min(800px, 90vw); text-align: center; pointer-events: none; z-index: 100; }
-        .bar-bg { width: 100%; height: 40px; background: rgba(0,0,0,0.6); border: 2px solid var(--glass-border); border-radius: 10px; overflow: hidden; position: relative; box-shadow: 0 10px 30px rgba(0,0,0,0.8); }
-        #energy-fill { width: 100%; height: 100%; background: linear-gradient(90deg, var(--jim-red), var(--jim-gold), var(--jim-green)); transition: width 0.2s cubic-bezier(0.4, 0, 0.2, 1), filter 0.3s; transform-origin: left; }
-        .energy-fill-critical { animation: criticalPulse 0.5s infinite; }
-        @keyframes criticalPulse { 0% { filter: brightness(1); } 50% { filter: brightness(2) hue-rotate(-50deg); } 100% { filter: brightness(1); } }
-        .energy-text { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: white; font-family: 'Bungee'; font-size: 20px; text-shadow: 2px 2px 4px rgba(0,0,0,0.8); letter-spacing: 2px; }
+        .play-btn:active { 
+            transform: translateY(6px); 
+            box-shadow: 0 6px 0px #ccc; 
+        }
 
-        #quiz-overlay { background: rgba(10, 10, 15, 0.95); backdrop-filter: blur(40px); }
-        .quiz-modal { width: 900px; max-width: 95vw; padding: 50px; border-radius: 30px; position: relative; }
-        .timer-bar { position: absolute; top: 0; left: 0; height: 6px; background: var(--jim-blue); border-radius: 30px 30px 0 0; width: 100%; transition: width 1s linear; }
-        .opt { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 22px; margin: 12px 0; width: 100%; border-radius: 15px; cursor: pointer; font-size: 20px; font-weight: 700; color: #ddd; transition: all 0.2s; text-align: left; display: flex; align-items: center; }
-        .opt:hover { background: rgba(255,255,255,0.15); transform: translateX(10px); color: white; border-color: var(--glass-border); }
-        .opt::before { content: '►'; margin-right: 15px; opacity: 0; transition: 0.2s; color: var(--jim-blue); font-size: 14px; }
-        .opt:hover::before { opacity: 1; margin-right: 20px; }
-        .opt.correct-flash { background: linear-gradient(90deg, var(--jim-green), var(--jim-green-dark)) !important; color: white !important; transform: scale(1.02); box-shadow: 0 10px 30px rgba(0, 176, 155, 0.4); border: none !important; }
-        .opt.wrong-flash { background: linear-gradient(90deg, var(--jim-red), var(--jim-red-dark)) !important; color: white !important; animation: shake 0.4s; border: none !important; }
+        .instr-btn {
+            background: var(--glass-bg); 
+            color: white; 
+            border: 1px solid var(--glass-border);
+            padding: 12px 50px; 
+            font-family: 'Bungee', cursive; 
+            font-size: 20px; 
+            border-radius: 50px;
+            cursor: pointer; 
+            margin-top: 15px; 
+            backdrop-filter: blur(10px); 
+            transition: 0.2s;
+        }
 
-        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-10px); } 75% { transform: translateX(10px); } }
+        /* Head Up Display (HUD) Architecture */
+        .hud { 
+            position: absolute; 
+            top: 20px; 
+            width: 100%; 
+            display: flex; 
+            justify-content: center; 
+            gap: 20px; 
+            pointer-events: none; 
+            z-index: 100; 
+        }
 
-        #minimap { position: absolute; top: 20px; right: 20px; width: 60px; height: 300px; background: rgba(0,0,0,0.5); border: 1px solid var(--glass-border); border-radius: 10px; z-index: 90; overflow: hidden; pointer-events: none; backdrop-filter: blur(10px); }
-        .minimap-player { position: absolute; left: 50%; width: 8px; height: 8px; background: var(--jim-green); border-radius: 50%; transform: translateX(-50%); box-shadow: 0 0 10px var(--jim-green); transition: bottom 0.1s; }
-        .minimap-zone { position: absolute; left: 0; width: 100%; opacity: 0.3; }
+        .hud-card { 
+            padding: 12px 25px; 
+            border-radius: 25px; 
+            text-align: center; 
+            min-width: 150px; 
+        }
 
-        /* Mobile Controls */
-        #mobile-controls { display: none; position: absolute; bottom: 100px; left: 0; width: 100%; padding: 0 20px; justify-content: space-between; pointer-events: none; z-index: 150; }
-        @media (max-width: 768px) { #mobile-controls { display: flex; } .hud-grid { grid-template-columns: 1fr 1fr; } .logo { font-size: 50px; } }
-        .d-pad, .action-pad { display: flex; gap: 15px; pointer-events: auto; }
-        .m-btn { width: 70px; height: 70px; border-radius: 50%; background: var(--glass-bg); border: 2px solid var(--glass-border); color: white; font-family: 'Bungee'; font-size: 24px; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(10px); user-select: none; transition: 0.1s; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
-        .m-btn:active { background: rgba(255,255,255,0.3); transform: scale(0.9); }
+        .label { 
+            font-size: 10px; 
+            font-weight: 900; 
+            opacity: 0.8; 
+            text-transform: uppercase; 
+        }
 
-        .toast-container { position: absolute; top: 150px; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; gap: 10px; z-index: 200; pointer-events: none; }
-        .toast { background: rgba(0,0,0,0.8); border: 1px solid var(--jim-gold); color: white; padding: 15px 30px; border-radius: 50px; font-family: 'Bungee'; font-size: 24px; animation: slideUpFade 2.5s forwards; text-shadow: 0 2px 5px #000; display: flex; align-items: center; gap: 15px; }
-        @keyframes slideUpFade { 0% { opacity: 0; transform: translateY(50px); } 15% { opacity: 1; transform: translateY(0); } 80% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-50px); } }
+        .value { 
+            font-family: 'Bungee', cursive; 
+            font-size: 28px; 
+        }
 
-        #vignette { position: absolute; inset: 0; pointer-events: none; background: radial-gradient(circle, transparent 30%, rgba(0,0,0,0.8) 150%); transition: background 2s; z-index: 80; }
+        .energy-hud { 
+            position: absolute; 
+            bottom: 40px; 
+            left: 50%; 
+            transform: translateX(-50%); 
+            width: 650px; 
+            text-align: center; 
+            pointer-events: none; 
+        }
+
+        .bar-bg { 
+            width: 100%; 
+            height: 50px; 
+            background: rgba(0,0,0,0.5); 
+            border: 2px solid var(--glass-border); 
+            border-radius: 30px; 
+            overflow: hidden; 
+            position: relative; 
+            backdrop-filter: blur(15px); 
+        }
+
+        #energy-fill { 
+            width: 100%; 
+            height: 100%; 
+            background: linear-gradient(90deg, var(--jim-red), var(--jim-blue)); 
+            transition: width 0.1s; 
+        }
+
+        .energy-text { 
+            position: absolute; 
+            width: 100%; 
+            top: 0; 
+            line-height: 50px; 
+            color: white; 
+            font-family: 'Bungee'; 
+            font-size: 22px; 
+        }
+
+        /* Modal Overlay Systems */
+        #quiz-overlay { 
+            position: absolute; 
+            inset: 0; 
+            background: rgba(0,0,0,0.85); 
+            backdrop-filter: blur(20px); 
+            display: none; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            z-index: 10000; 
+        }
+
+        .modal { 
+            padding: 40px; 
+            border-radius: 45px; 
+            width: 700px; 
+            text-align: center; 
+            max-height: 85vh; 
+            overflow-y: auto; 
+        }
+        
+        .opt { 
+            background: rgba(255,255,255,0.08); 
+            border: 1px solid var(--glass-border); 
+            padding: 18px; 
+            margin: 8px 0; 
+            width: 100%; 
+            border-radius: 12px; 
+            cursor: pointer; 
+            font-size: 18px; 
+            font-weight: 700; 
+            color: white; 
+            transition: 0.2s; 
+        }
+
+        .opt.correct-flash { 
+            background: var(--jim-green) !important; 
+            border-color: white !important; 
+            box-shadow: 0 0 20px var(--jim-green); 
+        }
+
+        .opt.wrong-flash { 
+            background: var(--jim-red) !important; 
+            border-color: white !important; 
+            box-shadow: 0 0 20px var(--jim-red); 
+        }
+
+        #checkpoint-toast { 
+            position: absolute; 
+            top: 160px; 
+            left: 50%; 
+            transform: translateX(-50%); 
+            font-family: 'Bungee'; 
+            font-size: 55px; 
+            color: white; 
+            opacity: 0; 
+            transition: 1s; 
+            z-index: 200; 
+        }
+
+        #vignette { 
+            position: absolute; 
+            inset: 0; 
+            pointer-events: none; 
+            background: radial-gradient(circle, transparent 20%, rgba(30,0,0,1) 100%); 
+            opacity: 0; 
+            transition: opacity 5s; 
+            z-index: 50; 
+        }
     </style>
 </head>
 <body>
 
 <div id="app">
-    <div class="crt-overlay"></div>
-    <div class="crt-scan"></div>
     <div id="vignette"></div>
-    
-    <div id="minimap">
-        <div class="minimap-zone" style="bottom: 0%; height: 68%; background: linear-gradient(transparent, var(--jim-blue));"></div>
-        <div class="minimap-zone" style="bottom: 68%; height: 32%; background: linear-gradient(transparent, red); border-top: 2px solid gold;"></div>
-        <div id="mm-player" class="minimap-player" style="bottom: 0%;"></div>
-    </div>
-
-    <div class="toast-container" id="toast-box"></div>
+    <div id="checkpoint-toast">CHECKPOINT!</div>
 
     <div id="start-menu" class="overlay">
-        <div class="logo-container">
-            <h1 class="logo">japa jump</h1>
-        </div>
-        <p style="color: var(--jim-blue); font-weight: 900; letter-spacing: 8px; font-size: 18px; margin-top: -10px; text-shadow: 0 0 20px rgba(0,210,255,0.5);">ENTERPRISE V2.0 • SDG 13</p>
-        <div style="display: flex; gap: 20px; margin-top: 40px;">
-            <button class="btn btn-primary" onclick="GameEngine.initGame()">START CLIMB</button>
-            <button class="btn" onclick="UIController.toggleScreen('instr-screen', true)">DATABASE</button>
+        <h1 class="logo">japa jump</h1>
+        <p style="color: white; font-weight: 900; letter-spacing: 4px; opacity: 0.9;">SDG 13: CLIMATE ACTION</p>
+        <button class="play-btn" onclick="beginGame()">START CLIMB</button>
+        <button class="instr-btn" onclick="showInstr(true)">INSTRUCTIONS</button>
+    </div>
+
+    <div id="instr-screen" class="overlay">
+        <div class="instr-box glass-ui" style="padding:40px; border-radius:40px; width:500px; text-align:left;">
+            <h2 style="font-family:'Bungee'; margin-top:0;">GUIDE</h2>
+            <p>🏃 <b>MOVE:</b> WASD / Arrows</p>
+            <p>🚀 <b>JUMP:</b> Space / W (Double-jump enabled)</p>
+            <p>🔥 <b>DEVIL ZONE:</b> 1500m+. Platforms get tiny. Red sky.</p>
+            <p>🏁 <b>WIN:</b> Land on the Golden Platform at 2200m.</p>
+            <button class="play-btn" style="width:100%; font-size:24px;" onclick="showInstr(false)">GOT IT</button>
         </div>
     </div>
 
-    <div id="instr-screen" class="overlay glass-ui">
-        <div style="padding: 50px; max-width: 800px; text-align: left;">
-            <h2 style="font-family:'Bungee'; font-size: 45px; color: var(--jim-blue); margin-top: 0; border-bottom: 2px solid var(--glass-border); padding-bottom: 20px;">SYSTEM MANUAL</h2>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; font-size: 18px; line-height: 1.6;">
-                <div>
-                    <h3 style="color: var(--jim-gold);">CONTROLS</h3>
-                    <p><b>[W][A][S][D]</b> or <b>ARROWS</b> to modify trajectory.</p>
-                    <p><b>[SPACE]</b> to initiate thrusters (Double-jump enabled via kinetic dampening).</p>
-                    <p><b>[ESC]</b> to pause simulation.</p>
-                </div>
-                <div>
-                    <h3 style="color: var(--jim-red);">ENVIRONMENTAL HAZARDS</h3>
-                    <p><b>ALTITUDE > 1500m:</b> Entering the Exosphere. Gravity anomalies detected. Platforms degrade rapidly.</p>
-                    <p><b>ENERGY DEPLETION:</b> Triggers emergency SDG knowledge verification protocol to siphon quantum fuel.</p>
-                </div>
-            </div>
-            <button class="btn" style="width: 100%; margin-top: 40px;" onclick="UIController.toggleScreen('instr-screen', false)">ACKNOWLEDGE</button>
-        </div>
+    <div id="win-screen" class="overlay">
+        <h1 class="logo">HELL ESCAPED</h1>
+        <p style="color: white; font-weight: 900; font-size: 28px;">PLANET SAVED - MISSION COMPLETE</p>
+        <button class="play-btn" style="background: #ff4b2b; color: white;" onclick="window.close(); alert('Game Closed');">EXIT GAME</button>
     </div>
 
-    <div id="win-screen" class="overlay" style="background: rgba(0,0,0,0.9);">
-        <h1 class="logo" style="color: var(--jim-gold); text-shadow: 0 0 50px var(--jim-gold);">ASCENSION</h1>
-        <p style="color: white; font-weight: 900; font-size: 30px; letter-spacing: 5px;">CLIMATE STABILIZED. ORBIT ACHIEVED.</p>
-        <div style="display: flex; gap: 20px;">
-            <div class="hud-card glass-ui"><div class="label">Final Altitude</div><div class="value val-gold" id="win-alt">2200m</div></div>
-            <div class="hud-card glass-ui"><div class="label">Questions Solved</div><div class="value val-blue" id="win-q">0</div></div>
-        </div>
-        <button class="btn btn-primary" style="margin-top: 50px;" onclick="location.reload()">REBOOT SYSTEM</button>
+    <div class="hud">
+        <div class="hud-card glass-ui"><div class="label">Altitude</div><div id="alt-val" class="value">0m</div></div>
+        <div class="hud-card glass-ui"><div class="label">Highscore</div><div id="hi-val" class="value">0m</div></div>
+        <div class="hud-card glass-ui"><div class="label">Checkpoint</div><div id="zone-val" class="value">Start</div></div>
+        <div class="hud-card glass-ui"><div class="label">Fuel %</div><div id="pct-val" class="value">100%</div></div>
     </div>
 
-    <div id="pause-screen" class="overlay" style="background: rgba(0,0,0,0.7); backdrop-filter: blur(10px);">
-        <h1 class="logo">PAUSED</h1>
-        <button class="btn btn-primary" onclick="GameEngine.togglePause()">RESUME</button>
-        <button class="btn" onclick="location.reload()">ABORT MISSION</button>
-    </div>
-
-    <div class="hud-grid" id="main-hud" style="display: none;">
-        <div class="hud-card glass-ui">
-            <div class="label">Current Altitude</div>
-            <div id="alt-val" class="value val-blue">0<span style="font-size:16px;">m</span></div>
-        </div>
-        <div class="hud-card glass-ui">
-            <div class="label">Max Elevation</div>
-            <div id="hi-val" class="value val-gold">0<span style="font-size:16px;">m</span></div>
-        </div>
-        <div class="hud-card glass-ui">
-            <div class="label">Atmospheric Zone</div>
-            <div id="zone-val" class="value" style="font-size: 22px; color: #fff;">Troposphere</div>
-        </div>
-        <div class="hud-card glass-ui">
-            <div class="label">Velocity</div>
-            <div id="vel-val" class="value" style="font-size: 24px; color: #ccc;">0.00 <span style="font-size:12px;">m/s</span></div>
-        </div>
-    </div>
-
-    <div class="energy-hud" id="energy-hud" style="display: none;">
+    <div class="energy-hud">
         <div class="bar-bg">
             <div id="energy-fill"></div>
-            <div class="energy-text">CORE ENERGY: <span id="fuel-num" style="margin-left:10px; color: var(--jim-gold);">1000</span></div>
+            <div class="energy-text">ENERGY: <span id="fuel-num">1000</span></div>
         </div>
     </div>
 
-    <div id="mobile-controls">
-        <div class="d-pad">
-            <div class="m-btn" id="btn-left">◄</div>
-            <div class="m-btn" id="btn-right">►</div>
-        </div>
-        <div class="action-pad">
-            <div class="m-btn" id="btn-jump" style="width: 90px; height: 90px; border-radius: 20px; background: rgba(0,210,255,0.2); border-color: var(--jim-blue);">▲</div>
-        </div>
-    </div>
-
-    <div id="quiz-overlay" class="overlay">
-        <div class="quiz-modal glass-ui">
-            <div class="timer-bar" id="quiz-timer"></div>
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
-                <h2 style="font-family:'Bungee'; margin:0; font-size: 35px; color: var(--jim-red);">CRITICAL FAILURE</h2>
-                <div style="background: rgba(255,0,0,0.2); padding: 5px 15px; border-radius: 20px; font-weight: bold; color: var(--jim-red); border: 1px solid var(--jim-red);">SYSTEM REBOOT REQ.</div>
-            </div>
-            <p id="q-text" style="font-size: 26px; font-weight: 900; margin: 0 0 30px 0; line-height: 1.4;"></p>
+    <div id="quiz-overlay">
+        <div class="modal glass-ui">
+            <h2 id="modal-title" style="font-family:'Bungee'; margin:0; font-size: 40px;">REFUELING...</h2>
+            <p id="q-text" style="font-size: 22px; font-weight: 900; margin: 30px 0;"></p>
             <div id="opt-box"></div>
         </div>
     </div>
-
+    
     <canvas id="stage"></canvas>
 </div>
 
 <script>
     /**
-     * @fileoverview Japa Jump Enterprise - High Performance Canvas Engine
-     * Integrates advanced OOP, Web Audio API synthesis, Particle Systems, 
-     * Spatial Hashing, and robust state machines.
+     * @fileoverview Japa Jump - SDG 13 Climate Action Platformer
+     * @version 1.0.0
+     * @description Advanced HTML5 Canvas Platformer with integrated educational mechanics.
      */
 
     // ==========================================
-    // SDG 13 DATA WAREHOUSE
+    // ENGINE INITIALIZATION
+    // ==========================================
+    const canvas = document.getElementById('stage');
+    const ctx = canvas.getContext('2d');
+    
+    // Dynamic viewport sizing for responsive canvas
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    /**
+     * Global Game State Management Object
+     * Tracks runtime variables, environmental modifiers, and state machines.
+     * @type {Object}
+     */
+    let game = {
+        active: false, 
+        quizActive: false,
+        energy: 1000, 
+        score: 0, 
+        camX: 0, 
+        camY: 19500,
+        keys: {}, 
+        platforms: [], 
+        lastCPHeight: 0,
+        voidLevel: 20500, 
+        hellMode: false,
+        highscore: localStorage.getItem('jimkitAltHighscore') || 0,
+        confetti: []
+    };
+
+    /**
+     * Player Entity Properties & Physics State
+     * Handles coordinate data, velocity vectors, and animation cycles.
+     * @type {Object}
+     */
+    const player = {
+        x: 2500, 
+        y: 19800, 
+        vx: 0, 
+        vy: 0, 
+        w: 50, 
+        h: 50,
+        facing: 1, 
+        walk: 0, 
+        canDJ: true, 
+        onG: false,
+        platformVelocity: 0, 
+        lastSafeX: 2500, 
+        lastSafeY: 19800
+    };
+
+    // ==========================================
+    // SDG 13: CLIMATE ACTION DATA BANK
+    // Standardized JSON format for easy expansion
     // ==========================================
     const Q_BANK = [
-        {q: "What is the main cause of global warming?", a: ["Greenhouse gases", "Too many trees", "Wind", "Solar flares"], c: 0},
-        {q: "Which energy source is 100% renewable?", a: ["Solar Power", "Clean Coal", "Natural Gas", "Nuclear Fission"], c: 0},
-        {q: "SDG Goal 13 focuses primarily on?", a: ["Climate Action", "Zero Hunger", "Quality Education", "Life Below Water"], c: 0},
-        {q: "What do forests absorb from the atmosphere?", a: ["Carbon Dioxide", "Oxygen", "Nitrogen", "Helium"], c: 0},
-        {q: "What is a major source of anthropogenic methane?", a: ["Livestock Agriculture", "Volcanic activity", "Ocean currents", "Wind turbines"], c: 0},
-        {q: "What phenomenon causes ocean acidification?", a: ["Absorbing excess CO2", "Salt runoff", "Plastic pollution", "Overfishing"], c: 0},
-        {q: "What is the function of the ozone layer?", a: ["Filters harmful UV Rays", "Traps heat", "Creates rain", "Blocks meteors"], c: 0},
-        {q: "Which ecosystem captures the most carbon per acre?", a: ["Mangrove Forests", "Concrete jungles", "Open grasslands", "Deserts"], c: 0},
-        {q: "Fast fashion directly contributes heavily to?", a: ["Waste & Water Pollution", "Economic stability", "Soil regeneration", "Ozone depletion"], c: 0},
-        {q: "Electric vehicles (EVs) primarily reduce?", a: ["Tailpipe emissions", "Traffic congestion", "Road wear", "Noise pollution"], c: 0},
-        {q: "What is the most abundant gas in Earth's atmosphere?", a: ["Nitrogen", "Oxygen", "Carbon Dioxide", "Argon"], c: 0},
-        {q: "Which fossil fuel emits the most CO2 when burned?", a: ["Coal", "Natural Gas", "Propane", "Biomass"], c: 0},
-        {q: "The Arctic is currently warming how fast compared to the global average?", a: ["Faster (approx 2-3x)", "Slower", "At the exact same rate", "It is cooling"], c: 0},
-        {q: "Approximately how much of Earth's water is accessible freshwater?", a: ["Less than 3%", "About 50%", "Over 90%", "Around 25%"], c: 0},
-        {q: "What agricultural technique minimizes water waste?", a: ["Drip irrigation", "Flood irrigation", "Crop dusting", "Tilling"], c: 0},
-        {q: "What does the 'greenhouse effect' actually do?", a: ["Traps thermal radiation", "Blocks sunlight entirely", "Cools the stratosphere", "Generates wind"], c: 0},
-        {q: "Which material is historically the most recycled globally?", a: ["Steel/Aluminum", "Plastic bags", "Styrofoam", "Rubber tires"], c: 0},
-        {q: "What are microplastics?", a: ["Plastic fragments <5mm", "Large water bottles", "Eco-friendly toys", "Synthetic rubber"], c: 0},
-        {q: "The Paris Agreement aims to limit global temperature rise to below?", a: ["2°C (Preferably 1.5°C)", "5°C", "10°C", "0°C"], c: 0},
-        {q: "What gas do decomposing landfills predominantly release?", a: ["Methane", "Oxygen", "Argon", "Helium"], c: 0}
+        { q: "What is the main cause of global warming?", a: ["Greenhouse gases", "Too many trees", "Wind"], c: 0 },
+        { q: "Which energy source is renewable?", a: ["Solar", "Coal", "Natural Gas"], c: 0 },
+        { q: "SDG Goal 13 is about?", a: ["Climate Action", "Zero Hunger", "Education"], c: 0 },
+        { q: "What do trees absorb from the air?", a: ["Carbon Dioxide", "Oxygen", "Nitrogen"], c: 0 },
+        { q: "Which travel is most eco-friendly?", a: ["Bicycling", "Flying", "Driving alone"], c: 0 },
+        { q: "What is a major source of methane?", a: ["Livestock/Cows", "Rocks", "Space"], c: 0 },
+        { q: "Turning off lights when leaving saves?", a: ["Electricity", "Water", "Oxygen"], c: 0 },
+        { q: "What melts because of global warming?", a: ["Glaciers & Ice caps", "Rocks", "Deserts"], c: 0 },
+        { q: "Ocean acidification is caused by?", a: ["Absorbing CO2", "Salt", "Plastic"], c: 0 },
+        { q: "Sustainability means meeting needs without?", a: ["Hurting the future", "Spending money", "Phones"], c: 0 },
+        { q: "Which lightbulb is most efficient?", a: ["LED", "Incandescent", "Neon"], c: 0 },
+        { q: "What is a 'carbon footprint'?", a: ["Total GHG impact", "Shoe size", "Walking path"], c: 0 },
+        { q: "The ozone layer protects us from?", a: ["UV Rays", "Rain", "Wind"], c: 0 },
+        { q: "Which captures more carbon per acre?", a: ["Mangroves", "Parking lots", "Grass"], c: 0 },
+        { q: "Fast fashion contributes to?", a: ["Waste & Pollution", "Math skills", "Hunger"], c: 0 },
+        { q: "Electric cars primarily reduce?", a: ["Tailpipe emissions", "Traffic", "Flat tires"], c: 0 },
+        { q: "What is the primary gas in the atmosphere?", a: ["Nitrogen", "Oxygen", "CO2"], c: 0 },
+        { q: "Deforestation removes critical?", a: ["Forests", "Cities", "Deserts"], c: 0 },
+        { q: "Which fossil fuel is 'dirtiest'?", a: ["Coal", "Natural Gas", "Propane"], c: 0 },
+        { q: "Arctic is warming ______ than the average?", a: ["Faster", "Slower", "Same"], c: 0 },
+        { q: "Earth Day is in which month?", a: ["April", "June", "December"], c: 0 },
+        { q: "How much of Earth's water is freshwater?", a: ["3%", "50%", "90%"], c: 0 },
+        { q: "Drip irrigation saves what?", a: ["Water", "Soil", "Air"], c: 0 },
+        { q: "What is 'E-waste'?", a: ["Discarded electronics", "Email spam", "Batteries"], c: 0 },
+        { q: "Solar energy is from?", a: ["Sunlight", "Wind", "Waves"], c: 0 },
+        { q: "Using a dishwasher vs hand washing usually?", a: ["Saves water", "Wastes water", "Same"], c: 0 },
+        { q: "What month is the COP summit usually?", a: ["November", "January", "July"], c: 0 },
+        { q: "Which captures more carbon than forests?", a: ["Peatlands", "Highways", "Beaches"], c: 0 },
+        { q: "What is permafrost?", a: ["Frozen ground", "Winter ice", "Cold air"], c: 0 },
+        { q: "Greenhouse effect means atmosphere?", a: ["Traps heat", "Blocks sun", "Paints houses"], c: 0 },
+        { q: "Composting helps reduce waste in?", a: ["Landfills", "Oceans", "Moon"], c: 0 },
+        { q: "Most recycled item?", a: ["Steel", "Plastic", "Glass"], c: 0 },
+        { q: "Sustainable cities focus on?", a: ["Public transport", "Bigger roads", "More cars"], c: 0 },
+        { q: "Microplastics are?", a: ["Tiny fragments", "Large bottles", "New toys"], c: 0 },
+        { q: "Which diet has the lowest footprint?", a: ["Plant-based", "Heavy beef", "Fast food"], c: 0 },
+        { q: "What is 'Zero Waste'?", a: ["Sending nothing to landfill", "Using 0 energy", "0 money"], c: 0 },
+        { q: "Coral bleaching is from?", a: ["Warm water", "Fish swimming", "Deep water"], c: 0 },
+        { q: "EPA stands for?", a: ["Env. Protection Agency", "Earth Power", "Eat Apples"], c: 0 },
+        { q: "Which helps cool cities?", a: ["Rooftop gardens", "Black paint", "More cars"], c: 0 },
+        { q: "Paris Agreement aims to keep warming below?", a: ["2 Degrees", "10 Degrees", "0 Degrees"], c: 0 },
+        { q: "Fastest warming place on Earth?", a: ["The Poles", "Sahara", "Pacific"], c: 0 },
+        { q: "CO2 levels are measured in?", a: ["PPM", "Liters", "Kilos"], c: 0 },
+        { q: "Which captures the most carbon?", a: ["Ocean", "Rocks", "Buildings"], c: 0 },
+        { q: "What do cows release?", a: ["Methane", "Oxygen", "Argon"], c: 0 },
+        { q: "Which is non-renewable?", a: ["Natural Gas", "Wind", "Tides"], c: 0 },
+        { q: "Best way to save resources?", a: ["Reducing & Reusing", "Buying new", "Throwing away"], c: 0 },
+        { q: "How many SDGs are there?", a: ["17", "5", "50"], c: 0 },
+        { q: "Climate Action requires?", a: ["Everyone", "Only NASA", "Only Teachers"], c: 0 },
+        { q: "Recycling paper saves?", a: ["Trees", "Water", "Oxygen"], c: 0 },
+        { q: "What color is SDG 13?", a: ["Dark Green", "Red", "Blue"], c: 0 }
     ];
 
     // ==========================================
-    // AUDIO SYNTHESIS ENGINE (No external assets)
+    // UI & MENU MANAGEMENT CONTROLLERS
     // ==========================================
-    class AudioSystem {
-        constructor() {
-            const AudioContext = window.AudioContext || window.webkitAudioContext;
-            this.ctx = new AudioContext();
-            this.masterGain = this.ctx.createGain();
-            this.masterGain.gain.value = 0.3;
-            this.masterGain.connect(this.ctx.destination);
-            this.enabled = false;
-        }
-
-        init() {
-            if(this.ctx.state === 'suspended') this.ctx.resume();
-            this.enabled = true;
-        }
-
-        playTone(freq, type, duration, vol=1, slideFreq=null) {
-            if(!this.enabled) return;
-            const osc = this.ctx.createOscillator();
-            const gain = this.ctx.createGain();
-            osc.type = type;
-            osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
-            if(slideFreq) osc.frequency.exponentialRampToValueAtTime(slideFreq, this.ctx.currentTime + duration);
-            
-            gain.gain.setValueAtTime(vol, this.ctx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + duration);
-            
-            osc.connect(gain);
-            gain.connect(this.masterGain);
-            osc.start();
-            osc.stop(this.ctx.currentTime + duration);
-        }
-
-        noise(duration, vol=0.5) {
-            if(!this.enabled) return;
-            const bufferSize = this.ctx.sampleRate * duration;
-            const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
-            const data = buffer.getChannelData(0);
-            for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
-            
-            const noise = this.ctx.createBufferSource();
-            noise.buffer = buffer;
-            const gain = this.ctx.createGain();
-            gain.gain.setValueAtTime(vol, this.ctx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + duration);
-            
-            // Filter for wind/explosion sound
-            const filter = this.ctx.createBiquadFilter();
-            filter.type = 'lowpass';
-            filter.frequency.value = 1000;
-
-            noise.connect(filter);
-            filter.connect(gain);
-            gain.connect(this.masterGain);
-            noise.start();
-        }
-
-        sfxJump() { this.playTone(150, 'sine', 0.3, 0.8, 600); }
-        sfxCoin() { this.playTone(800, 'square', 0.1, 0.5, 1200); setTimeout(()=>this.playTone(1200, 'square', 0.2, 0.5), 100); }
-        sfxHurt() { this.playTone(150, 'sawtooth', 0.4, 0.8, 50); this.noise(0.4, 0.8); }
-        sfxWin() { [300, 400, 500, 600, 800].forEach((f, i) => setTimeout(() => this.playTone(f, 'sine', 0.5, 1), i*150)); }
-        sfxHover() { this.playTone(400, 'sine', 0.05, 0.1); }
-        sfxSelect() { this.playTone(600, 'square', 0.1, 0.3); }
-    }
-    const Audio = new AudioSystem();
-
-    // ==========================================
-    // UTILITIES & MATHEMATICS
-    // ==========================================
-    class Vector2 {
-        constructor(x=0, y=0) { this.x = x; this.y = y; }
-        add(v) { this.x += v.x; this.y += v.y; return this; }
-        mult(n) { this.x *= n; this.y *= n; return this; }
-        mag() { return Math.sqrt(this.x*this.x + this.y*this.y); }
+    
+    /**
+     * Toggles the visibility of the instruction screen.
+     * @param {boolean} isVisible - True to show, false to hide.
+     */
+    function showInstr(isVisible) { 
+        document.getElementById('instr-screen').style.display = isVisible ? 'flex' : 'none'; 
     }
 
-    class MathUtils {
-        static lerp(a, b, t) { return a + (b - a) * t; }
-        static clamp(val, min, max) { return Math.max(min, Math.min(max, val)); }
-        static randomRange(min, max) { return Math.random() * (max - min) + min; }
-        static rectIntersect(r1, r2) {
-            return !(r2.left > r1.right || r2.right < r1.left || r2.top > r1.bottom || r2.bottom < r1.top);
-        }
-    }
-
-    // ==========================================
-    // PARTICLE & VFX ENGINE
-    // ==========================================
-    class ParticleEngine {
-        constructor() { this.particles = []; }
+    /**
+     * Procedurally generates the level platforms based on mathematical difficulty curves.
+     * Calculates width, vertical gap, and horizontal drift thresholds.
+     */
+    function generateLevel() {
+        game.platforms = [];
         
-        emit(x, y, type, count) {
-            for(let i=0; i<count; i++) {
-                let p = { x: x, y: y, life: 1, maxLife: MathUtils.randomRange(30, 80), r: MathUtils.randomRange(2, 6), type: type };
-                let angle = Math.random() * Math.PI * 2;
-                let speed = Math.random() * 8;
-                p.vx = Math.cos(angle) * speed;
-                p.vy = Math.sin(angle) * speed;
-                
-                if(type === 'fire') { p.vy = -Math.random() * 5; p.vx = (Math.random()-0.5)*2; p.r = MathUtils.randomRange(5,15); }
-                if(type === 'sparkle') { p.color = `hsl(${Math.random()*60 + 40}, 100%, 70%)`; p.vy = -Math.random()*3; }
-                if(type === 'smoke') { p.r = MathUtils.randomRange(10,30); p.vy = -Math.random()*2; p.color = `rgba(100,100,100,0.5)`; }
-                
-                this.particles.push(p);
-            }
+        // Push initial starting platform
+        game.platforms.push({x: 2350, y: 19950, w: 300, h: 50, color: '#2ecc71'});
+        
+        let currentY = 19800;
+        let lastX = 2500;
+        
+        // Procedural generation loop
+        for(let i = 0; i < 1500; i++) {
+            let alt = Math.abs(Math.floor((currentY - 19800) / 10));
+            
+            // Difficulty modifiers based on altitude
+            let isHell = alt > 1500;
+            let isFinal = alt >= 2200;
+            
+            // Calculate platform properties dynamically
+            let pWidth = isFinal ? 400 : (isHell ? (45 + Math.random() * 10) : (80 + Math.random() * 30));
+            let verticalGap = (isHell) ? 210 : (150 + Math.random() * 80);
+            let horizontalDrift = isHell ? 350 : 550;
+            
+            let randomX = isFinal ? 2300 : lastX + (Math.random() * (horizontalDrift * 2) - horizontalDrift);
+            
+            // Clamp horizontal bounds
+            if (randomX < 1100) randomX = 1300; 
+            if (randomX > 3900) randomX = 3700;
+            
+            // Inject platform into physics engine
+            game.platforms.push({ 
+                x: randomX, 
+                y: currentY, 
+                w: pWidth, 
+                h: 32, 
+                color: isFinal ? 'gold' : (isHell ? '#ff1a1a' : '#fff'),
+                isHell: isHell, 
+                isFinal: isFinal
+            });
+            
+            if(isFinal) break; 
+            
+            // Step loop forward
+            lastX = randomX; 
+            currentY -= verticalGap; 
         }
+    }
 
-        updateAndDraw(ctx, cam) {
-            for(let i = this.particles.length - 1; i >= 0; i--) {
-                let p = this.particles[i];
-                p.x += p.vx; p.y += p.vy;
-                p.life++;
+    /**
+     * Initializes the core game loop and dismisses the start menu.
+     */
+    function beginGame() {
+        document.getElementById('start-menu').style.display = 'none';
+        generateLevel();
+        game.active = true;
+        document.getElementById('hi-val').innerText = game.highscore + 'm';
+        requestAnimationFrame(update);
+    }
+
+    /**
+     * Particle effect generator for the victory sequence.
+     */
+    function spawnConfetti() {
+        for(let i = 0; i < 100; i++) {
+            game.confetti.push({
+                x: Math.random() * canvas.width, 
+                y: -20,
+                s: 5 + Math.random() * 10,
+                v: 2 + Math.random() * 5,
+                c: `hsl(${Math.random() * 360}, 70%, 60%)`
+            });
+        }
+    }
+
+    // ==========================================
+    // CORE PHYSICS & LOGIC LOOP
+    // ==========================================
+    
+    /**
+     * Main runtime engine processing physics, inputs, and environmental triggers.
+     */
+    function update() {
+        if(!game.active || game.quizActive) return;
+        
+        // Environment trigger: Hell Mode execution
+        if (game.score >= 1500 && !game.hellMode) {
+            game.hellMode = true;
+            document.getElementById('app').style.background = 'var(--jim-hell)';
+            document.getElementById('vignette').style.opacity = '1';
+        }
+        
+        // Input Management System
+        window.onkeydown = e => { 
+            if(["ArrowUp","Space","ArrowLeft","ArrowRight","KeyW","KeyA","KeyS","KeyD"].includes(e.code)) {
+                e.preventDefault(); 
+            }
+            game.keys[e.code] = true; 
+        };
+        
+        window.onkeyup = e => {
+            game.keys[e.code] = false;
+        };
+        
+        // Horizontal Physics & Input Handling
+        const leftInput = game.keys['ArrowLeft'] || game.keys['KeyA'];
+        const rightInput = game.keys['ArrowRight'] || game.keys['KeyD'];
+        
+        if(leftInput || rightInput) {
+            game.energy -= 0.38; 
+            player.vx = leftInput ? -12 : 12; 
+            player.facing = leftInput ? -1 : 1; 
+            player.walk += 0.35;
+        } else { 
+            // Friction and idle energy drain
+            player.vx *= 0.82; 
+            player.walk = 0; 
+            game.energy -= 0.03; 
+        }
+        
+        // Apply velocity vectors
+        player.x += player.vx; 
+        player.vy += 0.8; // Gravity constant
+        player.y += player.vy;
+        
+        // Collision Detection System (AABB Intersects)
+        player.onG = false;
+        game.platforms.forEach(p => {
+            if(player.vy > 0 && 
+               player.x + 40 > p.x && 
+               player.x < p.x + p.w && 
+               player.y + player.h > p.y && 
+               player.y + player.h < p.y + p.h + 20) {
                 
-                let progress = p.life / p.maxLife;
-                let alpha = 1 - progress;
-                let size = p.r * (1 - progress*0.5);
+                // Resolution
+                player.y = p.y - player.h; 
+                player.vy = 0; 
+                player.onG = true; 
+                player.canDJ = true;
+                
+                // Win Condition Check
+                if(p.isFinal) { 
+                    game.active = false; 
+                    spawnConfetti();
+                    document.getElementById('win-screen').style.display = 'flex';
+                }
+                
+                // Checkpoint Management Logic
+                let currentAltitude = Math.abs(Math.floor((player.y - 19800) / 10));
+                if (currentAltitude >= game.lastCPHeight + 500) {
+                    game.lastCPHeight = Math.floor(currentAltitude / 500) * 500;
+                    player.lastSafeX = p.x + p.w / 2; 
+                    player.lastSafeY = p.y;
+                    game.voidLevel = p.y + 750; 
+                    triggerCPToast(game.lastCPHeight);
+                }
+            }
+        });
+        
+        // Vertical Physics (Jumping mechanics)
+        const jumpInput = game.keys['ArrowUp'] || game.keys['Space'] || game.keys['KeyW'];
+        if(jumpInput && !game.keys.locked) {
+            if(player.onG) { 
+                player.vy = -18.5; 
+                game.energy -= 20; 
+            } else if(player.canDJ) { 
+                player.vy = -16; 
+                player.canDJ = false; 
+                game.energy -= 28; 
+            }
+            game.keys.locked = true;
+        }
+        if(!jumpInput) game.keys.locked = false;
+        
+        // Camera Lerping (Linear Interpolation)
+        game.camX += (player.x - canvas.width/2 - game.camX) * 0.1;
+        game.camY += (player.y - canvas.height/2 - game.camY) * 0.1;
+        
+        // Void Death & Checkpoint Respawn
+        if(player.y > game.voidLevel) { 
+            game.energy = 0; 
+            player.x = player.lastSafeX - 25; 
+            player.y = player.lastSafeY - 60; 
+            player.vx = 0; 
+            player.vy = 0;
+        }
+        
+        // Energy Depletion Trigger
+        if(game.energy <= 0) { 
+            triggerQuiz(); 
+            return; 
+        }
+        
+        // Score updating
+        game.score = Math.abs(Math.floor((player.y - 19800) / 10));
+        if(game.score > game.highscore) {
+            game.highscore = game.score;
+            localStorage.setItem('jimkitAltHighscore', game.highscore);
+            document.getElementById('hi-val').innerText = game.highscore + 'm';
+        }
+        
+        // Execute render cycle
+        draw();
+        requestAnimationFrame(update);
+    }
 
-                if(p.type === 'fire') {
-                    p.x += Math.sin(p.life * 0.1); // flicker
-                    ctx.fillStyle = `rgba(255, ${Math.floor(200*(1-progress))}, 0, ${alpha})`;
-                } else if(p.type === 'sparkle') {
-                    ctx.fillStyle = p.color;
-                    ctx.shadowBlur = 10; ctx.shadowColor = p.color;
-                } else if(p.type === 'smoke') {
-                    ctx.fillStyle = p.color;
-                    size = p.r * (1 + progress); // smoke expands
+    /**
+     * UI Helper to display milestone checkpoints.
+     * @param {number} h - Altitude reached
+     */
+    function triggerCPToast(h) {
+        const toast = document.getElementById('checkpoint-toast');
+        toast.innerText = h + "m REACHED"; 
+        toast.style.opacity = 1;
+        if(game.hellMode) {
+            toast.style.color = "red";
+        }
+        setTimeout(() => toast.style.opacity = 0, 2000);
+        document.getElementById('zone-val').innerText = h + "m";
+    }
+
+    // ==========================================
+    // RENDER ENGINE
+    // ==========================================
+    
+    /**
+     * Clears canvas and renders all visual components relative to the virtual camera.
+     */
+    function draw() {
+        // Clear previous frame
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        // Render platforms with frustum culling optimization
+        game.platforms.forEach(o => {
+            let sx = o.x - game.camX;
+            let sy = o.y - game.camY;
+            
+            // Culling: Do not draw objects off-screen
+            if(sy < -300 || sy > canvas.height + 300) return;
+            
+            ctx.fillStyle = o.color; 
+            
+            // Dynamic shadow application based on state
+            if(o.isHell) { 
+                ctx.shadowBlur = 20; 
+                ctx.shadowColor = "red"; 
+            }
+            if(o.isFinal) { 
+                ctx.shadowBlur = 40; 
+                ctx.shadowColor = "gold"; 
+            }
+            
+            ctx.fillRect(sx, sy, o.w, o.h); 
+            ctx.shadowBlur = 0; // Reset shadow
+            
+            // Faux 3D depth rendering
+            ctx.fillStyle = "rgba(0,0,0,0.3)"; 
+            ctx.fillRect(sx, sy + o.h/2, o.w, o.h/2);
+        });
+        
+        // Render Player Avatar via transformation matrix
+        ctx.save();
+        ctx.translate(player.x - game.camX + player.w/2, player.y - game.camY + player.h/2);
+        ctx.scale(player.facing, 1); // Flip context based on orientation
+        
+        // Body Base
+        ctx.fillStyle = game.hellMode ? "#1a1a1a" : "#4CAF50"; 
+        ctx.beginPath(); 
+        ctx.roundRect(-25, -25, 50, 50, 12); 
+        ctx.fill();
+        
+        // Visor/Mask
+        ctx.fillStyle = game.hellMode ? "#800" : "#FF9800"; 
+        ctx.fillRect(-28, -28, 56, 18);
+        
+        // Animation cycle calculation
+        let leg = Math.sin(player.walk) * 15;
+        
+        // Render Legs
+        ctx.fillStyle = "#111"; 
+        ctx.fillRect(-18, 18, 14, 15 + leg); 
+        ctx.fillRect(4, 18, 14, 15 - leg);
+        
+        // Eyes/Glow details
+        ctx.fillStyle = game.hellMode ? "red" : "white"; 
+        ctx.fillRect(10, -5, 8, 8); 
+        ctx.fillRect(25, -5, 8, 8);
+        ctx.restore();
+
+        // Render Confetti Particle System
+        game.confetti.forEach((c, i) => {
+            c.y += c.v; 
+            ctx.fillStyle = c.c; 
+            ctx.fillRect(c.x, c.y, c.s, c.s);
+            
+            // Garbage collection for off-screen particles
+            if(c.y > canvas.height) {
+                game.confetti.splice(i, 1);
+            }
+        });
+
+        // Sync Data to DOM Elements
+        document.getElementById('alt-val').innerText = game.score + 'm';
+        document.getElementById('pct-val').innerText = Math.max(0, Math.floor(game.energy/10)) + '%';
+        document.getElementById('energy-fill').style.width = (game.energy/10) + '%';
+        document.getElementById('fuel-num').innerText = Math.max(0, Math.floor(game.energy));
+    }
+
+    // ==========================================
+    // QUIZ LOGIC CONTROLLER
+    // ==========================================
+    
+    /**
+     * Pauses the engine and invokes the interactive quiz menu.
+     */
+    function triggerQuiz() { 
+        game.quizActive = true; 
+        document.getElementById('quiz-overlay').style.display = 'flex'; 
+        displayQuestion(); 
+    }
+
+    /**
+     * Extracts a random question, shuffles inputs, and mounts events to the DOM.
+     */
+    function displayQuestion() {
+        const q = Q_BANK[Math.floor(Math.random() * Q_BANK.length)];
+        
+        // Map original index to retain answer validation after shuffle
+        let answers = q.a.map((text, index) => ({ text, originalIndex: index }));
+        answers.sort(() => Math.random() - 0.5);
+        
+        document.getElementById('q-text').innerText = q.q;
+        const box = document.getElementById('opt-box'); 
+        box.innerHTML = '';
+        
+        // Build answer buttons dynamically
+        answers.forEach((ans) => {
+            const btn = document.createElement('button'); 
+            btn.className = 'opt glass-ui'; 
+            btn.innerText = ans.text;
+            
+            // Apply click listener and validation logic
+            btn.onclick = () => {
+                // Disable all buttons to prevent double-clicking
+                Array.from(box.children).forEach(b => b.disabled = true);
+                
+                if(ans.originalIndex === q.c) {
+                    btn.classList.add('correct-flash');
+                    
+                    // Delay cleanup to show UI feedback
+                    setTimeout(() => { 
+                        game.energy = 1000; 
+                        game.quizActive = false; 
+                        document.getElementById('quiz-overlay').style.display = 'none'; 
+                        requestAnimationFrame(update); 
+                    }, 800);
                 } else {
-                    ctx.fillStyle = `rgba(255,255,255,${alpha})`;
-                }
-
-                ctx.beginPath();
-                ctx.arc(p.x - cam.x, p.y - cam.y, Math.max(0.1, size), 0, Math.PI*2);
-                ctx.fill();
-                ctx.shadowBlur = 0; // reset
-
-                if(p.life >= p.maxLife) this.particles.splice(i, 1);
-            }
-        }
-    }
-
-    // ==========================================
-    // ENVIRONMENTAL RENDERING (Parallax & Weather)
-    // ==========================================
-    class Environment {
-        constructor(width, height) {
-            this.w = width; this.h = height;
-            this.stars = Array.from({length: 200}, () => ({ x: Math.random()*this.w, y: Math.random()*this.h, s: Math.random()*2, a: Math.random() }));
-            this.clouds = Array.from({length: 15}, () => ({ x: Math.random()*this.w, y: Math.random()*this.h, s: MathUtils.randomRange(0.2, 1), speed: MathUtils.randomRange(0.1, 0.5) }));
-            this.weatherType = 0; // 0: clear, 1: rain, 2: embers
-            this.weatherDrops = Array.from({length: 100}, () => ({ x: Math.random()*this.w, y: Math.random()*this.h, length: MathUtils.randomRange(10, 30), speed: MathUtils.randomRange(15, 25) }));
-        }
-
-        updateAndDraw(ctx, cam, isHell) {
-            this.weatherType = isHell ? 2 : (cam.y < 10000 ? 0 : 1);
-            
-            // Draw Stars (Parallax Deep)
-            ctx.fillStyle = 'white';
-            this.stars.forEach(s => {
-                let py = (s.y - cam.y * 0.05) % this.h;
-                if(py < 0) py += this.h;
-                s.a += 0.05;
-                ctx.globalAlpha = Math.abs(Math.sin(s.a)) * (isHell ? 0.2 : 0.8);
-                ctx.fillRect(s.x, py, s.s, s.s);
-            });
-            ctx.globalAlpha = 1;
-
-            // Draw Clouds (Parallax Mid)
-            if(!isHell) {
-                ctx.fillStyle = 'rgba(255,255,255,0.1)';
-                this.clouds.forEach(c => {
-                    c.x = (c.x + c.speed) % this.w;
-                    let py = (c.y - cam.y * 0.15) % this.h;
-                    if(py < 0) py += this.h;
-                    ctx.beginPath();
-                    ctx.arc(c.x, py, 100 * c.s, 0, Math.PI*2);
-                    ctx.arc(c.x + 60*c.s, py - 20*c.s, 80 * c.s, 0, Math.PI*2);
-                    ctx.arc(c.x - 60*c.s, py - 10*c.s, 70 * c.s, 0, Math.PI*2);
-                    ctx.fill();
-                });
-            }
-
-            // Draw Weather (Foreground)
-            ctx.lineWidth = 2;
-            this.weatherDrops.forEach(d => {
-                d.y += d.speed;
-                if(d.y > this.h) { d.y = -50; d.x = Math.random() * this.w; }
-                
-                if(this.weatherType === 1) { // Rain
-                    ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
-                    ctx.beginPath(); ctx.moveTo(d.x, d.y); ctx.lineTo(d.x - d.speed*0.2, d.y + d.length); ctx.stroke();
-                } else if (this.weatherType === 2) { // Embers
-                    ctx.fillStyle = `rgba(255, ${Math.random()*100}, 0, 0.8)`;
-                    d.x += Math.sin(d.y*0.05)*2; // waver
-                    d.speed = MathUtils.randomRange(2, 6); // slow down embers
-                    ctx.beginPath(); ctx.arc(d.x, d.y, 2, 0, Math.PI*2); ctx.fill();
-                }
-            });
-        }
-    }
-
-    // ==========================================
-    // GAME ENTITIES & ARCHITECTURE
-    // ==========================================
-    class Player {
-        constructor(x, y) {
-            this.pos = new Vector2(x, y);
-            this.vel = new Vector2(0, 0);
-            this.size = new Vector2(46, 46);
-            this.speed = 14;
-            this.friction = 0.82;
-            this.gravity = 0.85;
-            this.jumpForce = -20;
-            
-            this.onGround = false;
-            this.canDoubleJump = true;
-            this.facing = 1;
-            this.walkAnim = 0;
-            this.squash = 1;
-            this.stretch = 1;
-
-            this.lastSafePos = new Vector2(x, y);
-            this.energy = 1000;
-            this.maxEnergy = 1000;
-            this.score = 0;
-        }
-
-        update(keys, isHell) {
-            // Input Resolution
-            let moving = false;
-            if(keys['ArrowLeft'] || keys['KeyA']) { this.vel.x -= 2; this.facing = -1; moving = true; }
-            if(keys['ArrowRight'] || keys['KeyD']) { this.vel.x += 2; this.facing = 1; moving = true; }
-            
-            // Energy Drain
-            let drainRate = isHell ? 0.6 : 0.3;
-            if(moving) { this.energy -= drainRate; this.walkAnim += 0.4; }
-            else { this.walkAnim = 0; this.energy -= (drainRate*0.1); }
-            
-            // Velocity Clamping & Friction
-            this.vel.x = MathUtils.clamp(this.vel.x, -this.speed, this.speed);
-            if(!moving) this.vel.x *= this.friction;
-            
-            // Gravity & Terminal Velocity
-            this.vel.y += this.gravity;
-            this.vel.y = Math.min(this.vel.y, 25);
-
-            // Apply Kinematics
-            this.pos.add(this.vel);
-            
-            // Procedural Animation Recovery
-            this.squash = MathUtils.lerp(this.squash, 1, 0.1);
-            this.stretch = MathUtils.lerp(this.stretch, 1, 0.1);
-
-            // Update Score based on Altitude (Inverse Y)
-            let rawAlt = Math.floor((19800 - this.pos.y) / 10);
-            if(rawAlt > this.score) this.score = rawAlt;
-        }
-
-        jump() {
-            if(this.onGround) {
-                this.vel.y = this.jumpForce;
-                this.energy -= 15;
-                this.squash = 0.6; this.stretch = 1.4;
-                Audio.sfxJump();
-                GameEngine.vfx.emit(this.pos.x + this.size.x/2, this.pos.y + this.size.y, 'smoke', 10);
-                return true;
-            } else if(this.canDoubleJump) {
-                this.vel.y = this.jumpForce * 0.85;
-                this.energy -= 25;
-                this.canDoubleJump = false;
-                this.squash = 0.8; this.stretch = 1.2;
-                Audio.sfxJump();
-                GameEngine.vfx.emit(this.pos.x + this.size.x/2, this.pos.y + this.size.y, 'sparkle', 15);
-                return true;
-            }
-            return false;
-        }
-
-        draw(ctx, cam, isHell) {
-            ctx.save();
-            // Origin at center bottom for squash/stretch
-            let cx = this.pos.x - cam.x + this.size.x/2;
-            let cy = this.pos.y - cam.y + this.size.y;
-            
-            ctx.translate(cx, cy);
-            ctx.scale(this.facing * this.stretch, this.squash);
-            
-            // Thruster Exhaust
-            if(!this.onGround && this.vel.y < 0) {
-                ctx.fillStyle = 'rgba(0, 200, 255, 0.6)';
-                ctx.beginPath(); ctx.moveTo(-10, 0); ctx.lineTo(10, 0); ctx.lineTo(0, Math.random()*25+10); ctx.fill();
-            }
-
-            // Body Suit
-            ctx.fillStyle = isHell ? "#2a2a2a" : "#fff";
-            ctx.shadowBlur = 15; ctx.shadowColor = isHell ? "red" : "var(--jim-blue)";
-            ctx.beginPath(); ctx.roundRect(-23, -46, 46, 46, 12); ctx.fill(); ctx.shadowBlur = 0;
-            
-            // Backpack / Oxygen Tank
-            ctx.fillStyle = "#555";
-            ctx.beginPath(); ctx.roundRect(-30, -35, 10, 25, 5); ctx.fill();
-            
-            // Visor
-            ctx.fillStyle = isHell ? "#ff2a2a" : "#0f2027";
-            ctx.beginPath(); ctx.roundRect(-5, -35, 30, 16, 8); ctx.fill();
-            
-            // Visor Reflection
-            ctx.fillStyle = "rgba(255,255,255,0.3)";
-            ctx.beginPath(); ctx.roundRect(-2, -32, 10, 6, 3); ctx.fill();
-
-            // Legs
-            let legExt = Math.sin(this.walkAnim) * 8;
-            ctx.fillStyle = isHell ? "#111" : "#888";
-            ctx.beginPath(); ctx.roundRect(-15, 0, 12, 10 + legExt, 4); ctx.fill();
-            ctx.beginPath(); ctx.roundRect(3, 0, 12, 10 - legExt, 4); ctx.fill();
-
-            ctx.restore();
-        }
-
-        getBounds() {
-            return { left: this.pos.x, right: this.pos.x + this.size.x, top: this.pos.y, bottom: this.pos.y + this.size.y };
-        }
-    }
-
-    class Platform {
-        constructor(x, y, w, type) {
-            this.pos = new Vector2(x, y);
-            this.w = w; this.h = 30;
-            this.type = type; // 0: normal, 1: hell, 2: final, 3: moving
-            this.origX = x;
-            this.timeOffset = Math.random() * 100;
-        }
-
-        update() {
-            if(this.type === 3) {
-                this.pos.x = this.origX + Math.sin(Date.now()*0.001 + this.timeOffset) * 150;
-            }
-        }
-
-        draw(ctx, cam) {
-            let sx = this.pos.x - cam.x, sy = this.pos.y - cam.y;
-            if(sy < -100 || sy > window.innerHeight + 100) return; // Frustum Cull
-
-            let mainCol = '#fff', subCol = '#ccc';
-            if(this.type === 1) { mainCol = '#ff1a1a'; subCol = '#800000'; ctx.shadowBlur = 20; ctx.shadowColor = 'red'; }
-            else if(this.type === 2) { mainCol = '#ffd700'; subCol = '#b8860b'; ctx.shadowBlur = 30; ctx.shadowColor = 'gold'; }
-            else if(this.type === 3) { mainCol = '#00d2ff'; subCol = '#008b8b'; }
-
-            ctx.fillStyle = mainCol;
-            ctx.beginPath(); ctx.roundRect(sx, sy, this.w, this.h, 8); ctx.fill();
-            
-            // Tech detailing
-            ctx.fillStyle = subCol; ctx.shadowBlur = 0;
-            ctx.beginPath(); ctx.roundRect(sx, sy + this.h - 10, this.w, 10, {bl:8, br:8}); ctx.fill();
-            
-            if(this.type === 0 || this.type === 3) {
-                ctx.fillStyle = 'rgba(0,0,0,0.2)';
-                for(let i=10; i<this.w-10; i+=30) ctx.fillRect(sx+i, sy+5, 10, 5);
-            }
-        }
-    }
-
-    class PowerUp {
-        constructor(x, y) {
-            this.pos = new Vector2(x, y);
-            this.w = 20; this.h = 20;
-            this.active = true;
-            this.floatY = 0;
-        }
-        update() { this.floatY = Math.sin(Date.now()*0.005) * 10; }
-        draw(ctx, cam) {
-            if(!this.active) return;
-            ctx.save();
-            ctx.translate(this.pos.x - cam.x + this.w/2, this.pos.y - cam.y + this.h/2 + this.floatY);
-            ctx.rotate(Date.now() * 0.002);
-            ctx.fillStyle = 'lime'; ctx.shadowBlur = 15; ctx.shadowColor = 'lime';
-            ctx.fillRect(-10, -10, 20, 20);
-            ctx.strokeStyle = 'white'; ctx.lineWidth = 2; ctx.strokeRect(-6, -6, 12, 12);
-            ctx.restore();
-        }
-    }
-
-    // ==========================================
-    // UI CONTROLLER
-    // ==========================================
-    class UI {
-        constructor() {
-            this.els = {
-                alt: document.getElementById('alt-val'),
-                hi: document.getElementById('hi-val'),
-                zone: document.getElementById('zone-val'),
-                vel: document.getElementById('vel-val'),
-                fuelNum: document.getElementById('fuel-num'),
-                fuelFill: document.getElementById('energy-fill'),
-                mmPlayer: document.getElementById('mm-player')
-            };
-            
-            // Hover Sounds for Buttons
-            document.querySelectorAll('button').forEach(b => {
-                b.addEventListener('mouseenter', () => Audio.sfxHover());
-                b.addEventListener('click', () => Audio.sfxSelect());
-            });
-        }
-
-        toggleScreen(id, force) {
-            document.getElementById(id).style.display = force ? 'flex' : 'none';
-        }
-
-        toast(msg, type='info') {
-            const box = document.getElementById('toast-box');
-            const t = document.createElement('div');
-            t.className = 'toast';
-            let icon = type==='warn' ? '⚠️' : '✅';
-            t.innerHTML = `<span>${icon}</span> <span>${msg}</span>`;
-            if(type==='warn') t.style.borderColor = 'red';
-            box.appendChild(t);
-            setTimeout(() => t.remove(), 2500);
-        }
-
-        updateHUD(player, game) {
-            this.els.alt.innerHTML = `${player.score}<span style="font-size:16px;">m</span>`;
-            this.els.hi.innerHTML = `${game.highscore}<span style="font-size:16px;">m</span>`;
-            
-            let zoneStr = "Troposphere";
-            if(player.score > 500) zoneStr = "Stratosphere";
-            if(player.score > 1000) zoneStr = "Mesosphere";
-            if(player.score > 1500) zoneStr = "<span style='color:red;'>Thermosphere (DANGER)</span>";
-            this.els.zone.innerHTML = zoneStr;
-            
-            this.els.vel.innerHTML = `${Math.abs((player.vel.x + player.vel.y)/2).toFixed(2)} <span style="font-size:12px;">m/s</span>`;
-            
-            let pPct = MathUtils.clamp(player.energy / player.maxEnergy, 0, 1) * 100;
-            this.els.fuelNum.innerText = Math.max(0, Math.floor(player.energy));
-            this.els.fuelFill.style.width = pPct + '%';
-            
-            if(pPct < 20) this.els.fuelFill.classList.add('energy-fill-critical');
-            else this.els.fuelFill.classList.remove('energy-fill-critical');
-
-            // Update Minimap
-            let mapPct = MathUtils.clamp(player.score / 2200, 0, 1) * 100;
-            this.els.mmPlayer.style.bottom = mapPct + '%';
-        }
-    }
-    const UIController = new UI();
-
-    // ==========================================
-    // CORE GAME ENGINE
-    // ==========================================
-    class Engine {
-        constructor() {
-            this.canvas = document.getElementById('stage');
-            this.ctx = this.canvas.getContext('2d', { alpha: false });
-            this.resize();
-            window.addEventListener('resize', () => this.resize());
-
-            this.keys = {};
-            this.setupInputs();
-
-            this.state = 'MENU'; // MENU, PLAY, PAUSE, QUIZ, OVER, WIN
-            this.cam = new Vector2(0, 19500);
-            this.vfx = new ParticleEngine();
-            this.env = new Environment(this.canvas.width, this.canvas.height);
-
-            this.platforms = [];
-            this.powerups = [];
-            this.player = null;
-            this.hellMode = false;
-            this.highscore = parseInt(localStorage.getItem('japa_enter_hs')) || 0;
-            this.lastCheckpoint = 0;
-            this.voidY = 20500;
-            this.quizQuesSolved = 0;
-
-            this.loop = this.loop.bind(this);
-            requestAnimationFrame(this.loop);
-        }
-
-        resize() {
-            this.canvas.width = window.innerWidth;
-            this.canvas.height = window.innerHeight;
-            if(this.env) { this.env.w = this.canvas.width; this.env.h = this.canvas.height; }
-        }
-
-        setupInputs() {
-            window.addEventListener('keydown', e => {
-                if(['Space','ArrowUp','ArrowDown','ArrowLeft','ArrowRight','Escape'].includes(e.code)) e.preventDefault();
-                this.keys[e.code] = true;
-                if(e.code === 'Escape' && this.state === 'PLAY') this.togglePause();
-            });
-            window.addEventListener('keyup', e => this.keys[e.code] = false);
-
-            // Mobile Touch Setup
-            const bindBtn = (id, code) => {
-                const btn = document.getElementById(id);
-                btn.addEventListener('touchstart', (e) => { e.preventDefault(); this.keys[code] = true; });
-                btn.addEventListener('touchend', (e) => { e.preventDefault(); this.keys[code] = false; });
-            };
-            bindBtn('btn-left', 'ArrowLeft');
-            bindBtn('btn-right', 'ArrowRight');
-            bindBtn('btn-jump', 'Space');
-        }
-
-        generateWorld() {
-            this.platforms = [];
-            this.powerups = [];
-            
-            // Start Pad
-            this.platforms.push(new Platform(2350, 19950, 300, 0));
-            
-            let curY = 19800;
-            let lastX = 2500;
-            
-            for(let i=0; i<2000; i++) {
-                let alt = Math.floor((19800 - curY) / 10);
-                let isHell = alt > 1500;
-                let isFinal = alt >= 2200;
-                
-                let w = isFinal ? 500 : (isHell ? MathUtils.randomRange(40, 70) : MathUtils.randomRange(80, 150));
-                let gapY = isHell ? MathUtils.randomRange(200, 240) : MathUtils.randomRange(120, 180);
-                let drift = isHell ? 400 : 600;
-                
-                let nx = isFinal ? 2300 : lastX + MathUtils.randomRange(-drift, drift);
-                nx = MathUtils.clamp(nx, 1000, 4000);
-                
-                let type = isFinal ? 2 : (isHell ? 1 : (Math.random() > 0.8 ? 3 : 0));
-                
-                this.platforms.push(new Platform(nx, curY, w, type));
-                
-                // Spawn Powerup (10% chance)
-                if(!isFinal && Math.random() < 0.1) {
-                    this.powerups.push(new PowerUp(nx + w/2 - 10, curY - 40));
-                }
-
-                if(isFinal) break;
-                lastX = nx; curY -= gapY;
-            }
-        }
-
-        initGame() {
-            Audio.init();
-            UIController.toggleScreen('start-menu', false);
-            document.getElementById('main-hud').style.display = 'grid';
-            document.getElementById('energy-hud').style.display = 'block';
-            
-            this.player = new Player(2500, 19800);
-            this.player.score = 0; // reset specifically
-            this.generateWorld();
-            
-            this.state = 'PLAY';
-            this.hellMode = false;
-            this.quizQuesSolved = 0;
-            UIController.toast('SYSTEMS NOMINAL. COMMENCE CLIMB.');
-        }
-
-        togglePause() {
-            if(this.state === 'PLAY') {
-                this.state = 'PAUSE';
-                UIController.toggleScreen('pause-screen', true);
-            } else if(this.state === 'PAUSE') {
-                this.state = 'PLAY';
-                UIController.toggleScreen('pause-screen', false);
-            }
-        }
-
-        checkCollisions() {
-            let pBox = this.player.getBounds();
-            this.player.onGround = false;
-
-            // Platform Collisions (AABB Top Edge Only for Platforming)
-            for(let plat of this.platforms) {
-                let platBox = { left: plat.pos.x, right: plat.pos.x + plat.w, top: plat.pos.y, bottom: plat.pos.y + plat.h };
-                
-                if(this.player.vel.y > 0 && MathUtils.rectIntersect(pBox, platBox)) {
-                    // Ensure player was actually above it previously
-                    if(this.player.pos.y + this.player.size.y - this.player.vel.y <= plat.pos.y + 15) {
-                        this.player.pos.y = plat.pos.y - this.player.size.y;
-                        this.player.vel.y = 0;
-                        this.player.onGround = true;
-                        this.player.canDoubleJump = true;
-                        
-                        // Moving Platform Inherit Velocity
-                        if(plat.type === 3) this.player.pos.x += Math.cos(Date.now()*0.001 + plat.timeOffset) * 2;
-
-                        // Checkpoint Logic
-                        if(this.player.score >= this.lastCheckpoint + 500) {
-                            this.lastCheckpoint = Math.floor(this.player.score / 500) * 500;
-                            this.player.lastSafePos.x = plat.pos.x + plat.w/2;
-                            this.player.lastSafePos.y = plat.pos.y;
-                            this.voidY = plat.pos.y + 1000;
-                            UIController.toast(`CHECKPOINT REACHED: ${this.lastCheckpoint}m`);
+                    btn.classList.add('wrong-flash');
+                    
+                    // Highlight the correct answer for educational purposes
+                    Array.from(box.children).forEach(b => { 
+                        if (b.innerText === q.a[q.c]) {
+                            b.classList.add('correct-flash');
                         }
-
-                        // Win Condition
-                        if(plat.type === 2) this.triggerWin();
-                    }
+                    });
+                    
+                    // Reset with a new question if wrong
+                    setTimeout(displayQuestion, 1500);
                 }
-            }
-
-            // Powerup Collisions
-            for(let pu of this.powerups) {
-                if(!pu.active) continue;
-                let puBox = { left: pu.pos.x, right: pu.pos.x + pu.w, top: pu.pos.y, bottom: pu.pos.y + pu.h };
-                if(MathUtils.rectIntersect(pBox, puBox)) {
-                    pu.active = false;
-                    this.player.energy = Math.min(this.player.maxEnergy, this.player.energy + 300);
-                    Audio.sfxCoin();
-                    this.vfx.emit(pu.pos.x, pu.pos.y, 'sparkle', 20);
-                    UIController.toast('+ ENERGY RESTORED', 'info');
-                }
-            }
-        }
-
-        triggerQuiz() {
-            this.state = 'QUIZ';
-            UIController.toggleScreen('quiz-overlay', true);
-            Audio.noise(0.5, 1); // Alarm sound
-
-            const q = Q_BANK[Math.floor(Math.random() * Q_BANK.length)];
-            let answers = q.a.map((txt, i) => ({ txt, i })).sort(() => Math.random() - 0.5);
-            
-            document.getElementById('q-text').innerText = q.q;
-            const box = document.getElementById('opt-box');
-            box.innerHTML = '';
-            
-            // Timer Logic
-            let time = 100;
-            const timerBar = document.getElementById('quiz-timer');
-            timerBar.style.width = '100%';
-            
-            let timerInt = setInterval(() => {
-                if(this.state !== 'QUIZ') return clearInterval(timerInt);
-                time -= 1;
-                timerBar.style.width = time + '%';
-                if(time <= 0) {
-                    clearInterval(timerInt);
-                    this.failQuiz(box, q, answers);
-                }
-            }, 100);
-
-            answers.forEach(ans => {
-                let btn = document.createElement('button');
-                btn.className = 'opt'; btn.innerText = ans.txt;
-                btn.onclick = () => {
-                    clearInterval(timerInt);
-                    Array.from(box.children).forEach(b => b.style.pointerEvents = 'none');
-                    if(ans.i === q.c) {
-                        btn.classList.add('correct-flash');
-                        Audio.sfxCoin();
-                        this.quizQuesSolved++;
-                        setTimeout(() => {
-                            this.player.energy = this.player.maxEnergy;
-                            UIController.toggleScreen('quiz-overlay', false);
-                            this.state = 'PLAY';
-                        }, 1000);
-                    } else {
-                        btn.classList.add('wrong-flash');
-                        this.failQuiz(box, q, answers);
-                    }
-                };
-                box.appendChild(btn);
-            });
-        }
-
-        failQuiz(box, q, answers) {
-            Audio.sfxHurt();
-            Array.from(box.children).forEach(b => {
-                b.style.pointerEvents = 'none';
-                if(b.innerText === q.a[q.c]) b.classList.add('correct-flash');
-            });
-            setTimeout(() => {
-                // Punish: drop player slightly and reset energy partially
-                UIController.toggleScreen('quiz-overlay', false);
-                this.player.energy = 500;
-                this.player.pos.y = this.player.lastSafePos.y - 100;
-                this.player.pos.x = this.player.lastSafePos.x;
-                this.player.vel.x = 0; this.player.vel.y = 0;
-                this.state = 'PLAY';
-                UIController.toast('REBOOT SEQUENCE COMPLETED. ALTITUDE LOST.', 'warn');
-            }, 2000);
-        }
-
-        triggerWin() {
-            this.state = 'WIN';
-            Audio.sfxWin();
-            this.vfx.emit(this.player.pos.x, this.player.pos.y, 'sparkle', 100);
-            document.getElementById('win-alt').innerText = this.player.score + 'm';
-            document.getElementById('win-q').innerText = this.quizQuesSolved;
-            document.getElementById('main-hud').style.display = 'none';
-            document.getElementById('energy-hud').style.display = 'none';
-            setTimeout(() => UIController.toggleScreen('win-screen', true), 1500);
-        }
-
-        loop() {
-            // Base Render (Deep background clearing)
-            this.ctx.fillStyle = '#000';
-            this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-
-            if(this.state === 'PLAY') {
-                // Logic Updates
-                this.player.update(this.keys, this.hellMode);
-                
-                // Input Trigger (Jump)
-                if((this.keys['Space'] || this.keys['ArrowUp'] || this.keys['KeyW']) && !this.keys.locked) {
-                    if(this.player.jump()) this.keys.locked = true;
-                }
-                if(!(this.keys['Space'] || this.keys['ArrowUp'] || this.keys['KeyW'])) this.keys.locked = false;
-
-                // Collisions
-                this.checkCollisions();
-
-                // Void Death
-                if(this.player.pos.y > this.voidY) {
-                    Audio.sfxHurt();
-                    this.player.pos.x = this.player.lastSafePos.x;
-                    this.player.pos.y = this.player.lastSafePos.y - 100;
-                    this.player.vel = new Vector2(0,0);
-                    this.player.energy = Math.max(10, this.player.energy - 200);
-                    UIController.toast('CRITICAL FALL. RESTORED TO CHECKPOINT.', 'warn');
-                }
-
-                // Energy Death
-                if(this.player.energy <= 0) this.triggerQuiz();
-
-                // Dynamic Environment State
-                if(this.player.score >= 1500 && !this.hellMode) {
-                    this.hellMode = true;
-                    document.getElementById('app').style.background = `linear-gradient(to bottom, var(--jim-hell), var(--jim-hell-mid), var(--jim-hell-light))`;
-                    document.getElementById('vignette').style.background = 'radial-gradient(circle, transparent 20%, rgba(50,0,0,0.9) 120%)';
-                    UIController.toast('WARNING: EXOSPHERE ENTERED. STRUCTURAL ANOMALIES.', 'warn');
-                    Audio.noise(2, 0.8); // Big transition boom
-                }
-
-                // Highscore Saving
-                if(this.player.score > this.highscore) {
-                    this.highscore = this.player.score;
-                    localStorage.setItem('japa_enter_hs', this.highscore);
-                }
-
-                // Smooth Camera Follow
-                this.cam.x += (this.player.pos.x - this.canvas.width/2 - this.cam.x) * 0.1;
-                this.cam.y += (this.player.pos.y - this.canvas.height/2 + 100 - this.cam.y) * 0.1;
-
-                // Update UI Data
-                UIController.updateHUD(this.player, this);
-            }
-
-            // Rendering Pipeline
-            if(this.state === 'PLAY' || this.state === 'PAUSE' || this.state === 'QUIZ' || this.state === 'WIN') {
-                this.env.updateAndDraw(this.ctx, this.cam, this.hellMode);
-                
-                this.platforms.forEach(p => { p.update(); p.draw(this.ctx, this.cam); });
-                this.powerups.forEach(p => { p.update(); p.draw(this.ctx, this.cam); });
-                
-                this.player.draw(this.ctx, this.cam, this.hellMode);
-                this.vfx.updateAndDraw(this.ctx, this.cam);
-            }
-
-            requestAnimationFrame(this.loop);
-        }
+            };
+            box.appendChild(btn);
+        });
     }
-
-    // Bootstrap
-    const GameEngine = new Engine();
 </script>
 </body>
 </html>
