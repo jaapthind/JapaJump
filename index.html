@@ -12,22 +12,57 @@
            ========================================================================= */
         /* Mobile UI - Hidden by default */
                 /* Optimized Mobile UI */
+           /* FIXED MOBILE UI & HUD SCALING */
             #mobile-ui, #rot { display: none; }
             
             @media (pointer: coarse) {
+                /* Shrink HUD so it doesn't cover the top of the screen */
+                #main-hud { 
+                    gap: 8px; 
+                    top: 10px; 
+                    transform: scale(0.75); 
+                    transform-origin: top center; 
+                }
+                .hud-card, .hud-btn { min-width: 110px; padding: 8px; }
+            
+                /* Lift Energy Bar so it sits ABOVE the buttons */
+                .energy-hud { 
+                    bottom: 140px; 
+                    width: 70%; 
+                    transform: scale(0.9);
+                }
+            
                 #mobile-ui { 
-                    display: flex; position: fixed; bottom: 30px; width: 100%; 
-                    justify-content: space-around; z-index: 10000; pointer-events: none; 
+                    display: flex; 
+                    position: fixed; 
+                    bottom: 20px; 
+                    width: 100%; 
+                    justify-content: space-between; 
+                    padding: 0 50px; 
+                    box-sizing: border-box;
+                    z-index: 10000; 
+                    pointer-events: none; 
                 }
+            
                 .m-btn { 
-                    width: 100px; height: 100px; background: rgba(255,255,255,0.15); 
-                    border: 3px solid white; border-radius: 50%; color: white; 
-                    display: flex; align-items: center; justify-content: center; 
-                    font-family: 'Bungee'; touch-action: none; pointer-events: auto;
-                    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+                    width: 90px; 
+                    height: 90px; 
+                    background: rgba(255,255,255,0.2); 
+                    border: 2px solid white; 
+                    border-radius: 50%; 
+                    color: white; 
+                    display: flex; 
+                    align-items: center; 
+                    justify-content: center; 
+                    font-family: 'Bungee'; 
+                    touch-action: none; 
+                    pointer-events: auto;
+                    box-shadow: 0 5px 15px rgba(0,0,0,0.4);
                 }
-                #joy { width: 180px; border-radius: 50px; }
                 
+                /* Slightly smaller move slider to free up screen space */
+                #joy { width: 150px; border-radius: 40px; }
+            
                 @media (orientation: portrait) {
                     #rot { 
                         display: flex; position: fixed; inset: 0; background: #000; 
