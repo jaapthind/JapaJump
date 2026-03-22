@@ -10,6 +10,34 @@
         /* =========================================================================
            GLOBAL VARIABLES & THEME (ORIGINAL STYLE)
            ========================================================================= */
+        /* Mobile UI - Hidden by default */
+                /* Optimized Mobile UI */
+            #mobile-ui, #rot { display: none; }
+            
+            @media (pointer: coarse) {
+                #mobile-ui { 
+                    display: flex; position: fixed; bottom: 30px; width: 100%; 
+                    justify-content: space-around; z-index: 10000; pointer-events: none; 
+                }
+                .m-btn { 
+                    width: 100px; height: 100px; background: rgba(255,255,255,0.15); 
+                    border: 3px solid white; border-radius: 50%; color: white; 
+                    display: flex; align-items: center; justify-content: center; 
+                    font-family: 'Bungee'; touch-action: none; pointer-events: auto;
+                    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+                }
+                #joy { width: 180px; border-radius: 50px; }
+                
+                @media (orientation: portrait) {
+                    #rot { 
+                        display: flex; position: fixed; inset: 0; background: #000; 
+                        color: #fff; z-index: 20000; align-items: center; 
+                        justify-content: center; font-family: 'Bungee'; text-align: center; 
+                    }
+                }
+            }
+        
+        
         :root {
             --glass-bg: rgba(255, 255, 255, 0.15);
             --glass-border: rgba(255, 255, 255, 0.25);
@@ -577,6 +605,13 @@
     </div>
     
     <canvas id="stage"></canvas>
+        <div id="rot"><h1>ROTATE TO PLAY</h1></div>
+    <div id="mobile-ui" style="flex-direction: row;">
+        <div id="joy" class="m-btn">MOVE</div>
+        <div id="m-jump" class="m-btn" style="background:var(--jim-blue)">JUMP</div>
+    </div>
+
+    
 </div>
 
 <script>
@@ -2006,6 +2041,29 @@
         });
     }
 
+                       const j = document.getElementById('joy'), mj = document.getElementById('m-jump');
+            
+            j.addEventListener('touchmove', (e) => {
+                let r = j.getBoundingClientRect();
+                let x = (e.touches[0].clientX - (r.left + r.width/2)) / (r.width/2);
+                game.keys['KeyA'] = x < -0.2; 
+                game.keys['KeyD'] = x > 0.2;
+            }, {passive: false});
+            
+            j.addEventListener('touchend', () => { 
+                game.keys['KeyA'] = false; 
+                game.keys['KeyD'] = false; 
+            });
+            
+            mj.addEventListener('touchstart', (e) => { 
+                e.preventDefault(); 
+                game.keys['Space'] = true; 
+            }, {passive: false});
+            
+            mj.addEventListener('touchend', () => { 
+                game.keys['Space'] = false; 
+                game.keys.locked = false; 
+            });
     // INIT
     updateHUDValues();
 
