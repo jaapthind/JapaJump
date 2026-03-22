@@ -649,7 +649,8 @@
         <div id="m-jump" class="m-btn" style="background:var(--jim-blue)">JUMP</div>
     </div>
 
-<button onclick="if(player.lastSafeY !== 0) { player.x = player.lastSafeX; player.y = player.lastSafeY - 100; player.vy = 0; game.camY = player.y - 300; } else { alert('No checkpoint reached yet!'); }" style="position:fixed; bottom:20px; left:20px; z-index:10001; padding:15px; background:var(--jim-blue); color:white; font-family:'Bungee'; border:2px solid white; border-radius:12px; cursor:pointer;">SPAWN TO CHECKPOINT</button>    
+ <button onclick="player.x = player.lastSafeX; player.y = player.lastSafeY - 100; player.vy = 0; game.camY = player.y - 300;" style="position:fixed; bottom:20px; left:20px; z-index:10001; padding:15px; background:var(--jim-blue); color:white; font-family:'Bungee'; border:2px solid white; border-radius:12px; cursor:pointer;">SPAWN TO CHECKPOINT</button>
+    
 </div>
 
 <script>
@@ -1521,12 +1522,8 @@
             let alt = Math.max(0, Math.floor(-cy / 10)); 
             let isHell = alt > (9000 + albedoBonus);
             let isFinal = alt >= 10000;
-            // Change how we detect Checkpoints (every 500m)
-            let isCP = alt > 0 && Math.abs(alt % 500) < 10; 
-        
-            // Update the color line to use the Blue color (#00d2ff)
-            color: isFinal ? '#FFD700' : (isCP ? '#00d2ff' : (isHell ? '#ff1a1a' : '#ffffff')),// Checks if altitude is near 500, 1000, 1500, etc.
-         
+            let isCP = alt > 0 && alt % 500 === 0;
+            
             let pW = isFinal ? 400 : (isHell ? (45 + Math.random() * 10) : (80 + Math.random() * 30));
             pW += magnetBonus; 
             if(isCP) pW += ozoneBonus;
@@ -1538,16 +1535,10 @@
             if (rx < 1100) rx = 1300; 
             if (rx > 3900) rx = 3700;
             
-            // Inside your generateLevel loop:
             game.platforms.push({ 
-                x: rx, 
-                y: cy, 
-                w: pW, 
-                h: 32, 
-                color: isFinal ? '#FFD700' : (isCP ? '#00d2ff' : (isHell ? '#ff1a1a' : '#ffffff')),
-                isHell: isHell, 
-                isFinal: isFinal, 
-                isCP: isCP // <--- EXTREMELY IMPORTANT: This tells the player "Yes, this is a save point!"
+             x: rx, y: cy, w: pW, h: 32, 
+             color: isFinal ? '#FFD700' : (isCP ? '#00d2ff' : (isHell ? '#ff1a1a' : '#ffffff')),
+             isHell: isHell, isFinal: isFinal, isCP: isCP
             });
 
             if(isFinal) break; 
@@ -1747,28 +1738,25 @@
 
                 // CHECKPOINT LOGIC
                 // CHECKPOINT LOGIC (FIXED: Only updates if higher)
-                // CHECKPOINT LOGIC (FIXED: Reliable Blue Zones & Spawn Points)
                 let cur = Math.max(0, Math.floor(-player.y / 10));
-                
-                // We check if the platform is a Checkpoint AND higher than our last save
                 if (p.isCP && cur > game.lastCPHeight) {
-                    // 1. LOCK THE COORDINATES (This fixes the "Spawn to Start" bug)
-                    player.lastSafeX = p.x + (p.w / 2); 
-                    player.lastSafeY = p.y;
-                    
-                    // 2. MOVE THE VOID UP
                     game.lastCPHeight = Math.floor(cur / 500) * 500;
+                    player.lastSafeX = p.x + p.w / 2; 
+                    player.lastSafeY = p.y;
                     game.voidLevel = p.y + 800; 
 
-                    // 3. VISUAL & AUDIO FEEDBACK
+                    game.voidLevel = p.y + 800;
+                    
                     triggerCPToast(game.lastCPHeight);
                     SoundEngine.checkpoint();
                     
-                    // 4. BONUSES
+                    // CARBON TAX REWARD
                     if(carbonMod > 0) { 
                         addCredits(carbonMod); 
                         showCreditToast(`+${carbonMod} CARBON TAX!`); 
                     }
+                    
+                    // HYDRO PADS BOOST (Move this here so it only triggers on NEW checkpoints)
                     if(hydroMod > 0) {
                         game.energy = Math.min(game.maxEnergy, game.energy + hydroMod);
                         spawnFloater(`+${hydroMod} HYDRO`, '#0077be', player.x, player.y - 50);
