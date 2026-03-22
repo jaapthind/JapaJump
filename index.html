@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -11,66 +11,67 @@
            GLOBAL VARIABLES & THEME (ORIGINAL STYLE)
            ========================================================================= */
         /* Mobile UI - Hidden by default */
-        /* Optimized Mobile UI */
-        /* FIXED MOBILE UI & HUD SCALING */
-        #mobile-ui, #rot { display: none; }
-        
-        @media (pointer: coarse) {
-            /* Shrink HUD so it doesn't cover the top of the screen */
-            #main-hud { 
-                gap: 8px; 
-                top: 10px; 
-                transform: scale(0.75); 
-                transform-origin: top center; 
-            }
-            .hud-card, .hud-btn { min-width: 110px; padding: 8px; }
-        
-            /* Lift Energy Bar so it sits ABOVE the buttons */
-            .energy-hud { 
-                bottom: 140px; 
-                width: 70%; 
-                transform: scale(0.9);
-            }
-        
-            #mobile-ui { 
-                display: flex; 
-                position: fixed; 
-                bottom: 20px; 
-                width: 100%; 
-                justify-content: space-between; 
-                padding: 0 50px; 
-                box-sizing: border-box;
-                z-index: 10000; 
-                pointer-events: none; 
-            }
-        
-            .m-btn { 
-                width: 90px; 
-                height: 90px; 
-                background: rgba(255,255,255,0.2); 
-                border: 2px solid white; 
-                border-radius: 50%; 
-                color: white; 
-                display: flex; 
-                align-items: center; 
-                justify-content: center; 
-                font-family: 'Bungee'; 
-                touch-action: none; 
-                pointer-events: auto;
-                box-shadow: 0 5px 15px rgba(0,0,0,0.4);
-            }
+                /* Optimized Mobile UI */
+           /* FIXED MOBILE UI & HUD SCALING */
+            #mobile-ui, #rot { display: none; }
             
-            /* Slightly smaller move slider to free up screen space */
-            #joy { width: 150px; border-radius: 40px; }
-        
-            @media (orientation: portrait) {
-                #rot { 
-                    display: flex; position: fixed; inset: 0; background: #000; 
-                    color: #fff; z-index: 20000; align-items: center; 
-                    justify-content: center; font-family: 'Bungee'; text-align: center; 
+            @media (pointer: coarse) {
+                /* Shrink HUD so it doesn't cover the top of the screen */
+                #main-hud { 
+                    gap: 8px; 
+                    top: 10px; 
+                    transform: scale(0.75); 
+                    transform-origin: top center; 
+                }
+                .hud-card, .hud-btn { min-width: 110px; padding: 8px; }
+            
+                /* Lift Energy Bar so it sits ABOVE the buttons */
+                .energy-hud { 
+                    bottom: 140px; 
+                    width: 70%; 
+                    transform: scale(0.9);
+                }
+            
+                #mobile-ui { 
+                    display: flex; 
+                    position: fixed; 
+                    bottom: 20px; 
+                    width: 100%; 
+                    justify-content: space-between; 
+                    padding: 0 50px; 
+                    box-sizing: border-box;
+                    z-index: 10000; 
+                    pointer-events: none; 
+                }
+            
+                .m-btn { 
+                    width: 90px; 
+                    height: 90px; 
+                    background: rgba(255,255,255,0.2); 
+                    border: 2px solid white; 
+                    border-radius: 50%; 
+                    color: white; 
+                    display: flex; 
+                    align-items: center; 
+                    justify-content: center; 
+                    font-family: 'Bungee'; 
+                    touch-action: none; 
+                    pointer-events: auto;
+                    box-shadow: 0 5px 15px rgba(0,0,0,0.4);
+                }
+                
+                /* Slightly smaller move slider to free up screen space */
+                #joy { width: 150px; border-radius: 40px; }
+            
+                @media (orientation: portrait) {
+                    #rot { 
+                        display: flex; position: fixed; inset: 0; background: #000; 
+                        color: #fff; z-index: 20000; align-items: center; 
+                        justify-content: center; font-family: 'Bungee'; text-align: center; 
+                    }
                 }
             }
-        }
+        
         
         :root {
             --glass-bg: rgba(255, 255, 255, 0.15);
@@ -382,10 +383,6 @@
             width: 100%;
             pointer-events: none;
         }
-        
-        .show-toast {
-            opacity: 1 !important;
-        }
 
         #credit-toast {
             position: absolute;
@@ -505,7 +502,7 @@
     </style>
 </head>
 <body>
-<audio id="bg-music" loop>
+ <audio id="bg-music" loop>
     <source src="gimkit.mp3" type="audio/mpeg">
 </audio>
 
@@ -662,13 +659,13 @@
        ========================================================================= */
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
-    function startMusic() {
-        const music = document.getElementById('bg-music');
-        if (music) {
-            music.volume = 0.25; // Lower volume makes the jump sounds clearer
-            music.play().catch(err => console.log("Music blocked by browser settings."));
-        }
-    }
+             function startMusic() {
+         const music = document.getElementById('bg-music');
+         if (music) {
+             music.volume = 0.25; // Lower volume makes the jump sounds clearer
+             music.play().catch(err => console.log("Music blocked by browser settings."));
+         }
+     }
  
     
     const SoundEngine = {
@@ -713,14 +710,14 @@
     };
 
     // Unlock audio context on first interaction as browsers require it
-    document.body.addEventListener('click', () => { 
-        if(audioCtx.state === 'suspended') {
-            audioCtx.resume().then(() => {
-                console.log("Audio Context Active");
-                startMusic(); 
-            });
-        }
-    }, {once:true});
+              document.body.addEventListener('click', () => { 
+          if(audioCtx.state === 'suspended') {
+              audioCtx.resume().then(() => {
+                  console.log("Audio Context Active");
+                  startMusic(); 
+              });
+          }
+      }, {once:true});
 
     /* =========================================================================
        MODULE 2: NETWORK & CLOUD SYNC (Google Apps Script Backend)
@@ -807,17 +804,27 @@
                 currentUser = user;
                 gameSave.highscore = parseInt(parts[0]);
                 gameSave.credits = parseFloat(parts[1]);
-                
                 // 1. Calculate the nearest 500m checkpoint (e.g., 4430 becomes 4000)
                 let savedCheckpoint = Math.floor(parseInt(parts[0]) / 500) * 500;
                 
-                // 2. Set coordinates based on cloud save
-                player.lastSafeX = 2500;
-                player.lastSafeY = (savedCheckpoint * -10); 
-                
-                document.getElementById('zone-val').innerText = savedCheckpoint + "m";
+                // 2. Teleport to that specific checkpoint height
+                player.y = (savedCheckpoint * -10); 
+                player.lastSafeY = player.y;
+               generateLevel();
 
-                const cloudInv = JSON.parse(parts[2]);
+                game.platforms.push({ x: player.x - 175, y: player.y + 50, w: 400, h: 40, color: '#2ecc71', isCP: true });
+             
+                game.camY = player.y - 300; // Snaps camera so you aren't looking at the ground
+                player.onG = true;          // Prevents the "falling" glitch on login
+
+// 3. Update the HUD so it shows the right zone
+                document.getElementById('zone-val').innerText = savedCheckpoint + "m";// Snaps camera to player height// Sets respawn point to that height
+                generateLevel(); 
+
+                hideScreen('auth-overlay'); 
+                showScreen('start-menu');
+                
+                 const cloudInv = JSON.parse(parts[2]);
                 if (cloudInv.upgrades) gameSave.upgrades = cloudInv.upgrades;
                 if (cloudInv.skins) gameSave.skins = cloudInv.skins;
                 if (cloudInv.achievements) gameSave.achievements = cloudInv.achievements;
@@ -1266,6 +1273,7 @@
             if (gameSave.skins.unlocked.includes(id)) {
                 gameSave.skins.equipped = id; 
                 saveGame(); await syncAllData();
+                saveGame(); 
                 renderShop(); 
                 SoundEngine.buy(); 
                 return;
@@ -1274,6 +1282,7 @@
                 gameSave.skins.unlocked.push(id); 
                 gameSave.skins.equipped = id; 
                 saveGame(); await syncAllData();
+                saveGame(); 
                 renderShop(); 
                 doConfetti(); 
                 SoundEngine.buy();
@@ -1285,6 +1294,7 @@
             if (cost !== -1 && spendCredits(cost)) {
                 gameSave.upgrades[id]++; 
                 saveGame(); await syncAllData();
+                saveGame(); 
                 renderShop(); 
                 doConfetti(); 
                 SoundEngine.buy();
@@ -1386,6 +1396,7 @@
             cancelAnimationFrame(game.raf);
             game.raf = requestAnimationFrame(update);
             player.vy = 0; player.onG = true; game.platforms.push({x: player.x - 175, y: player.y + 50, w: 400, h: 40, color: '#2ecc71', isCP: true});
+         
         }
     }
 
@@ -1510,12 +1521,12 @@
             let alt = Math.max(0, Math.floor(-cy / 10)); 
             let isHell = alt > (9000 + albedoBonus);
             let isFinal = alt >= 10000;
-            
-            // Checking if altitude is near 500, 1000, 1500, etc.
+            // Change how we detect Checkpoints (every 500m)
             let isCP = alt > 0 && Math.abs(alt % 500) < 10; 
-            
-            let pColor = isFinal ? '#FFD700' : (isCP ? '#00d2ff' : (isHell ? '#ff1a1a' : '#ffffff'));
-            
+        
+            // Update the color line to use the Blue color (#00d2ff)
+            color: isFinal ? '#FFD700' : (isCP ? '#00d2ff' : (isHell ? '#ff1a1a' : '#ffffff')),// Checks if altitude is near 500, 1000, 1500, etc.
+         
             let pW = isFinal ? 400 : (isHell ? (45 + Math.random() * 10) : (80 + Math.random() * 30));
             pW += magnetBonus; 
             if(isCP) pW += ozoneBonus;
@@ -1527,15 +1538,16 @@
             if (rx < 1100) rx = 1300; 
             if (rx > 3900) rx = 3700;
             
+            // Inside your generateLevel loop:
             game.platforms.push({ 
                 x: rx, 
                 y: cy, 
                 w: pW, 
                 h: 32, 
-                color: pColor,
+                color: isFinal ? '#FFD700' : (isCP ? '#00d2ff' : (isHell ? '#ff1a1a' : '#ffffff')),
                 isHell: isHell, 
                 isFinal: isFinal, 
-                isCP: isCP // Essential for blue glow and spawn mechanic
+                isCP: isCP // <--- EXTREMELY IMPORTANT: This tells the player "Yes, this is a save point!"
             });
 
             if(isFinal) break; 
@@ -1545,69 +1557,66 @@
     }
 
     function beginGame() {
-        // 1. FORCE FULLSCREEN & LANDSCAPE
-        const docElm = document.documentElement;
-        if (docElm.requestFullscreen) {
-            docElm.requestFullscreen();
-        } else if (docElm.webkitRequestFullscreen) {
-            docElm.webkitRequestFullscreen(); // Safari/iOS
-        } else if (docElm.msRequestFullscreen) {
-            docElm.msRequestFullscreen();
-        }
-
-        // Attempt to lock to landscape to prevent UI cramping
-        if (screen.orientation && screen.orientation.lock) {
-            screen.orientation.lock("landscape").catch(() => {
-                console.log("Orientation lock not supported on this device.");
-            });
-        }
-
-        // 2. UI RESET
-        hideScreen('start-menu');
-        game.hellMode = false; 
-        document.getElementById('app').style.background = 'var(--jim-sky)';
-        document.getElementById('vignette').style.opacity = '0';
-        document.getElementById('energy-fill').classList.remove('energy-fill-warning');
-
-        // 3. STATS & UPGRADE CALCULATIONS
-        let b1 = SHOP_ITEMS.battery.getEffect(gameSave.upgrades.battery);
-        let b2 = SHOP_ITEMS.battery2.getEffect(gameSave.upgrades.battery2);
-        let fus = SHOP_ITEMS.fusion.getEffect(gameSave.upgrades.fusion);
-        
-        game.maxEnergy = (b1 + b2) * fus;
-        game.energy = game.maxEnergy;
-        document.getElementById('fuel-max-num').innerText = Math.floor(game.maxEnergy);
-        
-        // 4. POSITION & CAMERA RESET
-        player.x = player.lastSafeX;
-        player.y = player.lastSafeY;
-        game.camY = player.y - 300; 
-        game.voidLevel = player.y + 800; 
-        game.lastCPHeight = Math.abs(player.y / 10);
-        player.vx = 0; 
-        player.vy = 0;
-        game.score = 0;
-
-        // 5. WORLD & PARTICLE GENERATION
-        game.floaters = []; 
-        game.particles = []; 
-        game.confetti = [];
-        
-        generateEnvironment();
-        generateLevel();
-        
-        // Push a safety block right below player on start
-        game.platforms.push({x: player.x - 175, y: player.y + 50, w: 400, h: 40, color: '#2ecc71', isCP: true});
-        player.onG = true;
-
-        // 6. START ENGINE
-        game.active = true; 
-        isPaused = false;
-        
-        updateHUDValues();
-        cancelAnimationFrame(game.raf); 
-        game.raf = requestAnimationFrame(update); 
+    // 1. FORCE FULLSCREEN & LANDSCAPE
+    const docElm = document.documentElement;
+    if (docElm.requestFullscreen) {
+        docElm.requestFullscreen();
+    } else if (docElm.webkitRequestFullscreen) {
+        docElm.webkitRequestFullscreen(); // Safari/iOS
+    } else if (docElm.msRequestFullscreen) {
+        docElm.msRequestFullscreen();
     }
+
+    // Attempt to lock to landscape to prevent UI cramping
+    if (screen.orientation && screen.orientation.lock) {
+        screen.orientation.lock("landscape").catch(() => {
+            console.log("Orientation lock not supported on this device.");
+        });
+    }
+
+    // 2. UI RESET
+    hideScreen('start-menu');
+    game.hellMode = false; 
+    document.getElementById('app').style.background = 'var(--jim-sky)';
+    document.getElementById('vignette').style.opacity = '0';
+    document.getElementById('energy-fill').classList.remove('energy-fill-warning');
+
+    // 3. STATS & UPGRADE CALCULATIONS
+    let b1 = SHOP_ITEMS.battery.getEffect(gameSave.upgrades.battery);
+    let b2 = SHOP_ITEMS.battery2.getEffect(gameSave.upgrades.battery2);
+    let fus = SHOP_ITEMS.fusion.getEffect(gameSave.upgrades.fusion);
+    
+    game.maxEnergy = (b1 + b2) * fus;
+    game.energy = game.maxEnergy;
+    document.getElementById('fuel-max-num').innerText = Math.floor(game.maxEnergy);
+    
+    // 4. POSITION & CAMERA RESET
+    game.camY = -300; 
+    game.voidLevel = 500; 
+    player.vx = 0; 
+    player.vy = 0;
+    
+    game.lastCPHeight = 0; 
+    player.lastSafeX = 2500; 
+    player.lastSafeY = 0; 
+    game.score = 0;
+
+    // 5. WORLD & PARTICLE GENERATION
+    game.floaters = []; 
+    game.particles = []; 
+    game.confetti = [];
+    
+    generateEnvironment();
+    generateLevel();
+    
+    // 6. START ENGINE
+    game.active = true; 
+    isPaused = false;
+    
+    updateHUDValues();
+    cancelAnimationFrame(game.raf); 
+    game.raf = requestAnimationFrame(update); 
+}
 
     function update() {
         if(!game.active || game.quizActive) return;
@@ -1736,6 +1745,8 @@
                     showScreen('win-screen');
                 }
 
+                // CHECKPOINT LOGIC
+                // CHECKPOINT LOGIC (FIXED: Only updates if higher)
                 // CHECKPOINT LOGIC (FIXED: Reliable Blue Zones & Spawn Points)
                 let cur = Math.max(0, Math.floor(-player.y / 10));
                 
@@ -2147,48 +2158,36 @@
         });
     }
 
-    const j = document.getElementById('joy');
-    const mj = document.getElementById('m-jump');
-    
-    j.addEventListener('touchmove', (e) => {
-        let r = j.getBoundingClientRect();
-        let x = (e.touches[0].clientX - (r.left + r.width/2)) / (r.width/2);
-        
-        // SENSITIVITY FIX: 0.1 deadzone makes it feel much faster
-        game.keys['KeyA'] = x < -0.1; 
-        game.keys['KeyD'] = x > 0.1;
-        
-        // VISUAL FEEDBACK: The button now slides under your thumb
-        let visualX = Math.max(-1, Math.min(1, x)) * 30;
-        j.style.transform = `translateX(${visualX}px)`;
-    }, {passive: false});
-    
-    j.addEventListener('touchend', () => { 
-        game.keys['KeyA'] = false; 
-        game.keys['KeyD'] = false; 
-        j.style.transform = `translateX(0px)`; // Snaps back to center
-    });
-    
-    mj.addEventListener('touchstart', (e) => { 
-        e.preventDefault(); 
-        game.keys['Space'] = true; 
-    }, {passive: false});
-    
-    mj.addEventListener('touchend', () => { 
-        game.keys['Space'] = false; 
-        game.keys.locked = false; 
-    });
-
-    window.addEventListener('blur', () => { 
-        const music = document.getElementById('bg-music');
-        if(music) music.pause();
-    });
-    
-    window.addEventListener('focus', () => { 
-        const music = document.getElementById('bg-music');
-        if(game.active && music) music.play();
-    });
-
+                 const j = document.getElementById('joy'), mj = document.getElementById('m-jump');
+                
+                j.addEventListener('touchmove', (e) => {
+                    let r = j.getBoundingClientRect();
+                    let x = (e.touches[0].clientX - (r.left + r.width/2)) / (r.width/2);
+                    
+                    // SENSITIVITY FIX: 0.1 deadzone makes it feel much faster
+                    game.keys['KeyA'] = x < -0.1; 
+                    game.keys['KeyD'] = x > 0.1;
+                    
+                    // VISUAL FEEDBACK: The button now slides under your thumb
+                    let visualX = Math.max(-1, Math.min(1, x)) * 30;
+                    j.style.transform = `translateX(${visualX}px)`;
+                }, {passive: false});
+                
+                j.addEventListener('touchend', () => { 
+                    game.keys['KeyA'] = false; 
+                    game.keys['KeyD'] = false; 
+                    j.style.transform = `translateX(0px)`; // Snaps back to center
+                });
+                
+                mj.addEventListener('touchstart', (e) => { 
+                    e.preventDefault(); 
+                    game.keys['Space'] = true; 
+                }, {passive: false});
+                
+                mj.addEventListener('touchend', () => { 
+                    game.keys['Space'] = false; 
+                    game.keys.locked = false; 
+                });
     // INIT
     updateHUDValues();
 
