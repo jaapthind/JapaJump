@@ -481,6 +481,7 @@
         <div class="menu-btn-group">
             <button class="instr-btn" onclick="showScreen('instr-screen')">INSTRUCTIONS</button>
             <button class="shop-btn-main" onclick="openShop(false)">UPGRADE SHOP</button>
+            <button class="instr-btn" style="border-color: #4CAF50; color: #4CAF50;" onclick="syncAllData(); this.innerText='SAVED ✓'">SYNC CLOUD</button>
             <button class="instr-btn" onclick="showScreen('achievements-screen')" style="border-color: var(--jim-gold); color: var(--jim-gold);">AWARDS</button>
         </div>
     </div>
@@ -530,6 +531,7 @@
     <div id="pause-screen" class="overlay" style="background: rgba(0,0,0,0.8); backdrop-filter: blur(10px);">
         <h1 class="logo" style="font-size: 80px; color: #fff;">PAUSED</h1>
         <div class="menu-btn-group" style="flex-direction: column; width: 300px; margin-top: 20px;">
+            <button class="instr-btn" style="margin-bottom:10px; border-color:var(--jim-blue); color:var(--jim-blue);" onclick="syncAllData(); this.innerText='SAVED ✓'">CLOUD SYNC</button>
             <button class="play-btn" style="padding: 20px; font-size: 25px; margin:0;" onclick="togglePause()">RESUME</button>
             <button class="shop-btn-main" style="margin:0;" onclick="openShop(true)">UPGRADE SHOP</button>
             <button class="instr-btn" style="margin:0; border-color: var(--jim-red); color: var(--jim-red);" onclick="abortMission()">ABORT MISSION</button>
@@ -1163,6 +1165,7 @@
         if (shopTab === 'skins') {
             if (gameSave.skins.unlocked.includes(id)) {
                 gameSave.skins.equipped = id; 
+                saveGame(); await syncAllData();
                 saveGame(); 
                 renderShop(); 
                 SoundEngine.buy(); 
@@ -1171,6 +1174,7 @@
             if (spendCredits(SKINS[id].p)) {
                 gameSave.skins.unlocked.push(id); 
                 gameSave.skins.equipped = id; 
+                saveGame(); await syncAllData();
                 saveGame(); 
                 renderShop(); 
                 doConfetti(); 
@@ -1182,6 +1186,7 @@
             const cost = calculateCost(id);
             if (cost !== -1 && spendCredits(cost)) {
                 gameSave.upgrades[id]++; 
+                saveGame(); await syncAllData();
                 saveGame(); 
                 renderShop(); 
                 doConfetti(); 
