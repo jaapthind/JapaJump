@@ -1395,6 +1395,8 @@
             game.active = true;
             cancelAnimationFrame(game.raf);
             game.raf = requestAnimationFrame(update);
+            player.vy = 0; player.onG = true; game.platforms.push({x: player.x - 175, y: player.y + 50, w: 400, h: 40, color: '#2ecc71', isCP: true});
+         
         }
     }
 
