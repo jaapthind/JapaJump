@@ -452,7 +452,6 @@
             <p style="color: #ccc; font-size: 14px; margin-bottom: 20px;">Access global telemetry network.</p>
             
             <input type="text" id="auth-user" class="auth-input" placeholder="USERNAME" autocomplete="off">
-            <input type="email" id="auth-email" class="auth-input" placeholder="EMAIL (REQUIRED FOR SIGNUP/RESET)">
             
             <div style="position: relative; width: 85%; margin: 0 auto;">
                 <input type="password" id="auth-pass" class="auth-input" style="width: 100%; margin: 10px 0;" placeholder="PASSWORD">
@@ -463,8 +462,6 @@
                 <button class="auth-btn btn-signin" onclick="handleAuth('signin')">LOGIN</button>
                 <button class="auth-btn btn-signup" onclick="handleAuth('signup')">CREATE</button>
             </div>
-            
-            <button onclick="handleAuth('resetPassword')" style="background:none; border:none; color:var(--jim-sky); cursor:pointer; font-size:12px; margin-top:15px; font-family:'Inter'; text-decoration:underline;">Forgot Password? (Send Email)</button>
             
             <p id="auth-msg" style="color: var(--jim-red); margin-top: 15px; font-weight: bold; min-height: 20px;"></p>
 
@@ -670,44 +667,17 @@
     async function handleAuth(action) {
         const user = document.getElementById('auth-user').value.trim();
         const pass = document.getElementById('auth-pass').value;
-        const email = document.getElementById('auth-email').value.trim();
         const msg = document.getElementById('auth-msg');
-        let verificationCode = null;
 
         if (action === 'signup') {
-            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-                msg.innerText = "INVALID PILOT EMAIL FORMAT";
-                SoundEngine.error();
-                return;
-            }
-
             if (localStorage.getItem('jam_jump_account_created')) {
                 msg.innerText = "DEVICE LIMIT REACHED: 1 ACCOUNT PER PILOT";
                 SoundEngine.error();
                 return;
             }
-
-            msg.style.color = "var(--jim-gold)";
-            msg.innerText = "DISPATCHING CODE TO " + email + "...";
-            
-            try {
-                const vResponse = await fetch(SCRIPT_URL, { 
-                    method: 'POST', 
-                    body: JSON.stringify({ action: 'sendVerification', email: email }) 
-                });
-                const vResult = await vResponse.text();
-                
-                if (vResult === "sent") {
-                    verificationCode = prompt("ENTER 6-DIGIT CODE SENT TO " + email);
-                    if (!verificationCode) { msg.innerText = "VERIFICATION CANCELLED"; return; }
-                } else {
-                    msg.innerText = "EMAIL FAILED. TRY AGAIN LATER.";
-                    return;
-                }
-            } catch(e) { msg.innerText = "UPLINK ERROR"; return; }
         }
 
-        if (action !== 'resetPassword' && (!user || !pass)) { 
+        if (!user || !pass) { 
             msg.innerText = "CREDENTIALS REQUIRED"; 
             SoundEngine.error(); 
             return; 
@@ -722,9 +692,7 @@
                 body: JSON.stringify({ 
                     action, 
                     username: user, 
-                    password: pass, 
-                    email: email,
-                    vCode: verificationCode
+                    password: pass 
                 }) 
             });
             const result = await response.text();
@@ -739,11 +707,6 @@
                 msg.style.color = "var(--jim-red)"; 
                 msg.innerText = "ACCESS DENIED."; 
                 SoundEngine.error(); 
-            }
-            else if (result === "email_sent") { 
-                msg.style.color = "var(--jim-green)"; 
-                msg.innerText = "RECOVERY DISPATCHED TO EMAIL."; 
-                SoundEngine.coin(); 
             }
             else if (result.includes("|")) {
                 localStorage.setItem('remembered_user', user); localStorage.setItem('remembered_pass', pass);
