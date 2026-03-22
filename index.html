@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -650,6 +650,7 @@
 </div>
 
 <script>
+    const isMobile = ('ontouchstart' in window || navigator.maxTouchPoints > 0);
     /* =========================================================================
        MODULE 1: AUDIO SYNTHESIZER ENGINE
        ========================================================================= */
@@ -792,7 +793,8 @@
                 // 2. Teleport to that specific checkpoint height
                 player.y = (savedCheckpoint * -10); 
                 player.lastSafeY = player.y;
-                game.camY = player.y - 300;
+                game.camY = player.y - 300; // Snaps camera so you aren't looking at the ground
+                player.onG = true;          // Prevents the "falling" glitch on login
 
 // 3. Update the HUD so it shows the right zone
                 document.getElementById('zone-val').innerText = savedCheckpoint + "m";// Snaps camera to player height// Sets respawn point to that height
@@ -1557,9 +1559,7 @@
     
     // 4. POSITION & CAMERA RESET
     game.camY = -300; 
-    player.y = 0; 
     game.voidLevel = 500; 
-    player.x = 2500; 
     player.vx = 0; 
     player.vy = 0;
     
@@ -1639,7 +1639,7 @@
         // MOVEMENT & PASSIVES
         if(left || right) {
             game.energy -= (0.38 * solarMod * hellDrainMult); 
-            let accel = 1.5 + aeroMod; 
+            let accel = (isMobile ? 0.8 : 1.5) + aeroMod;
             player.vx += left ? -accel : accel;
             player.facing = left ? -1 : 1; 
             player.walk += 0.35;
