@@ -2118,6 +2118,12 @@
                     SoundEngine.coin();
                     
                     setTimeout(() => { 
+
+                        player.x = player.lastSafeX - 25; 
+                        player.y = player.lastSafeY - 60;
+                        player.vx = 0; 
+                        player.vy = 0;
+                     
                         game.energy = game.maxEnergy; 
                         game.quizActive = false; 
                         hideScreen('quiz-overlay'); 
