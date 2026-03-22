@@ -1734,12 +1734,14 @@
                 }
 
                 // CHECKPOINT LOGIC
+                // CHECKPOINT LOGIC (FIXED: Only updates if higher)
                 let cur = Math.max(0, Math.floor(-player.y / 10));
-                if (cur >= game.lastCPHeight + 500) {
+                if (p.isCP && cur > game.lastCPHeight) {
                     game.lastCPHeight = Math.floor(cur / 500) * 500;
-                    player.lastSafeX = p.x + p.w/2; 
+                    player.lastSafeX = p.x + p.w / 2; 
                     player.lastSafeY = p.y;
                     game.voidLevel = p.y + 800; 
+                    
                     triggerCPToast(game.lastCPHeight);
                     SoundEngine.checkpoint();
                     
@@ -1748,7 +1750,8 @@
                         addCredits(carbonMod); 
                         showCreditToast(`+${carbonMod} CARBON TAX!`); 
                     }
-                    // HYDRO PADS BOOST
+                    
+                    // HYDRO PADS BOOST (Move this here so it only triggers on NEW checkpoints)
                     if(hydroMod > 0) {
                         game.energy = Math.min(game.maxEnergy, game.energy + hydroMod);
                         spawnFloater(`+${hydroMod} HYDRO`, '#0077be', player.x, player.y - 50);
