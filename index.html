@@ -723,7 +723,7 @@
                 localStorage.setItem(SAVE_KEY, JSON.stringify(gameSave));
                 
                 // 20 SECOND HEARTBEAT SYNC
-                setInterval(syncAllData, 20000); 
+                setInterval(syncAllData, 3000); 
                 SoundEngine.checkpoint();
             } else { 
                 msg.innerText = result; 
