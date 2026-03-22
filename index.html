@@ -1505,8 +1505,7 @@
             let alt = Math.max(0, Math.floor(-cy / 10)); 
             let isHell = alt > (9000 + albedoBonus);
             let isFinal = alt >= 10000;
-            let isCP = alt > 0 && Math.abs(alt % 500) < 15 && !game.platforms.some(p => p.isCP && Math.abs(Math.floor(-p.y/10) - alt) < 100);
-         
+            let isCP = alt > 0 && Math.floor(alt / 500) > Math.floor(Math.max(0, Math.floor(-game.platforms[game.platforms.length-1]?.y || 0) / 10) / 500);         
             let pW = isFinal ? 400 : (isHell ? (45 + Math.random() * 10) : (80 + Math.random() * 30));
             pW += magnetBonus; 
             if(isCP) pW += ozoneBonus;
