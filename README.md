@@ -43,3 +43,4 @@ At 9,000 meters, the atmosphere thins and the sky turns crimson. Platforms shrin
 *Mission: Climate Action. Strategy: Don't Look Down.*
 
 ![Game Screenshot](screenshot.png)
+![Game Screenshot](screenshot2.png)
