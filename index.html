@@ -1508,47 +1508,68 @@
     }
 
     function beginGame() {
-        hideScreen('start-menu');
-        
-        let b1 = SHOP_ITEMS.battery.getEffect(gameSave.upgrades.battery);
-        let b2 = SHOP_ITEMS.battery2.getEffect(gameSave.upgrades.battery2);
-        let fus = SHOP_ITEMS.fusion.getEffect(gameSave.upgrades.fusion);
-        
-        game.maxEnergy = (b1 + b2) * fus;
-        game.energy = game.maxEnergy;
-        document.getElementById('fuel-max-num').innerText = Math.floor(game.maxEnergy);
-        
-        game.camY = -300; 
-        player.y = 0; 
-        game.voidLevel = 500; 
-        player.x = 2500; 
-        player.vx = 0; 
-        player.vy = 0;
-        
-        game.lastCPHeight = 0; 
-        player.lastSafeX = 2500; 
-        player.lastSafeY = 0; 
-        game.score = 0;
-        
-        game.hellMode = false; 
-        document.getElementById('app').style.background = 'var(--jim-sky)';
-        document.getElementById('vignette').style.opacity = '0';
-        document.getElementById('energy-fill').classList.remove('energy-fill-warning');
-        
-        game.floaters = []; 
-        game.particles = []; 
-        game.confetti = [];
-        
-        generateEnvironment();
-        generateLevel();
-        
-        game.active = true; 
-        isPaused = false;
-        
-        updateHUDValues();
-        cancelAnimationFrame(game.raf); 
-        game.raf = requestAnimationFrame(update); 
+    // 1. FORCE FULLSCREEN & LANDSCAPE
+    const docElm = document.documentElement;
+    if (docElm.requestFullscreen) {
+        docElm.requestFullscreen();
+    } else if (docElm.webkitRequestFullscreen) {
+        docElm.webkitRequestFullscreen(); // Safari/iOS
+    } else if (docElm.msRequestFullscreen) {
+        docElm.msRequestFullscreen();
     }
+
+    // Attempt to lock to landscape to prevent UI cramping
+    if (screen.orientation && screen.orientation.lock) {
+        screen.orientation.lock("landscape").catch(() => {
+            console.log("Orientation lock not supported on this device.");
+        });
+    }
+
+    // 2. UI RESET
+    hideScreen('start-menu');
+    game.hellMode = false; 
+    document.getElementById('app').style.background = 'var(--jim-sky)';
+    document.getElementById('vignette').style.opacity = '0';
+    document.getElementById('energy-fill').classList.remove('energy-fill-warning');
+
+    // 3. STATS & UPGRADE CALCULATIONS
+    let b1 = SHOP_ITEMS.battery.getEffect(gameSave.upgrades.battery);
+    let b2 = SHOP_ITEMS.battery2.getEffect(gameSave.upgrades.battery2);
+    let fus = SHOP_ITEMS.fusion.getEffect(gameSave.upgrades.fusion);
+    
+    game.maxEnergy = (b1 + b2) * fus;
+    game.energy = game.maxEnergy;
+    document.getElementById('fuel-max-num').innerText = Math.floor(game.maxEnergy);
+    
+    // 4. POSITION & CAMERA RESET
+    game.camY = -300; 
+    player.y = 0; 
+    game.voidLevel = 500; 
+    player.x = 2500; 
+    player.vx = 0; 
+    player.vy = 0;
+    
+    game.lastCPHeight = 0; 
+    player.lastSafeX = 2500; 
+    player.lastSafeY = 0; 
+    game.score = 0;
+
+    // 5. WORLD & PARTICLE GENERATION
+    game.floaters = []; 
+    game.particles = []; 
+    game.confetti = [];
+    
+    generateEnvironment();
+    generateLevel();
+    
+    // 6. START ENGINE
+    game.active = true; 
+    isPaused = false;
+    
+    updateHUDValues();
+    cancelAnimationFrame(game.raf); 
+    game.raf = requestAnimationFrame(update); 
+}
 
     function update() {
         if(!game.active || game.quizActive) return;
