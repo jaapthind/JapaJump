@@ -752,7 +752,6 @@
         try { 
             await fetch(SCRIPT_URL, { 
                 method: 'POST', 
-                mode: 'no-cors', // Helps prevent browser blocking on fast saves
                 body: JSON.stringify({ 
                     action: 'syncAll', 
                     username: currentUser, 
