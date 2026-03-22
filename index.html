@@ -674,6 +674,7 @@
         const msg = document.getElementById('auth-msg');
 
         if (action !== 'resetPassword' && (!user || !pass)) { 
+            if (action === 'signup' && localStorage.getItem('jam_jump_account_created')) { msg.innerText = "DEVICE LIMIT REACHED: 1 ACCOUNT PER PILOT"; SoundEngine.error(); return; }
             msg.innerText = "CREDENTIALS REQUIRED"; 
             SoundEngine.error(); 
             return; 
