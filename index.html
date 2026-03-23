@@ -730,19 +730,19 @@
     // REPLACE THE URL BELOW WITH YOUR RENDER URL (Make sure it starts with wss://)
     const ws = new WebSocket('wss://japa-server.onrender.com');    
        ws.onmessage = (e) => {
-        let p = JSON.parse(e.data); // 1. Parse the data FIRST
-    
-        // 2. Now check if it's a chat message
-                if (p.type === 'chat') {
-            // Bold Yellow text with a Black Shadow so it pops against the blue sky
+        let p = JSON.parse(e.data);
+
+        // 1. Handle Chat Messages
+        if (p.type === 'chat') {
             spawnFloater(`${p.id}: ${p.text}`, '#FFD700', p.x, p.y - 50); 
             SoundEngine.coin(); 
             return;
         }
-    
-        // 3. Otherwise, update the player's ghost position
+
+        // 2. Update Ghost Data (Position, Skin, and Score)
         if (p.id && p.id !== currentUser) {
-            otherPlayers[p.id] = p; 
+            // Merges new telemetry (p) with existing data so the score isn't lost
+            otherPlayers[p.id] = { ...otherPlayers[p.id], ...p }; 
             otherPlayers[p.id].lastSeen = Date.now();
         }
     };
@@ -1861,17 +1861,19 @@
 
         // Blast your live coordinates to the server
         // Blast your FULL live coordinates & animations to the server
-        if (ws.readyState === WebSocket.OPEN && currentUser && game.active) {
-            ws.send(JSON.stringify({
-                id: currentUser, 
-                x: player.x, 
-                y: player.y, 
-                skin: gameSave.skins.equipped,
-                facing: player.facing,
-                walk: player.walk,
-                thrusting: (gameSave.upgrades.thrusters > 0 && !player.onG)
-            }));
-        }
+        // Locate this block in your update() function
+if (ws.readyState === WebSocket.OPEN && currentUser && game.active) {
+    ws.send(JSON.stringify({
+        id: currentUser, 
+        x: player.x, 
+        y: player.y, 
+        score: game.score, // <--- ADD THIS LINE
+        skin: gameSave.skins.equipped,
+        facing: player.facing,
+        walk: player.walk,
+        thrusting: (gameSave.upgrades.thrusters > 0 && !player.onG)
+    }));
+}
         // SCORE & SAVE
         game.score = Math.max(0, Math.floor(-player.y / 10));
         if(game.score > gameSave.highscore) { 
