@@ -1513,52 +1513,51 @@
     }
 
         function generateLevel() {
-        // IF someone else is online, use the "Global Map" (12345)
-        // IF you are alone, use a random map (Math.random)
-        let seed = Object.values(otherPlayers).length > 0 ? 12345 : Math.random() * 10000;
-        
-        let rnd = () => { 
-            seed = (seed * 16807) % 2147483647; 
-            return seed / 2147483647; 
-        };
-        
-        game.platforms = [];
-        const magnetBonus = SHOP_ITEMS.magnet.getEffect(gameSave.upgrades.magnet);
-        const ozoneBonus = SHOP_ITEMS.ozone.getEffect(gameSave.upgrades.ozone);
-        const albedoBonus = SHOP_ITEMS.albedo.getEffect(gameSave.upgrades.albedo);
+    // FIX: Force a fixed seed for everyone to prevent world de-sync
+    let seed = 12345; 
+    
+    let rnd = () => { 
+        seed = (seed * 16807) % 2147483647; 
+        return seed / 2147483647; 
+    };
+    
+    game.platforms = [];
+    const magnetBonus = SHOP_ITEMS.magnet.getEffect(gameSave.upgrades.magnet);
+    const ozoneBonus = SHOP_ITEMS.ozone.getEffect(gameSave.upgrades.ozone);
+    const albedoBonus = SHOP_ITEMS.albedo.getEffect(gameSave.upgrades.albedo);
 
-        game.platforms.push({x: 2350, y: 150, w: 300 + magnetBonus, h: 50, color: '#2ecc71'});
+    // Ground Platform
+    game.platforms.push({x: 2350, y: 150, w: 300 + magnetBonus, h: 50, color: '#2ecc71'});
+    
+    let cy = 0, lastX = 2500; 
+    for(let i=0; i < 2000; i++) {
+        let alt = Math.max(0, Math.floor(-cy / 10)); 
+        let isHell = alt > (9000 + albedoBonus);
+        let isFinal = alt >= 10000;
+        let isCP = alt > 0 && Math.floor(alt / 500) > Math.floor(Math.max(0, Math.floor(-game.platforms[game.platforms.length-1]?.y || 0) / 10) / 500);         
         
-        let cy = 0, lastX = 2500; 
-        for(let i=0; i < 2000; i++) {
-            let alt = Math.max(0, Math.floor(-cy / 10)); 
-            let isHell = alt > (9000 + albedoBonus);
-            let isFinal = alt >= 10000;
-            let isCP = alt > 0 && Math.floor(alt / 500) > Math.floor(Math.max(0, Math.floor(-game.platforms[game.platforms.length-1]?.y || 0) / 10) / 500);         
-            
-            // USE rnd() INSTEAD OF Math.random() EVERYWHERE
-            let pW = isFinal ? 400 : (isHell ? (45 + rnd() * 10) : (80 + rnd() * 30));
-            pW += magnetBonus; 
-            if(isCP) pW += ozoneBonus;
+        let pW = isFinal ? 400 : (isHell ? (45 + rnd() * 10) : (80 + rnd() * 30));
+        pW += magnetBonus; 
+        if(isCP) pW += ozoneBonus;
 
-            let verticalGap = (isHell) ? 220 : (150 + rnd() * 80);
-            let drift = isHell ? 350 : 600;
-            let rx = isFinal ? 2300 : lastX + (rnd() * (drift * 2) - drift);
-            
-            if (rx < 1100) rx = 1300; 
-            if (rx > 3900) rx = 3700;
-            
-            game.platforms.push({ 
-             x: rx, y: cy, w: pW, h: 32, 
-             color: isFinal ? '#FFD700' : (isCP ? '#00d2ff' : (isHell ? '#ff1a1a' : '#ffffff')),
-             isHell: isHell, isFinal: isFinal, isCP: isCP
-            });
+        let verticalGap = (isHell) ? 220 : (150 + rnd() * 80);
+        let drift = isHell ? 350 : 600;
+        let rx = isFinal ? 2300 : lastX + (rnd() * (drift * 2) - drift);
+        
+        if (rx < 1100) rx = 1300; 
+        if (rx > 3900) rx = 3700;
+        
+        game.platforms.push({ 
+            x: rx, y: cy, w: pW, h: 32, 
+            color: isFinal ? '#FFD700' : (isCP ? '#00d2ff' : (isHell ? '#ff1a1a' : '#ffffff')),
+            isHell: isHell, isFinal: isFinal, isCP: isCP
+        });
 
-            if(isFinal) break; 
-            lastX = rx; 
-            cy -= verticalGap; 
-        }
+        if(isFinal) break; 
+        lastX = rx; 
+        cy -= verticalGap; 
     }
+}
 
     function beginGame() {
     // 1. FORCE FULLSCREEN & LANDSCAPE
