@@ -733,12 +733,12 @@
         let p = JSON.parse(e.data); // 1. Parse the data FIRST
     
         // 2. Now check if it's a chat message
-                if (p.type === 'chat') {
-            // Bold Yellow text with a Black Shadow so it pops against the blue sky
-            spawnFloater(`${p.id}: ${p.text}`, '#FFD700', p.x, p.y - 50); 
-            SoundEngine.coin(); 
-            return;
-        }
+                     if (p.type === 'chat') {
+         // Increased life to 3.0 (3 seconds)
+         game.floaters.push({ text: `${p.id}: ${p.text}`, c: '#FFD700', x: p.x, y: p.y - 80, life: 3.0, vy: -1 });
+         SoundEngine.coin();
+         return;
+    }
     
         // 3. Otherwise, update the player's ghost position
         if (p.id && p.id !== currentUser) {
@@ -1512,10 +1512,11 @@
         }
     }
 
-    function generateLevel() {
-            let seed = Object.values(otherPlayers).length > 0 ? 12345 : Math.random() * 10000;
+        function generateLevel() {
+        // IF someone else is online, use the "Global Map" (12345)
+        // IF you are alone, use a random map (Math.random)
+        let seed = Object.values(otherPlayers).length > 0 ? 12345 : Math.random() * 10000;
         
-        // This math function makes "random" numbers that are the SAME for everyone
         let rnd = () => { 
             seed = (seed * 16807) % 2147483647; 
             return seed / 2147483647; 
@@ -2078,18 +2079,15 @@
         ctx.globalAlpha = 1.0;
 
         // DRAW FLOATING TEXT
-        game.floaters.forEach((f, i) => {
-            f.y += f.vy; 
-            f.life -= 0.02;
-            
+                game.floaters.forEach((f, i) => {
+            f.y += f.vy; f.life -= 0.01; // Slower decay
             if(f.life > 0) {
-                ctx.globalAlpha = Math.max(0, f.life);
-                ctx.fillStyle = f.c;
-                ctx.font = "bold 22px Bungee";
-                ctx.fillText(f.text, f.x - game.camX, f.y - game.camY);
-            } else { 
-                game.floaters.splice(i, 1); 
-            }
+                ctx.globalAlpha = Math.min(1, f.life);
+                ctx.fillStyle = f.c; ctx.font = "bold 18px Bungee";
+                ctx.textAlign = "center";
+                // Draws relative to camera so it doesn't "jitter"
+                ctx.fillText(f.text, f.x - game.camX + 25, f.y - game.camY);
+            } else { game.floaters.splice(i, 1); }
         });
         ctx.globalAlpha = 1.0;
 
