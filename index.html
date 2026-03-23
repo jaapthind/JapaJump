@@ -1513,10 +1513,9 @@
     }
 
     function generateLevel() {
-                // If players are online, use Seed 123 so platforms are in the same spot for everyone
+        // Shared Seed: If online, everyone gets Seed 123. If alone, random.
         let seed = Object.keys(otherPlayers).length > 0 ? 123 : Math.random();
         let rnd = () => { seed = (seed * 16807) % 2147483647; return seed / 2147483647; };
-        // Now, REPLACE every "Math.random()" inside generateLevel with "rnd()"
         
         game.platforms = [];
         const magnetBonus = SHOP_ITEMS.magnet.getEffect(gameSave.upgrades.magnet);
@@ -1531,13 +1530,15 @@
             let isHell = alt > (9000 + albedoBonus);
             let isFinal = alt >= 10000;
             let isCP = alt > 0 && Math.floor(alt / 500) > Math.floor(Math.max(0, Math.floor(-game.platforms[game.platforms.length-1]?.y || 0) / 10) / 500);         
-            let pW = isFinal ? 400 : (isHell ? (45 + Math.random() * 10) : (80 + Math.random() * 30));
+            
+            // USE rnd() INSTEAD OF Math.random() EVERYWHERE
+            let pW = isFinal ? 400 : (isHell ? (45 + rnd() * 10) : (80 + rnd() * 30));
             pW += magnetBonus; 
             if(isCP) pW += ozoneBonus;
 
-            let verticalGap = (isHell) ? 220 : (150 + Math.random() * 80);
+            let verticalGap = (isHell) ? 220 : (150 + rnd() * 80);
             let drift = isHell ? 350 : 600;
-            let rx = isFinal ? 2300 : lastX + (Math.random() * (drift * 2) - drift);
+            let rx = isFinal ? 2300 : lastX + (rnd() * (drift * 2) - drift);
             
             if (rx < 1100) rx = 1300; 
             if (rx > 3900) rx = 3700;
@@ -2099,23 +2100,68 @@
 
         // DRAW MULTIPLAYER GHOSTS
         // DRAW MULTIPLAYER GHOSTS (HIGH FIDELITY)
+        // 1. DRAW MULTIPLAYER GHOSTS (World Space - Moves with Camera)
         Object.values(otherPlayers).forEach(p => {
             if(Math.abs(p.x - player.x) > 1500 || Math.abs(p.y - player.y) > 1000) return; 
 
             ctx.save();
             ctx.translate(p.x - game.camX + 25, p.y - game.camY + 25);
-            ctx.scale(p.facing || 1, 1); // Flips them if they look left
+            ctx.scale(p.facing || 1, 1);
             
             let ghostSkin = SKINS[p.skin] || SKINS['default'];
-            ctx.globalAlpha = 0.6; // Slightly transparent so you know it's a ghost
+            ctx.globalAlpha = 0.6;
 
-            // TOP-RIGHT MINI LEADERBOARD
-             ctx.fillStyle = "rgba(0,0,0,0.5)"; ctx.fillRect(canvas.width-220, 100, 200, 150);
-             ctx.fillStyle = "white"; ctx.font = "12px Bungee"; ctx.fillText("LIVE TOWER RANK:", canvas.width-210, 120);
-             let players = Object.values(otherPlayers).concat([{id:currentUser, score:game.score}]);
-             players.sort((a,b) => b.score - a.score).slice(0, 5).forEach((p, i) => {
-                 ctx.fillText(`${i+1}. ${p.id.toUpperCase()}: ${p.score}m`, canvas.width-210, 145 + i*20);
-             });
+            // Ghost Body
+            ctx.fillStyle = game.hellMode && ghostSkin.n === 'Standard' ? "#1a1a1a" : ghostSkin.c;
+            ctx.beginPath();
+            ctx.roundRect(-25, -25, 50, 50, 12);
+            ctx.fill();
+
+            // Ghost Visor & Eyes
+            ctx.fillStyle = "#222";
+            ctx.fillRect(-28, -28, 56, 18); 
+            ctx.fillStyle = ghostSkin.a;
+            ctx.fillRect(10, -5, 8, 8);
+            ctx.fillRect(25, -5, 8, 8);
+
+            // Ghost Legs (Animated)
+            let leg = Math.sin(p.walk || 0) * 15;
+            ctx.fillStyle = "#111";
+            ctx.fillRect(-18, 18, 14, 15 + leg);
+            ctx.fillRect(4, 18, 14, 15 - leg);
+            ctx.restore();
+
+            // Floating Name Tag (Above Player)
+            ctx.fillStyle = "white";
+            ctx.font = "bold 14px Bungee";
+            ctx.textAlign = "center";
+            ctx.fillText(p.id.toUpperCase(), p.x - game.camX + 25, p.y - game.camY - 10);
+        });
+
+        // 2. DRAW MINI LEADERBOARD (Screen Space - Stays in Corner)
+        ctx.save();
+        ctx.resetTransform(); // This "unsticks" the leaderboard from the camera
+        ctx.fillStyle = "rgba(0,0,0,0.6)"; 
+        ctx.beginPath();
+        ctx.roundRect(canvas.width - 220, 100, 200, 140, 15); ctx.fill();
+        
+        ctx.fillStyle = "var(--jim-gold)"; ctx.font = "bold 12px Bungee";
+        ctx.textAlign = "left";
+        ctx.fillText("LIVE TOWER RANK", canvas.width - 205, 125);
+
+        let leaderboard = Object.values(otherPlayers)
+            .map(p => ({id: p.id, score: p.score || 0}))
+            .concat([{id: currentUser, score: game.score}]);
+            
+        leaderboard.sort((a,b) => b.score - a.score).slice(0, 5).forEach((p, i) => {
+            ctx.fillStyle = (p.id === currentUser) ? "var(--jim-blue)" : "white";
+            ctx.font = "11px Inter";
+            ctx.fillText(`${i+1}. ${p.id.toUpperCase()}`, canvas.width - 205, 150 + i*18);
+            ctx.textAlign = "right";
+            ctx.fillText(`${p.score}m`, canvas.width - 35, 150 + i*18);
+            ctx.textAlign = "left";
+        });
+        ctx.restore();
 
             // Draw Body
             ctx.fillStyle = game.hellMode && ghostSkin.n === 'Standard' ? "#1a1a1a" : ghostSkin.c;
