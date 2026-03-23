@@ -1830,7 +1830,7 @@
      
         // Clean up disconnected players (vanish after 2 seconds of no data)
         Object.keys(otherPlayers).forEach(id => {
-            if (Date.now() - otherPlayers[id].lastSeen > 200000) delete otherPlayers[id];
+            if (Date.now() - otherPlayers[id].lastSeen > 2000) delete otherPlayers[id];
         });
 
         // Blast your live coordinates to the server
