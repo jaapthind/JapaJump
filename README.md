@@ -1,110 +1,138 @@
 <div align="center">
-  <img src="https://capsule-render.vercel.app/api?type=waving&color=00d2ff&height=250&section=header&text=JAPA%20JUMP&fontSize=80&fontAlignY=35&animation=twinkling&fontColor=ffffff&stroke=000000" width="100%">
+  <img src="https://capsule-render.vercel.app/api?type=waving&color=00d2ff&height=280&section=header&text=JAPA%20JUMP&fontSize=90&fontAlignY=35&animation=twinkling&fontColor=ffffff&stroke=FF00FF&strokeWidth=3" width="100%">
 </div>
 
 <div align="center">
-  <a href="#"><img src="https://readme-typing-svg.demolab.com?font=Bungee&weight=900&size=40&pause=1000&color=FF4B2B&center=true&vCenter=true&random=false&width=800&height=80&lines=10,000+METERS.;DON'T+LOOK+DOWN.;SAVE+THE+PLANET." alt="Typing SVG" /></a>
+  <img src="https://readme-typing-svg.demolab.com?font=Bungee&weight=900&size=45&pause=1000&color=FFD700&center=true&vCenter=true&random=false&width=900&height=90&lines=10,000+METERS.;THE+AIR+IS+THIN.;DON'T+LOOK+DOWN.;SAVE+THE+PLANET." alt="Typing SVG" />
 </div>
 
 <p align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://img.shields.io/badge/STATUS-LIVE-00d2ff?style=for-the-badge&logo=rocket&logoColor=white">
-    <source media="(prefers-color-scheme: light)" srcset="https://img.shields.io/badge/STATUS-LIVE-ff4b2b?style=for-the-badge&logo=rocket&logoColor=white">
-    <img src="https://img.shields.io/badge/STATUS-LIVE-00d2ff?style=for-the-badge&logo=rocket&logoColor=white">
-  </picture>
+  <img src="https://img.shields.io/badge/STATUS-LIVE_SERVER-00d2ff?style=for-the-badge&logo=rocket&logoColor=white">
   <img src="https://img.shields.io/badge/SDG-13_CLIMATE_ACTION-4caf50?style=for-the-badge&logo=earth">
-  <img src="https://img.shields.io/badge/CLOUD-SYNC_ACTIVE-orange?style=for-the-badge&logo=google-cloud">
+  <img src="https://img.shields.io/badge/UPLINK-CLOUD_SYNCED-FF9800?style=for-the-badge&logo=google-cloud">
+  <img src="https://img.shields.io/badge/PHYSICS-CANVAS_2D-FF00FF?style=for-the-badge">
 </p>
 
-<br>
-
-<div align="center">
-  <h2>🔥 LIVE TELEMETRY FEED 🔥</h2>
-  <video src="jump.mp4" autoplay loop muted playsinline width="85%"></video>
-</div>
-
-<br>
-
-<marquee scrollamount="20" direction="left" style="background: #000; border-top: 2px solid #ff4b2b; border-bottom: 2px solid #ff4b2b; padding: 10px 0;">
-  <font color="#ff4b2b" size="5" face="monospace"><b>
-    /// DEVIL ZONE DETECTED AT 9,000M /// ALBEDO EFFECT FAILING /// INITIATE CLIMATE ACTION PROTOCOLS ///
+<marquee scrollamount="25" direction="left" style="background: #1a0000; border-top: 4px solid #ff4b2b; border-bottom: 4px solid #ff4b2b; padding: 15px 0;">
+  <font color="#ff4b2b" size="6" face="monospace"><b>
+    /// 🚨 CRITICAL ALERT: DEVIL ZONE DETECTED AT 9,000 METERS /// ALBEDO EFFECT FAILING /// INITIATE CLIMATE ACTION PROTOCOLS IMMEDIATELY /// 🚨
   </b></font>
 </marquee>
 
 <br>
 
-<h2 align="center">🕹️ HOW TO SURVIVE</h2>
+<div align="center">
+  <img src="https://capsule-render.vercel.app/api?type=rect&color=FF00FF&height=40&text=MISSION%20LORE%20//%20SDG%2013&fontColor=ffffff&fontSize=20" width="80%">
+</div>
 
-<details>
-  <summary><b><font size="4">⌨️ CLICK: REVEAL DESKTOP CONTROLS</font></b></summary>
-  <br>
-  <img align="right" src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Objects/Keyboard.png" width="100">
-  <p><b>MOVE:</b> <kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd> or <kbd>←</kbd> <kbd>↑</kbd> <kbd>→</kbd> <kbd>↓</kbd></p>
-  <p><b>JUMP:</b> <kbd>SPACE</kbd> (Double/Triple jump based on tech upgrades)</p>
-  <p><b>PAUSE:</b> <kbd>ESC</kbd> to access Cloud Sync & Shop</p>
-</details>
+<br>
 
-<details>
-  <summary><b><font size="4">📱 CLICK: REVEAL MOBILE TACTICS</font></b></summary>
+> <font size="4">The year is critical. Global temperatures have destabilized the surface, forcing humanity to look to the skies. You are piloting an experimental high-altitude Exo-Suit designed to collect atmospheric data, plant beacons, and restore the planet's balance. But there is a catch: **Gravity is unforgiving, and your suit runs on finite energy.** Every jump, every movement drains your life support. To survive, you must master momentum, upgrade your tech with renewable modules, and prove your knowledge of Climate Action to reboot your failing systems.</font>
+
+<br>
+
+<div align="center">
+  <img src="https://capsule-render.vercel.app/api?type=rect&color=00d2ff&height=40&text=COMMAND%20AND%20CONTROL&fontColor=ffffff&fontSize=20" width="80%">
+</div>
+
+<br>
+
+<details open>
+  <summary><b><font size="5" color="#00d2ff">⌨️ REVEAL DESKTOP TACTICS [ PRIMARY ]</font></b></summary>
   <br>
-  <img align="right" src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Objects/Mobile%20Phone.png" width="100">
-  <p><b>LANDSCAPE ONLY.</b></p>
-  <p>Left thumb controls thrust vectoring via touch-slider.</p>
-  <p>Right thumb handles vertical propulsion.</p>
+  <ul>
+    <li><font size="3"><b>LATERAL THRUST (MOVE):</b> <kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd> or <kbd>←</kbd> <kbd>↑</kbd> <kbd>→</kbd> <kbd>↓</kbd></font></li>
+    <li><font size="3"><b>VERTICAL PROPULSION (JUMP):</b> <kbd>SPACE</kbd> <i>(Note: Double & Triple jumps require advanced shop upgrades)</i></font></li>
+    <li><font size="3"><b>SYSTEM OVERRIDE (PAUSE):</b> <kbd>ESC</kbd> <i>(Access Cloud Sync & Telemetry)</i></font></li>
+  </ul>
 </details>
 
 <br>
 
-<h2 align="center">⚙️ THE ENGINEERING</h2>
+<details>
+  <summary><b><font size="5" color="#FFD700">📱 REVEAL MOBILE TACTICS [ EXPERIMENTAL ]</font></b></summary>
+  <br>
+  <blockquote><font size="3"><b>LANDSCAPE ORIENTATION REQUIRED.</b> Left thumb controls thrust vectoring via the glassmorphism touch-slider. Right thumb handles vertical propulsion. UI is designed to prevent screen bleed during high-altitude maneuvers.</font></blockquote>
+</details>
+
+<br>
+
+<div align="center">
+  <img src="https://capsule-render.vercel.app/api?type=rect&color=4caf50&height=40&text=DECLASSFIED%20SIGHTINGS&fontColor=ffffff&fontSize=20" width="80%">
+</div>
+
+<br>
 
 <p align="center">
-  <img align="left" src="screenshot.png" width="45%" style="border-radius: 12px; box-shadow: 0 0 15px #00d2ff;">
-  <img align="right" src="screenshot2.png" width="45%" style="border-radius: 12px; box-shadow: 0 0 15px #ff4b2b;">
+  <img align="left" src="screenshot.png" width="46%" style="border: 5px solid #00d2ff; border-radius: 15px;">
+  <img align="right" src="screenshot2.png" width="46%" style="border: 5px solid #ff4b2b; border-radius: 15px;">
 </p>
 
 <br clear="all">
 <br>
 
 <div align="center">
-  <video src="jump.mp4" autoplay loop muted playsinline width="50%"></video>
-  <p><i>^ Physics Engine Demonstration ^</i></p>
+  <img src="https://capsule-render.vercel.app/api?type=rect&color=FF9800&height=40&text=ENGINEERING%20MASTERCLASS&fontColor=ffffff&fontSize=20" width="80%">
 </div>
 
-<details open>
-  <summary><b><font size="4">1. ZERO-GAP CHECKPOINTS 🚩</font></b></summary>
-  <p>The procedural generator uses dynamic crossover math <code>(alt / 500) > (prev_alt / 500)</code>. You cross the 500m line, you get a blue platform and a flag. Period. No skipped saves. No RNG screwing you over.</p>
-</details>
+<br>
 
 <details open>
-  <summary><b><font size="4">2. ENERGY ECONOMY ⚡</font></b></summary>
-  <p>Movement costs power. Hitting 0% triggers a System Failure. Answer SDG 13 Climate Action questions correctly to reboot the suit mid-climb without losing altitude.</p>
-</details>
-
-<details open>
-  <summary><b><font size="4">3. CLOUD TELEMETRY 🛰️</font></b></summary>
-  <p>Built on a custom Google Apps Script backend. Your highscore, upgrades, and skins sync to the global network via a 3-second heartbeat pulse.</p>
+  <summary><b><font size="5" color="#FF9800">🚩 ZERO-GAP CHECKPOINTS</font></b></summary>
+  <p><font size="3">The procedural generation uses dynamic crossover math: <code>(alt / 500) > (prev_alt / 500)</code>. The moment your altitude crosses a 500m boundary, the system forces a <b>Blue Platform</b> and a <b>Waving Flag</b> to spawn. It is mathematically impossible to skip a save point.</font></p>
 </details>
 
 <br>
 
-<h2 align="center">🛒 TECH SHOP ARSENAL</h2>
+<details open>
+  <summary><b><font size="5" color="#FF9800">⚡ ENERGY ECONOMY & QUIZZES</font></b></summary>
+  <p><font size="3">Every lateral movement and vertical leap costs power. If your energy hits 0%, you don't die—you trigger a <b>System Failure</b>. You must answer an <i>SDG 13 Climate Action Quiz</i> correctly to reboot the suit mid-climb, preserving your hard-earned altitude.</font></p>
+</details>
+
+<br>
+
+<details open>
+  <summary><b><font size="5" color="#FF9800">🛰️ GLOBAL CLOUD TELEMETRY</font></b></summary>
+  <p><font size="3">Built entirely on a custom Google Apps Script (GAS) backend. Your highscore, earned credits, upgraded modules, and equipped skins synchronize to a global satellite network via a strict 3-second heartbeat pulse.</font></p>
+</details>
+
+<br>
+
+<div align="center">
+  <img src="https://capsule-render.vercel.app/api?type=rect&color=ff4b2b&height=40&text=QUANTUM%20TECH%20ARSENAL&fontColor=ffffff&fontSize=20" width="80%">
+</div>
+
+<br>
 
 <p align="center">
-  <img src="https://readme-typing-svg.demolab.com?font=Inter&weight=600&size=20&pause=2000&color=00ffcc&center=true&vCenter=true&random=false&width=600&height=40&lines=UPGRADE:+ION+THRUSTERS;UPGRADE:+KINETIC+RECYCLER;UPGRADE:+VOID+PLATING" alt="Upgrades" />
+  <img src="https://readme-typing-svg.demolab.com?font=Inter&weight=900&size=25&pause=2000&color=FF00FF&center=true&vCenter=true&random=false&width=800&height=50&lines=UPGRADE:+ION+THRUSTERS;UPGRADE:+KINETIC+RECYCLER;UPGRADE:+VOID+PLATING" alt="Upgrades" />
 </p>
 
-* **Solar Panels:** Cuts horizontal movement energy drain.
-* **Carbon Scrubbers:** Passively prints Credits just for moving.
-* **Void Plating:** The holy grail. Miss a jump? Fall into the abyss? Void Plating catches you, restores energy, and drops you safely at your last checkpoint. 
+* <font size="3"><b>🔋 SUSTAINABILITY:</b> <i>Solar Panels</i> cut horizontal drain. <i>Ion Thrusters</i> boost jump height. <i>Supercapacitors</i> expand max energy.</font>
+* <font size="3"><b>⚙️ RESOURCE GAIN:</b> <i>Carbon Scrubbers</i> print Credits as you run. <i>Kinetic Recyclers</i> convert landing impact directly into raw fuel.</font>
+* <font size="3"><b>🛡️ THE HOLY GRAIL:</b> <i>VOID PLATING.</i> Miss a jump? Fall into the abyss? Void Plating catches you in mid-air, triggers an emergency energy restore, and drops you safely at your last 🚩 checkpoint.</font>
 
 <br>
 
-<marquee scrollamount="10" direction="right" style="background: #0d1117; border: 1px dashed #00d2ff; padding: 5px 0;">
-  <font color="#00d2ff" size="4" face="monospace">
-    > DEVELOPER: JAAP THIND &nbsp;&nbsp;&nbsp;&nbsp; > STATUS: DEPLOYED &nbsp;&nbsp;&nbsp;&nbsp; > ENGINE: CANVAS 2D &nbsp;&nbsp;&nbsp;&nbsp; > AUDIO: WEB SYNTH API
+<div align="center">
+  <img src="https://capsule-render.vercel.app/api?type=rect&color=00d2ff&height=40&text=THREAT%20ASSESSMENT&fontColor=ffffff&fontSize=20" width="80%">
+</div>
+
+<br>
+
+<details open>
+  <summary><b><font size="5" color="#ff4b2b">🔥 THE DEVIL ZONE (9,000M+)</font></b></summary>
+  <p><font size="3">At 9,000 meters, the Albedo effect fails. The sky turns crimson red. Platforms shrink to micro-sizes. Energy drain multiplies. Only pilots with maxed-out Hazard Shielding and pristine jump mechanics will survive to see the Golden Platform at 10,000m.</font></p>
+</details>
+
+<br>
+
+<marquee scrollamount="12" direction="right" style="background: #0d1117; border: 2px dashed #00d2ff; padding: 10px 0;">
+  <font color="#00d2ff" size="5" face="monospace">
+    > LEAD DEVELOPER: JAAP THIND &nbsp;&nbsp;&nbsp;&nbsp; > STATUS: DEPLOYED &nbsp;&nbsp;&nbsp;&nbsp; > ENGINE: VANILLA HTML5 CANVAS &nbsp;&nbsp;&nbsp;&nbsp; > AUDIO: REAL-TIME WEB SYNTH API &nbsp;&nbsp;&nbsp;&nbsp; > MISSION: CLIMATE ACTION
   </font>
 </marquee>
 
 <div align="center">
-  <img src="https://capsule-render.vercel.app/api?type=waving&color=00d2ff&height=100&section=footer&animation=twinkling" width="100%">
+  <img src="https://capsule-render.vercel.app/api?type=waving&color=00d2ff&height=150&section=footer&animation=twinkling&stroke=FF00FF&strokeWidth=2" width="100%">
 </div>
