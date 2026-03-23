@@ -722,7 +722,8 @@
        MODULE 2: NETWORK & CLOUD SYNC (Google Apps Script Backend)
        ========================================================================= */
     const SAVE_KEY = 'japa_jump_v7_ultimate_save';
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwfKKcOM3imJJ3_NsJ0489Bt0q0fkjC2kCfMLUSofJ-4PCorocxmydBeVKYa515MA2WXw/exec'; 
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyBRtKzrI0eV395ro34tkqIC_y3f7v2OvZadtlcNO7RNMmwU7lzZRMWNbT9ruIQ4PBY-g/exec';
+    const GAME_SECRET = "dstanyftewyyrmfywnwdagfxydsmu"; // <--- ADD THIS LINE (Must match Google Apps Script)
     
     let currentUser = null;
         let otherPlayers = {};
@@ -755,6 +756,7 @@
     async function updateLeaderboard() {
         try {
             const res = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'getLeaderboard' }) });
+            secret: GAME_SECRET,
             const list = await res.json();
             const container = document.getElementById('leaderboard-list');
             if (!list || list.length === 0) {
@@ -802,6 +804,7 @@
                     action, 
                     username: user, 
                     password: pass 
+                    secret: GAME_SECRET,
                 }) 
             });
             const result = await response.text();
@@ -868,6 +871,7 @@
                     score: gameSave.highscore, // Use highscore, not current score
                     credits: gameSave.credits, 
                     inventory: inventory 
+                    secret: GAME_SECRET,
                 }) 
             }); 
         } catch(e) { console.warn("Syncing..."); }
