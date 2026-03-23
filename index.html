@@ -729,26 +729,12 @@
         let otherPlayers = {};
     // REPLACE THE URL BELOW WITH YOUR RENDER URL (Make sure it starts with wss://)
     const ws = new WebSocket('wss://japa-server.onrender.com');    
-    
-    ws.onopen = () => console.log("CONNECTED TO SATELLITE");
-    ws.onerror = (err) => console.log("SIGNAL LOST", err);
-
     ws.onmessage = (e) => {
-        try {
-            let p = JSON.parse(e.data);
-            if (p.type === 'chat') {
-                game.floaters.push({ text: `${p.id}: ${p.text}`, c: '#FFD700', x: p.x, y: p.y - 80, life: 3.0, vy: -1 });
-                return;
-            }
-            if (p.id && p.id !== currentUser) {
-                // Ensure the score is tracked for the leaderboard
-                otherPlayers[p.id] = {
-                    ...p,
-                    score: p.score || 0,
-                    lastSeen: Date.now()
-                };
-            }
-        } catch(err) { console.log("Data sync error"); }
+        let p = JSON.parse(e.data);
+        if (p.id && p.id !== currentUser) {
+            otherPlayers[p.id] = p; 
+            otherPlayers[p.id].lastSeen = Date.now();
+        }
     };
     let scoreSyncInterval = null;
 
@@ -1516,82 +1502,69 @@
         }
     }
 
-        function generateLevel() {
-    // FIX: Force a fixed seed for everyone to prevent world de-sync
-    let seed = 99999; 
-    
-    let rnd = () => { 
-        seed = (seed * 16807) % 2147483647; 
-        return seed / 2147483647; 
-    };
-    
-    game.platforms = [];
-    const magnetBonus = SHOP_ITEMS.magnet.getEffect(gameSave.upgrades.magnet);
-    const ozoneBonus = SHOP_ITEMS.ozone.getEffect(gameSave.upgrades.ozone);
-    const albedoBonus = SHOP_ITEMS.albedo.getEffect(gameSave.upgrades.albedo);
+    function generateLevel() {
+        game.platforms = [];
+        const magnetBonus = SHOP_ITEMS.magnet.getEffect(gameSave.upgrades.magnet);
+        const ozoneBonus = SHOP_ITEMS.ozone.getEffect(gameSave.upgrades.ozone);
+        const albedoBonus = SHOP_ITEMS.albedo.getEffect(gameSave.upgrades.albedo);
 
-    // Ground Platform
-    game.platforms.push({x: 2350, y: 150, w: 300 + magnetBonus, h: 50, color: '#2ecc71'});
-    
-    let cy = 0, lastX = 2500; 
-    for(let i=0; i < 2000; i++) {
-        let alt = Math.max(0, Math.floor(-cy / 10)); 
-        let isHell = alt > (9000 + albedoBonus);
-        let isFinal = alt >= 10000;
-        let isCP = alt > 0 && Math.floor(alt / 500) > Math.floor(Math.max(0, Math.floor(-game.platforms[game.platforms.length-1]?.y || 0) / 10) / 500);         
+        game.platforms.push({x: 2350, y: 150, w: 300 + magnetBonus, h: 50, color: '#2ecc71'});
         
-        let pW = isFinal ? 400 : (isHell ? (45 + rnd() * 10) : (80 + rnd() * 30));
-        pW += magnetBonus; 
-        if(isCP) pW += ozoneBonus;
+        let cy = 0, lastX = 2500; 
+        for(let i=0; i < 2000; i++) {
+            let alt = Math.max(0, Math.floor(-cy / 10)); 
+            let isHell = alt > (9000 + albedoBonus);
+            let isFinal = alt >= 10000;
+            let isCP = alt > 0 && Math.floor(alt / 500) > Math.floor(Math.max(0, Math.floor(-game.platforms[game.platforms.length-1]?.y || 0) / 10) / 500);         
+            let pW = isFinal ? 400 : (isHell ? (45 + Math.random() * 10) : (80 + Math.random() * 30));
+            pW += magnetBonus; 
+            if(isCP) pW += ozoneBonus;
 
-        let verticalGap = (isHell) ? 220 : (150 + rnd() * 80);
-        let drift = isHell ? 350 : 600;
-        let rx = isFinal ? 2300 : lastX + (rnd() * (drift * 2) - drift);
-        
-        if (rx < 1100) rx = 1300; 
-        if (rx > 3900) rx = 3700;
-        
-        game.platforms.push({ 
-            x: rx, y: cy, w: pW, h: 32, 
-            color: isFinal ? '#FFD700' : (isCP ? '#00d2ff' : (isHell ? '#ff1a1a' : '#ffffff')),
-            isHell: isHell, isFinal: isFinal, isCP: isCP
-        });
+            let verticalGap = (isHell) ? 220 : (150 + Math.random() * 80);
+            let drift = isHell ? 350 : 600;
+            let rx = isFinal ? 2300 : lastX + (Math.random() * (drift * 2) - drift);
+            
+            if (rx < 1100) rx = 1300; 
+            if (rx > 3900) rx = 3700;
+            
+            game.platforms.push({ 
+             x: rx, y: cy, w: pW, h: 32, 
+             color: isFinal ? '#FFD700' : (isCP ? '#00d2ff' : (isHell ? '#ff1a1a' : '#ffffff')),
+             isHell: isHell, isFinal: isFinal, isCP: isCP
+            });
 
-        if(isFinal) break; 
-        lastX = rx; 
-        cy -= verticalGap; 
+            if(isFinal) break; 
+            lastX = rx; 
+            cy -= verticalGap; 
+        }
     }
-}
 
     function beginGame() {
-    // 1. UI & ORIENTATION FIX
-     document.getElementById('auth-overlay').style.display = 'none';
-        document.getElementById('start-menu').style.display = 'none';
+    // 1. FORCE FULLSCREEN & LANDSCAPE
     const docElm = document.documentElement;
-    if (docElm.requestFullscreen) { docElm.requestFullscreen(); }
-    else if (docElm.webkitRequestFullscreen) { docElm.webkitRequestFullscreen(); }
-
-    if (screen.orientation && screen.orientation.lock) {
-        screen.orientation.lock("landscape").catch(() => {});
+    if (docElm.requestFullscreen) {
+        docElm.requestFullscreen();
+    } else if (docElm.webkitRequestFullscreen) {
+        docElm.webkitRequestFullscreen(); // Safari/iOS
+    } else if (docElm.msRequestFullscreen) {
+        docElm.msRequestFullscreen();
     }
 
-    // 2. CAMERA CALIBRATION (The "Black Screen" Fix)
-    // We force the canvas to update its size before centering the camera
-    resizeCanvas();
+    // Attempt to lock to landscape to prevent UI cramping
+    if (screen.orientation && screen.orientation.lock) {
+        screen.orientation.lock("landscape").catch(() => {
+            console.log("Orientation lock not supported on this device.");
+        });
+    }
+
+    // 2. UI RESET
     hideScreen('start-menu');
     game.hellMode = false; 
-    
-    // Set starting position first
-    player.x = 2500;
-    player.y = 0;
-    player.vx = 0;
-    player.vy = 0;
+    document.getElementById('app').style.background = 'var(--jim-sky)';
+    document.getElementById('vignette').style.opacity = '0';
+    document.getElementById('energy-fill').classList.remove('energy-fill-warning');
 
-    // Center camera on player immediately to avoid "Black Void" at 0,0
-    game.camX = 2500 - (window.innerWidth / 2);
-    game.camY = 0 - (window.innerHeight / 2);
-    
-    // 3. STATS & ENERGY RESET
+    // 3. STATS & UPGRADE CALCULATIONS
     let b1 = SHOP_ITEMS.battery.getEffect(gameSave.upgrades.battery);
     let b2 = SHOP_ITEMS.battery2.getEffect(gameSave.upgrades.battery2);
     let fus = SHOP_ITEMS.fusion.getEffect(gameSave.upgrades.fusion);
@@ -1600,17 +1573,26 @@
     game.energy = game.maxEnergy;
     document.getElementById('fuel-max-num').innerText = Math.floor(game.maxEnergy);
     
-    // 4. WORLD STATE RESET
+    // 4. POSITION & CAMERA RESET
+    game.camY = -300; 
     game.voidLevel = 500; 
+    player.vx = 0; 
+    player.vy = 0;
+    
+    game.lastCPHeight = 0; 
+    player.lastSafeX = 2500; 
+    player.lastSafeY = 0; 
     game.score = 0;
-    game.lastCPHeight = 0;
-    player.lastSafeX = 2500;
-    player.lastSafeY = 0;
 
-    // 5. RUN GENERATORS & START ENGINE
+    // 5. WORLD & PARTICLE GENERATION
+    game.floaters = []; 
+    game.particles = []; 
+    game.confetti = [];
+    
     generateEnvironment();
     generateLevel();
     
+    // 6. START ENGINE
     game.active = true; 
     isPaused = false;
     
@@ -1620,58 +1602,30 @@
 }
 
     function update() {
-        // RACE & MULTIPLAYER LOGIC
-        let pCount = Object.keys(otherPlayers).length + 1;
-        const isRace = pCount >= 2;
-
-        if (isRace) {
-            if (!game.raceActive) {
-                game.raceActive = true;
-                game.raceTimer = 120; // 2 Minutes
-                game.countdown = 5;   // 5 Sec Start Lock
-                beginGame();          // Reset to start
-            }
-            if (game.countdown > 0) {
-                game.countdown -= 1/60;
-                player.vx = 0; player.x = 2500; // Freeze
-                if(Math.random() < 0.05) spawnFloater(Math.ceil(game.countdown), "#FFD700", 2500, player.y - 100);
-                return; 
-            }
-            game.raceTimer -= 1/60;
-            if (game.raceTimer <= 0) {
-                let winner = [...Object.values(otherPlayers), {id:currentUser, score:game.score}].sort((a,b) => b.score - a.score)[0];
-                alert("RACE OVER! WINNER: " + winner.id.toUpperCase());
-                game.raceActive = false;
-                location.reload();
-            }
-        } else {
-            game.raceActive = false; // Reset if player leaves
-        }
-      
         if(!game.active || game.quizActive) return;
 
-        // FETCH MODIFIERS (Overridden if isRace is true)
-        const solarMod = isRace ? 1.0 : SHOP_ITEMS.solar.getEffect(gameSave.upgrades.solar);
-        const thrustMod = isRace ? {force:0, costSave:0} : SHOP_ITEMS.thrusters.getEffect(gameSave.upgrades.thrusters);
-        const scrubMod = isRace ? 0 : SHOP_ITEMS.scrubbers.getEffect(gameSave.upgrades.scrubbers);
-        const radarScale = isRace ? 1.0 : SHOP_ITEMS.radar.getEffect(gameSave.upgrades.radar); 
-        const recyMod = isRace ? 0 : SHOP_ITEMS.recycler.getEffect(gameSave.upgrades.recycler);
-        const hazMod = isRace ? 1.0 : SHOP_ITEMS.hazard.getEffect(gameSave.upgrades.hazard);
-        const hovMod = isRace ? 0 : SHOP_ITEMS.hover.getEffect(gameSave.upgrades.hover);
-        const speedLimit = isRace ? 14 : SHOP_ITEMS.speed.getEffect(gameSave.upgrades.speed);
-        const coolMod = isRace ? 0 : SHOP_ITEMS.cooling.getEffect(gameSave.upgrades.cooling);
-        const windMod = isRace ? 0 : SHOP_ITEMS.wind.getEffect(gameSave.upgrades.wind);
-        const geoMod = isRace ? 0 : SHOP_ITEMS.geo.getEffect(gameSave.upgrades.geo);
-        const greenMod = isRace ? 1 : SHOP_ITEMS.green.getEffect(gameSave.upgrades.green);
-        const smartMod = isRace ? 0 : SHOP_ITEMS.smart.getEffect(gameSave.upgrades.smart);
-        const albedoMod = isRace ? 0 : SHOP_ITEMS.albedo.getEffect(gameSave.upgrades.albedo);
-        const carbonMod = isRace ? 0 : SHOP_ITEMS.carbon.getEffect(gameSave.upgrades.carbon);
-        const kelpMod = isRace ? 0 : SHOP_ITEMS.kelp.getEffect(gameSave.upgrades.kelp);
-        const tidalMod = isRace ? 0 : SHOP_ITEMS.tidal.getEffect(gameSave.upgrades.tidal);
-        const gliderMod = isRace ? 0 : SHOP_ITEMS.glider.getEffect(gameSave.upgrades.glider);
-        const shieldMod = isRace ? 0 : SHOP_ITEMS.shield.getEffect(gameSave.upgrades.shield);
-        const aeroMod = isRace ? 0 : SHOP_ITEMS.aero.getEffect(gameSave.upgrades.aero);
-        const hydroMod = isRace ? 0 : SHOP_ITEMS.hydro.getEffect(gameSave.upgrades.hydro);
+        // FETCH ALL ACTIVE UPGRADE MODIFIERS
+        const solarMod = SHOP_ITEMS.solar.getEffect(gameSave.upgrades.solar);
+        const thrustMod = SHOP_ITEMS.thrusters.getEffect(gameSave.upgrades.thrusters);
+        const scrubMod = SHOP_ITEMS.scrubbers.getEffect(gameSave.upgrades.scrubbers);
+        const radarScale = SHOP_ITEMS.radar.getEffect(gameSave.upgrades.radar); 
+        const recyMod = SHOP_ITEMS.recycler.getEffect(gameSave.upgrades.recycler);
+        const hazMod = SHOP_ITEMS.hazard.getEffect(gameSave.upgrades.hazard);
+        const hovMod = SHOP_ITEMS.hover.getEffect(gameSave.upgrades.hover);
+        const speedLimit = SHOP_ITEMS.speed.getEffect(gameSave.upgrades.speed);
+        const coolMod = SHOP_ITEMS.cooling.getEffect(gameSave.upgrades.cooling);
+        const windMod = SHOP_ITEMS.wind.getEffect(gameSave.upgrades.wind);
+        const geoMod = SHOP_ITEMS.geo.getEffect(gameSave.upgrades.geo);
+        const greenMod = SHOP_ITEMS.green.getEffect(gameSave.upgrades.green);
+        const smartMod = SHOP_ITEMS.smart.getEffect(gameSave.upgrades.smart);
+        const albedoMod = SHOP_ITEMS.albedo.getEffect(gameSave.upgrades.albedo);
+        const carbonMod = SHOP_ITEMS.carbon.getEffect(gameSave.upgrades.carbon);
+        const kelpMod = SHOP_ITEMS.kelp.getEffect(gameSave.upgrades.kelp);
+        const tidalMod = SHOP_ITEMS.tidal.getEffect(gameSave.upgrades.tidal);
+        const gliderMod = SHOP_ITEMS.glider.getEffect(gameSave.upgrades.glider);
+        const shieldMod = SHOP_ITEMS.shield.getEffect(gameSave.upgrades.shield);
+        const aeroMod = SHOP_ITEMS.aero.getEffect(gameSave.upgrades.aero);
+        const hydroMod = SHOP_ITEMS.hydro.getEffect(gameSave.upgrades.hydro);
 
         player.maxJumps = 2 + kelpMod;
 
@@ -1684,17 +1638,7 @@
         }
 
         // INPUT HANDLING
-        // INPUT HANDLING
         window.onkeydown = e => { 
-            // CHAT TRIGGER: Only resets keys AFTER the prompt is done
-            if (e.code === 'KeyT') { 
-                let m = prompt("CHAT:"); 
-                if(m) ws.send(JSON.stringify({type:'chat', id:currentUser, text:m, x:player.x, y:player.y})); 
-                game.keys = {}; // <--- MOVED INSIDE THE IF BLOCK
-                return; // Stop here so 'T' doesn't count as a movement key
-            }
-        
-            // NORMAL MOVEMENT
             if(["ArrowUp","Space","ArrowLeft","ArrowRight","KeyW","KeyA","KeyS","KeyD","Escape"].includes(e.code)) e.preventDefault(); 
             game.keys[e.code] = true; 
         };
@@ -1890,20 +1834,14 @@
         });
 
         // Blast your live coordinates to the server
-        // Blast your FULL live coordinates & animations to the server
-       // Inside your update() function
-         if (ws.readyState === WebSocket.OPEN && currentUser && game.active) {
-             ws.send(JSON.stringify({
-                 id: currentUser, 
-                 x: player.x, 
-                 y: player.y, 
-                 score: game.score, // <--- ADD THIS LINE
-                 skin: gameSave.skins.equipped,
-                 facing: player.facing,
-                 walk: player.walk,
-                 thrusting: (gameSave.upgrades.thrusters > 0 && !player.onG)
-             }));
-         }
+        if (ws.readyState === WebSocket.OPEN && currentUser && game.active) {
+            ws.send(JSON.stringify({
+                id: currentUser, 
+                x: player.x, 
+                y: player.y, 
+                skin: gameSave.skins.equipped 
+            }));
+        }
         // SCORE & SAVE
         game.score = Math.max(0, Math.floor(-player.y / 10));
         if(game.score > gameSave.highscore) { 
@@ -1977,21 +1915,12 @@
     }
 
     function draw() {
-        // 1. BLOCK DRAWING IF NOT READY
-        if (!game.active && !isPaused) return;
-
-        // 2. REPAIR CAMERA (The NaN / Black Screen Fix)
-        if (isNaN(game.camX) || isNaN(game.camY)) {
-            game.camX = player.x - (canvas.width / 2);
-            game.camY = player.y - (canvas.height / 2);
-        }
-
-        // 3. BACKGROUND BASE
+        // Draw Background Base
         ctx.fillStyle = game.hellMode ? "#2a0000" : "#87CEEB"; 
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         
-        // 4. RADAR ZOOM SAFETY
-        const radarZoom = SHOP_ITEMS.radar.getEffect(gameSave.upgrades.radar) || 1.0;
+        // QUANTUM RADAR IMPLEMENTATION
+        const radarZoom = SHOP_ITEMS.radar.getEffect(gameSave.upgrades.radar);
         
         ctx.save();
         ctx.translate(canvas.width / 2, canvas.height / 2);
@@ -2113,15 +2042,18 @@
         ctx.globalAlpha = 1.0;
 
         // DRAW FLOATING TEXT
-                game.floaters.forEach((f, i) => {
-            f.y += f.vy; f.life -= 0.01; // Slower decay
+        game.floaters.forEach((f, i) => {
+            f.y += f.vy; 
+            f.life -= 0.02;
+            
             if(f.life > 0) {
-                ctx.globalAlpha = Math.min(1, f.life);
-                ctx.fillStyle = f.c; ctx.font = "bold 18px Bungee";
-                ctx.textAlign = "center";
-                // Draws relative to camera so it doesn't "jitter"
-                ctx.fillText(f.text, f.x - game.camX + 25, f.y - game.camY);
-            } else { game.floaters.splice(i, 1); }
+                ctx.globalAlpha = Math.max(0, f.life);
+                ctx.fillStyle = f.c;
+                ctx.font = "bold 22px Bungee";
+                ctx.fillText(f.text, f.x - game.camX, f.y - game.camY);
+            } else { 
+                game.floaters.splice(i, 1); 
+            }
         });
         ctx.globalAlpha = 1.0;
 
@@ -2136,98 +2068,33 @@
             }
         });
 
-        /// DRAW MULTIPLAYER GHOSTS (World Space)
+        // DRAW MULTIPLAYER GHOSTS
         Object.values(otherPlayers).forEach(p => {
+            // Only draw if they are on screen to save CPU
             if(Math.abs(p.x - player.x) > 1500 || Math.abs(p.y - player.y) > 1000) return; 
 
             ctx.save();
             ctx.translate(p.x - game.camX + 25, p.y - game.camY + 25);
-            ctx.scale(p.facing || 1, 1);
             
+            // Draw Ghost Body
             let ghostSkin = SKINS[p.skin] || SKINS['default'];
-            ctx.globalAlpha = 0.6;
-
-            // Ghost Body
-            ctx.fillStyle = game.hellMode && ghostSkin.n === 'Standard' ? "#1a1a1a" : ghostSkin.c;
-            if(p.skin === 'void') { ctx.strokeStyle='white'; ctx.lineWidth=2; }
+            ctx.fillStyle = ghostSkin.c;
+            ctx.globalAlpha = 0.5; // Make them slightly see-through
             ctx.beginPath();
             ctx.roundRect(-25, -25, 50, 50, 12);
             ctx.fill();
-            if(p.skin === 'void') ctx.stroke();
-
-            // Ghost Visor
-            ctx.fillStyle = game.hellMode && ghostSkin.n === 'Standard' ? "#800" : (ghostSkin.n === 'Standard' ? "#FF9800" : "#222");
-            ctx.fillRect(-28, -28, 56, 18); 
-
-            // Ghost Legs (Animated)
-            let leg = Math.sin(p.walk || 0) * 15;
-            ctx.fillStyle = "#111";
-            ctx.fillRect(-18, 18, 14, 15 + leg);
-            ctx.fillRect(4, 18, 14, 15 - leg);
-
-            // Ghost Eyes
-            ctx.fillStyle = game.hellMode && ghostSkin.n === 'Standard' ? "red" : ghostSkin.a;
-            ctx.fillRect(10, -5, 8, 8);
-            ctx.fillRect(25, -5, 8, 8);
-
-            // Thruster Flames
-            if(p.thrusting) {
-                ctx.fillStyle = "rgba(0, 210, 255, 0.7)";
-                ctx.beginPath();
-                ctx.moveTo(-15, 25);
-                ctx.lineTo(-5, 45 + Math.random()*20);
-                ctx.lineTo(5, 25);
-                ctx.fill();
-            }
-            ctx.restore();
-
-            // Floating Name Tag
-            ctx.save();
-            ctx.translate(p.x - game.camX + 25, p.y - game.camY + 25);
+            
+            // Draw Floating Username
+            ctx.globalAlpha = 1.0;
             ctx.fillStyle = "white";
             ctx.font = "bold 14px Bungee";
-            ctx.textAlign = "center";
             ctx.shadowBlur = 5;
             ctx.shadowColor = "black";
+            ctx.textAlign = "center";
             ctx.fillText(p.id.toUpperCase(), 0, -35); 
             ctx.restore();
         });
-
-        ctx.restore(); // Closes the Radar/Camera transform
-
-        // DRAW MINI LEADERBOARD (Screen Space - Outside Radar Zoom)
-        ctx.save();
-        ctx.fillStyle = "rgba(0,0,0,0.6)"; 
-        ctx.beginPath();
-        ctx.roundRect(canvas.width - 220, 100, 200, 140, 15); ctx.fill();
-        
-        ctx.fillStyle = "var(--jim-gold)"; ctx.font = "bold 12px Bungee";
-        ctx.textAlign = "left";
-        ctx.fillText("LIVE TOWER RANK", canvas.width - 205, 125);
-
-            let leaderboard = Object.values(otherPlayers)
-        .map(p => ({
-            id: p.id, 
-            score: p.score || 0 // This matches the "score" we just added to the broadcast
-        }))
-        .concat([{id: currentUser || "YOU", score: game.score}]);
-            
-        leaderboard.sort((a,b) => b.score - a.score).slice(0, 5).forEach((p, i) => {
-            ctx.fillStyle = (p.id === currentUser) ? "var(--jim-blue)" : "white";
-            ctx.font = "11px Inter";
-            ctx.fillText(`${i+1}. ${p.id.toUpperCase()}`, canvas.width - 205, 150 + i*18);
-            ctx.textAlign = "right";
-            ctx.fillText(`${p.score}m`, canvas.width - 35, 150 + i*18);
-            ctx.textAlign = "left";
-        });
-        ctx.restore();
-
-        if (game.raceActive) {
-            ctx.fillStyle = "white";
-            ctx.font = "bold 30px Bungee";
-            ctx.textAlign = "center";
-            ctx.fillText("TIME LEFT: " + Math.ceil(game.raceTimer) + "s", canvas.width/2, 50);
-        }
+        ctx.restore(); 
 
         // UPDATE HTML HUD
         document.getElementById('alt-val').innerText = game.score + 'm';
