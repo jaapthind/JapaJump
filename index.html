@@ -1623,30 +1623,58 @@
 }
 
     function update() {
+        // RACE & MULTIPLAYER LOGIC
+        let pCount = Object.keys(otherPlayers).length + 1;
+        const isRace = pCount >= 2;
+
+        if (isRace) {
+            if (!game.raceActive) {
+                game.raceActive = true;
+                game.raceTimer = 120; // 2 Minutes
+                game.countdown = 5;   // 5 Sec Start Lock
+                beginGame();          // Reset to start
+            }
+            if (game.countdown > 0) {
+                game.countdown -= 1/60;
+                player.vx = 0; player.x = 2500; // Freeze
+                if(Math.random() < 0.05) spawnFloater(Math.ceil(game.countdown), "#FFD700", 2500, player.y - 100);
+                return; 
+            }
+            game.raceTimer -= 1/60;
+            if (game.raceTimer <= 0) {
+                let winner = [...Object.values(otherPlayers), {id:currentUser, score:game.score}].sort((a,b) => b.score - a.score)[0];
+                alert("RACE OVER! WINNER: " + winner.id.toUpperCase());
+                game.raceActive = false;
+                location.reload();
+            }
+        } else {
+            game.raceActive = false; // Reset if player leaves
+        }
+      
         if(!game.active || game.quizActive) return;
 
-        // FETCH ALL ACTIVE UPGRADE MODIFIERS
-        const solarMod = SHOP_ITEMS.solar.getEffect(gameSave.upgrades.solar);
-        const thrustMod = SHOP_ITEMS.thrusters.getEffect(gameSave.upgrades.thrusters);
-        const scrubMod = SHOP_ITEMS.scrubbers.getEffect(gameSave.upgrades.scrubbers);
-        const radarScale = SHOP_ITEMS.radar.getEffect(gameSave.upgrades.radar); 
-        const recyMod = SHOP_ITEMS.recycler.getEffect(gameSave.upgrades.recycler);
-        const hazMod = SHOP_ITEMS.hazard.getEffect(gameSave.upgrades.hazard);
-        const hovMod = SHOP_ITEMS.hover.getEffect(gameSave.upgrades.hover);
-        const speedLimit = SHOP_ITEMS.speed.getEffect(gameSave.upgrades.speed);
-        const coolMod = SHOP_ITEMS.cooling.getEffect(gameSave.upgrades.cooling);
-        const windMod = SHOP_ITEMS.wind.getEffect(gameSave.upgrades.wind);
-        const geoMod = SHOP_ITEMS.geo.getEffect(gameSave.upgrades.geo);
-        const greenMod = SHOP_ITEMS.green.getEffect(gameSave.upgrades.green);
-        const smartMod = SHOP_ITEMS.smart.getEffect(gameSave.upgrades.smart);
-        const albedoMod = SHOP_ITEMS.albedo.getEffect(gameSave.upgrades.albedo);
-        const carbonMod = SHOP_ITEMS.carbon.getEffect(gameSave.upgrades.carbon);
-        const kelpMod = SHOP_ITEMS.kelp.getEffect(gameSave.upgrades.kelp);
-        const tidalMod = SHOP_ITEMS.tidal.getEffect(gameSave.upgrades.tidal);
-        const gliderMod = SHOP_ITEMS.glider.getEffect(gameSave.upgrades.glider);
-        const shieldMod = SHOP_ITEMS.shield.getEffect(gameSave.upgrades.shield);
-        const aeroMod = SHOP_ITEMS.aero.getEffect(gameSave.upgrades.aero);
-        const hydroMod = SHOP_ITEMS.hydro.getEffect(gameSave.upgrades.hydro);
+        // FETCH MODIFIERS (Overridden if isRace is true)
+        const solarMod = isRace ? 1.0 : SHOP_ITEMS.solar.getEffect(gameSave.upgrades.solar);
+        const thrustMod = isRace ? {force:0, costSave:0} : SHOP_ITEMS.thrusters.getEffect(gameSave.upgrades.thrusters);
+        const scrubMod = isRace ? 0 : SHOP_ITEMS.scrubbers.getEffect(gameSave.upgrades.scrubbers);
+        const radarScale = isRace ? 1.0 : SHOP_ITEMS.radar.getEffect(gameSave.upgrades.radar); 
+        const recyMod = isRace ? 0 : SHOP_ITEMS.recycler.getEffect(gameSave.upgrades.recycler);
+        const hazMod = isRace ? 1.0 : SHOP_ITEMS.hazard.getEffect(gameSave.upgrades.hazard);
+        const hovMod = isRace ? 0 : SHOP_ITEMS.hover.getEffect(gameSave.upgrades.hover);
+        const speedLimit = isRace ? 14 : SHOP_ITEMS.speed.getEffect(gameSave.upgrades.speed);
+        const coolMod = isRace ? 0 : SHOP_ITEMS.cooling.getEffect(gameSave.upgrades.cooling);
+        const windMod = isRace ? 0 : SHOP_ITEMS.wind.getEffect(gameSave.upgrades.wind);
+        const geoMod = isRace ? 0 : SHOP_ITEMS.geo.getEffect(gameSave.upgrades.geo);
+        const greenMod = isRace ? 1 : SHOP_ITEMS.green.getEffect(gameSave.upgrades.green);
+        const smartMod = isRace ? 0 : SHOP_ITEMS.smart.getEffect(gameSave.upgrades.smart);
+        const albedoMod = isRace ? 0 : SHOP_ITEMS.albedo.getEffect(gameSave.upgrades.albedo);
+        const carbonMod = isRace ? 0 : SHOP_ITEMS.carbon.getEffect(gameSave.upgrades.carbon);
+        const kelpMod = isRace ? 0 : SHOP_ITEMS.kelp.getEffect(gameSave.upgrades.kelp);
+        const tidalMod = isRace ? 0 : SHOP_ITEMS.tidal.getEffect(gameSave.upgrades.tidal);
+        const gliderMod = isRace ? 0 : SHOP_ITEMS.glider.getEffect(gameSave.upgrades.glider);
+        const shieldMod = isRace ? 0 : SHOP_ITEMS.shield.getEffect(gameSave.upgrades.shield);
+        const aeroMod = isRace ? 0 : SHOP_ITEMS.aero.getEffect(gameSave.upgrades.aero);
+        const hydroMod = isRace ? 0 : SHOP_ITEMS.hydro.getEffect(gameSave.upgrades.hydro);
 
         player.maxJumps = 2 + kelpMod;
 
@@ -2187,6 +2215,13 @@
             ctx.textAlign = "left";
         });
         ctx.restore();
+
+        if (game.raceActive) {
+            ctx.fillStyle = "white";
+            ctx.font = "bold 30px Bungee";
+            ctx.textAlign = "center";
+            ctx.fillText("TIME LEFT: " + Math.ceil(game.raceTimer) + "s", canvas.width/2, 50);
+        }
 
         // UPDATE HTML HUD
         document.getElementById('alt-val').innerText = game.score + 'm';
