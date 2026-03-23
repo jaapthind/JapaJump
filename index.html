@@ -729,8 +729,17 @@
         let otherPlayers = {};
     // REPLACE THE URL BELOW WITH YOUR RENDER URL (Make sure it starts with wss://)
     const ws = new WebSocket('wss://japa-server.onrender.com');    
-    ws.onmessage = (e) => {
-        let p = JSON.parse(e.data);
+       ws.onmessage = (e) => {
+        let p = JSON.parse(e.data); // 1. Parse the data FIRST
+    
+        // 2. Now check if it's a chat message
+        if (p.type === 'chat') {
+            spawnFloater(`${p.id}: ${p.text}`, 'white', p.x, p.y - 50);
+            SoundEngine.coin(); // Optional "Ping" sound
+            return; // Stop here so it doesn't try to move a "ghost" that isn't there
+        }
+    
+        // 3. Otherwise, update the player's ghost position
         if (p.id && p.id !== currentUser) {
             otherPlayers[p.id] = p; 
             otherPlayers[p.id].lastSeen = Date.now();
@@ -1638,7 +1647,17 @@
         }
 
         // INPUT HANDLING
+        // INPUT HANDLING
         window.onkeydown = e => { 
+            // CHAT TRIGGER: Only resets keys AFTER the prompt is done
+            if (e.code === 'KeyT') { 
+                let m = prompt("CHAT:"); 
+                if(m) ws.send(JSON.stringify({type:'chat', id:currentUser, text:m, x:player.x, y:player.y})); 
+                game.keys = {}; // <--- MOVED INSIDE THE IF BLOCK
+                return; // Stop here so 'T' doesn't count as a movement key
+            }
+        
+            // NORMAL MOVEMENT
             if(["ArrowUp","Space","ArrowLeft","ArrowRight","KeyW","KeyA","KeyS","KeyD","Escape"].includes(e.code)) e.preventDefault(); 
             game.keys[e.code] = true; 
         };
