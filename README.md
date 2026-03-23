@@ -16,6 +16,10 @@
   <img src="https://img.shields.io/badge/CLOUD-SYNC_ACTIVE-orange?style=for-the-badge&logo=google-cloud">
 </p>
 
+<div align="center">
+  <video src="jump.mp4" autoplay loop muted playsinline width="75%" style="border-radius: 15px; border: 4px solid #00d2ff; box-shadow: 0 0 25px #00d2ff; margin-bottom: 20px;"></video>
+</div>
+
 <marquee scrollamount="20" direction="left" style="background: #000; border-top: 2px solid #ff4b2b; border-bottom: 2px solid #ff4b2b; padding: 10px 0;">
   <font color="#ff4b2b" size="5" face="monospace"><b>
     /// DEVIL ZONE DETECTED AT 9,000M /// ALBEDO EFFECT FAILING /// INITIATE CLIMATE ACTION PROTOCOLS ///
