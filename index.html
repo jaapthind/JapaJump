@@ -729,8 +729,18 @@
         let otherPlayers = {};
     // REPLACE THE URL BELOW WITH YOUR RENDER URL (Make sure it starts with wss://)
     const ws = new WebSocket('wss://japa-server.onrender.com');    
-    ws.onmessage = (e) => {
-        let p = JSON.parse(e.data);
+       ws.onmessage = (e) => {
+        let p = JSON.parse(e.data); // 1. Parse the data FIRST
+    
+        // 2. Now check if it's a chat message
+                if (p.type === 'chat') {
+            // Bold Yellow text with a Black Shadow so it pops against the blue sky
+            spawnFloater(`${p.id}: ${p.text}`, '#FFD700', p.x, p.y - 50); 
+            SoundEngine.coin(); 
+            return;
+        }
+    
+        // 3. Otherwise, update the player's ghost position
         if (p.id && p.id !== currentUser) {
             otherPlayers[p.id] = p; 
             otherPlayers[p.id].lastSeen = Date.now();
@@ -1503,6 +1513,10 @@
     }
 
     function generateLevel() {
+        // Shared Seed: If online, everyone gets Seed 123. If alone, random.
+        let seed = Object.keys(otherPlayers).length > 0 ? 123 : Math.random();
+        let rnd = () => { seed = (seed * 16807) % 2147483647; return seed / 2147483647; };
+        
         game.platforms = [];
         const magnetBonus = SHOP_ITEMS.magnet.getEffect(gameSave.upgrades.magnet);
         const ozoneBonus = SHOP_ITEMS.ozone.getEffect(gameSave.upgrades.ozone);
@@ -1516,13 +1530,15 @@
             let isHell = alt > (9000 + albedoBonus);
             let isFinal = alt >= 10000;
             let isCP = alt > 0 && Math.floor(alt / 500) > Math.floor(Math.max(0, Math.floor(-game.platforms[game.platforms.length-1]?.y || 0) / 10) / 500);         
-            let pW = isFinal ? 400 : (isHell ? (45 + Math.random() * 10) : (80 + Math.random() * 30));
+            
+            // USE rnd() INSTEAD OF Math.random() EVERYWHERE
+            let pW = isFinal ? 400 : (isHell ? (45 + rnd() * 10) : (80 + rnd() * 30));
             pW += magnetBonus; 
             if(isCP) pW += ozoneBonus;
 
-            let verticalGap = (isHell) ? 220 : (150 + Math.random() * 80);
+            let verticalGap = (isHell) ? 220 : (150 + rnd() * 80);
             let drift = isHell ? 350 : 600;
-            let rx = isFinal ? 2300 : lastX + (Math.random() * (drift * 2) - drift);
+            let rx = isFinal ? 2300 : lastX + (rnd() * (drift * 2) - drift);
             
             if (rx < 1100) rx = 1300; 
             if (rx > 3900) rx = 3700;
@@ -1638,7 +1654,17 @@
         }
 
         // INPUT HANDLING
+        // INPUT HANDLING
         window.onkeydown = e => { 
+            // CHAT TRIGGER: Only resets keys AFTER the prompt is done
+            if (e.code === 'KeyT') { 
+                let m = prompt("CHAT:"); 
+                if(m) ws.send(JSON.stringify({type:'chat', id:currentUser, text:m, x:player.x, y:player.y})); 
+                game.keys = {}; // <--- MOVED INSIDE THE IF BLOCK
+                return; // Stop here so 'T' doesn't count as a movement key
+            }
+        
+            // NORMAL MOVEMENT
             if(["ArrowUp","Space","ArrowLeft","ArrowRight","KeyW","KeyA","KeyS","KeyD","Escape"].includes(e.code)) e.preventDefault(); 
             game.keys[e.code] = true; 
         };
@@ -1834,12 +1860,16 @@
         });
 
         // Blast your live coordinates to the server
+        // Blast your FULL live coordinates & animations to the server
         if (ws.readyState === WebSocket.OPEN && currentUser && game.active) {
             ws.send(JSON.stringify({
                 id: currentUser, 
                 x: player.x, 
                 y: player.y, 
-                skin: gameSave.skins.equipped 
+                skin: gameSave.skins.equipped,
+                facing: player.facing,
+                walk: player.walk,
+                thrusting: (gameSave.upgrades.thrusters > 0 && !player.onG)
             }));
         }
         // SCORE & SAVE
@@ -2068,33 +2098,88 @@
             }
         });
 
-        // DRAW MULTIPLAYER GHOSTS
+        /// DRAW MULTIPLAYER GHOSTS (World Space)
         Object.values(otherPlayers).forEach(p => {
-            // Only draw if they are on screen to save CPU
             if(Math.abs(p.x - player.x) > 1500 || Math.abs(p.y - player.y) > 1000) return; 
 
             ctx.save();
             ctx.translate(p.x - game.camX + 25, p.y - game.camY + 25);
+            ctx.scale(p.facing || 1, 1);
             
-            // Draw Ghost Body
             let ghostSkin = SKINS[p.skin] || SKINS['default'];
-            ctx.fillStyle = ghostSkin.c;
-            ctx.globalAlpha = 0.5; // Make them slightly see-through
+            ctx.globalAlpha = 0.6;
+
+            // Ghost Body
+            ctx.fillStyle = game.hellMode && ghostSkin.n === 'Standard' ? "#1a1a1a" : ghostSkin.c;
+            if(p.skin === 'void') { ctx.strokeStyle='white'; ctx.lineWidth=2; }
             ctx.beginPath();
             ctx.roundRect(-25, -25, 50, 50, 12);
             ctx.fill();
-            
-            // Draw Floating Username
-            ctx.globalAlpha = 1.0;
+            if(p.skin === 'void') ctx.stroke();
+
+            // Ghost Visor
+            ctx.fillStyle = game.hellMode && ghostSkin.n === 'Standard' ? "#800" : (ghostSkin.n === 'Standard' ? "#FF9800" : "#222");
+            ctx.fillRect(-28, -28, 56, 18); 
+
+            // Ghost Legs (Animated)
+            let leg = Math.sin(p.walk || 0) * 15;
+            ctx.fillStyle = "#111";
+            ctx.fillRect(-18, 18, 14, 15 + leg);
+            ctx.fillRect(4, 18, 14, 15 - leg);
+
+            // Ghost Eyes
+            ctx.fillStyle = game.hellMode && ghostSkin.n === 'Standard' ? "red" : ghostSkin.a;
+            ctx.fillRect(10, -5, 8, 8);
+            ctx.fillRect(25, -5, 8, 8);
+
+            // Thruster Flames
+            if(p.thrusting) {
+                ctx.fillStyle = "rgba(0, 210, 255, 0.7)";
+                ctx.beginPath();
+                ctx.moveTo(-15, 25);
+                ctx.lineTo(-5, 45 + Math.random()*20);
+                ctx.lineTo(5, 25);
+                ctx.fill();
+            }
+            ctx.restore();
+
+            // Floating Name Tag
+            ctx.save();
+            ctx.translate(p.x - game.camX + 25, p.y - game.camY + 25);
             ctx.fillStyle = "white";
             ctx.font = "bold 14px Bungee";
+            ctx.textAlign = "center";
             ctx.shadowBlur = 5;
             ctx.shadowColor = "black";
-            ctx.textAlign = "center";
             ctx.fillText(p.id.toUpperCase(), 0, -35); 
             ctx.restore();
         });
-        ctx.restore(); 
+
+        ctx.restore(); // Closes the Radar/Camera transform
+
+        // DRAW MINI LEADERBOARD (Screen Space - Outside Radar Zoom)
+        ctx.save();
+        ctx.fillStyle = "rgba(0,0,0,0.6)"; 
+        ctx.beginPath();
+        ctx.roundRect(canvas.width - 220, 100, 200, 140, 15); ctx.fill();
+        
+        ctx.fillStyle = "var(--jim-gold)"; ctx.font = "bold 12px Bungee";
+        ctx.textAlign = "left";
+        ctx.fillText("LIVE TOWER RANK", canvas.width - 205, 125);
+
+        let leaderboard = Object.values(otherPlayers)
+            .map(p => ({id: p.id, score: p.score || 0}))
+            .concat([{id: currentUser || "YOU", score: game.score}]);
+            
+        leaderboard.sort((a,b) => b.score - a.score).slice(0, 5).forEach((p, i) => {
+            ctx.fillStyle = (p.id === currentUser) ? "var(--jim-blue)" : "white";
+            ctx.font = "11px Inter";
+            ctx.fillText(`${i+1}. ${p.id.toUpperCase()}`, canvas.width - 205, 150 + i*18);
+            ctx.textAlign = "right";
+            ctx.fillText(`${p.score}m`, canvas.width - 35, 150 + i*18);
+            ctx.textAlign = "left";
+        });
+        ctx.restore();
 
         // UPDATE HTML HUD
         document.getElementById('alt-val').innerText = game.score + 'm';
