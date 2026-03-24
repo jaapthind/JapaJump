@@ -1,0 +1,2319 @@
+ <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>JIMKIT: DON'T LOOK DOWN - OFFICIAL</title>
+    <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Inter:wght@900&display=swap" rel="stylesheet">
+    
+    <style>
+        /* =========================================================================
+           GLOBAL VARIABLES & THEME (ORIGINAL STYLE)
+           ========================================================================= */
+        /* Mobile UI - Hidden by default */
+                /* Optimized Mobile UI */
+           /* FIXED MOBILE UI & HUD SCALING */
+            #mobile-ui, #rot { display: none; }
+            
+            @media (pointer: coarse) {
+                /* Shrink HUD so it doesn't cover the top of the screen */
+                #main-hud { 
+                    gap: 8px; 
+                    top: 10px; 
+                    transform: scale(0.75); 
+                    transform-origin: top center; 
+                }
+                .hud-card, .hud-btn { min-width: 110px; padding: 8px; }
+            
+                /* Lift Energy Bar so it sits ABOVE the buttons */
+                .energy-hud { 
+                    bottom: 140px; 
+                    width: 70%; 
+                    transform: scale(0.9);
+                }
+            
+                #mobile-ui { 
+                    display: flex; 
+                    position: fixed; 
+                    bottom: 20px; 
+                    width: 100%; 
+                    justify-content: space-between; 
+                    padding: 0 50px; 
+                    box-sizing: border-box;
+                    z-index: 10000; 
+                    pointer-events: none; 
+                }
+            
+                .m-btn { 
+                    width: 90px; 
+                    height: 90px; 
+                    background: rgba(255,255,255,0.2); 
+                    border: 2px solid white; 
+                    border-radius: 50%; 
+                    color: white; 
+                    display: flex; 
+                    align-items: center; 
+                    justify-content: center; 
+                    font-family: 'Bungee'; 
+                    touch-action: none; 
+                    pointer-events: auto;
+                    box-shadow: 0 5px 15px rgba(0,0,0,0.4);
+                }
+                
+                /* Slightly smaller move slider to free up screen space */
+                #joy { width: 150px; border-radius: 40px; }
+            
+                @media (orientation: portrait) {
+                    #rot { 
+                        display: flex; position: fixed; inset: 0; background: #000; 
+                        color: #fff; z-index: 20000; align-items: center; 
+                        justify-content: center; font-family: 'Bungee'; text-align: center; 
+                    }
+                }
+            }
+        
+        
+        :root {
+            --glass-bg: rgba(255, 255, 255, 0.15);
+            --glass-border: rgba(255, 255, 255, 0.25);
+            --jim-blue: #4facfe; 
+            --jim-red: #ff4b2b; 
+            --jim-green: #4CAF50;
+            --jim-orange: #FF9800; 
+            --jim-sky: #87CEEB; 
+            --jim-hell: #2a0000;
+            --jim-gold: #FFD700;
+            --shop-bg: rgba(10, 10, 15, 0.95);
+        }
+
+        /* =========================================================================
+           SCREEN ADAPTATION FIXES
+           ========================================================================= */
+        html, body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            background: #000;
+            overflow: hidden;
+            font-family: 'Inter', sans-serif;
+            touch-action: none;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        #app { 
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%; 
+            height: 100%; 
+            background: var(--jim-sky); 
+            transition: background 4s; 
+            overflow: hidden;
+        }
+
+        #stage {
+            display: block;
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+        
+        /* =========================================================================
+           GLASSMORPHISM UI CORE
+           ========================================================================= */
+        .glass-ui {
+            background: var(--glass-bg);
+            backdrop-filter: blur(25px) saturate(200%);
+            -webkit-backdrop-filter: blur(25px) saturate(200%);
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+            color: white;
+        }
+
+        .overlay { 
+            position: absolute; 
+            inset: 0; 
+            z-index: 9999; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+        }
+
+        #win-screen, #instr-screen, #shop-screen, #pause-screen, #achievements-screen { 
+            display: none; 
+        }
+        
+        .logo { 
+            font-family: 'Bungee', cursive; 
+            font-size: 110px; 
+            color: white; 
+            text-shadow: 0 10px 0px rgba(0,0,0,0.1); 
+            margin: 0; 
+        }
+        
+        /* =========================================================================
+           BUTTONS (ORIGINAL STYLE)
+           ========================================================================= */
+        .play-btn {  
+            background: white; 
+            color: var(--jim-blue); 
+            border: none; 
+            padding: 25px 100px;  
+            font-family: 'Bungee', cursive; 
+            font-size: 35px; 
+            border-radius: 60px; 
+            cursor: pointer;
+            box-shadow: 0 12px 0px #ccc; 
+            transition: 0.1s; 
+            margin-top: 20px;
+        }
+
+        .play-btn:active { 
+            transform: translateY(6px); 
+            box-shadow: 0 6px 0px #ccc; 
+        }
+
+        .menu-btn-group {
+            display: flex;
+            gap: 20px;
+            margin-top: 10px;
+        }
+
+        .instr-btn {
+            background: var(--glass-bg); 
+            color: white; 
+            border: 1px solid var(--glass-border);
+            padding: 12px 50px; 
+            font-family: 'Bungee', cursive; 
+            font-size: 20px; 
+            border-radius: 50px;
+            cursor: pointer; 
+            margin-top: 15px; 
+            backdrop-filter: blur(10px); 
+            transition: 0.2s;
+        }
+
+        .shop-btn-main {
+            background: linear-gradient(45deg, var(--jim-gold), #ffa500);
+            color: black;
+            border: 2px solid white;
+            padding: 15px 60px;
+            font-family: 'Bungee', cursive;
+            font-size: 24px;
+            border-radius: 50px;
+            cursor: pointer;
+            margin-top: 15px;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.4);
+            transition: 0.2s;
+        }
+
+        .shop-btn-main:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.8);
+        }
+
+        /* =========================================================================
+           HEADS UP DISPLAY (HUD)
+           ========================================================================= */
+        .hud { 
+            position: absolute; 
+            top: 20px; 
+            width: 100%; 
+            display: flex; 
+            justify-content: center; 
+            gap: 20px; 
+            pointer-events: none; 
+            z-index: 100; 
+        }
+
+        .hud-card { 
+            padding: 12px 25px; 
+            border-radius: 25px; 
+            text-align: center; 
+            min-width: 150px; 
+        }
+
+        .hud-btn {
+            padding: 12px 25px; 
+            border-radius: 25px; 
+            text-align: center; 
+            min-width: 150px; 
+            cursor: pointer;
+            pointer-events: auto;
+            background: linear-gradient(45deg, var(--jim-gold), #ffa500);
+            color: black;
+            border: 2px solid white;
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
+            transition: transform 0.2s;
+        }
+
+        .hud-btn:hover { transform: scale(1.05); }
+        .hud-btn .label { color: black; opacity: 0.9; }
+        .hud-btn .value { color: black; }
+
+        .label { 
+            font-size: 10px; 
+            font-weight: 900; 
+            opacity: 0.8; 
+            text-transform: uppercase; 
+        }
+
+        .value { 
+            font-family: 'Bungee', cursive; 
+            font-size: 28px; 
+        }
+
+        .val-gold {
+            color: var(--jim-gold);
+            text-shadow: 0 2px 10px rgba(255, 215, 0, 0.3);
+        }
+
+        /* =========================================================================
+           ENERGY BAR HUD
+           ========================================================================= */
+        .energy-hud { 
+            position: absolute; 
+            bottom: 40px; 
+            left: 50%; 
+            transform: translateX(-50%); 
+            width: 650px; 
+            max-width: 90vw;
+            text-align: center; 
+            pointer-events: none; 
+            z-index: 100;
+        }
+
+        .bar-bg { 
+            width: 100%; 
+            height: 50px; 
+            background: rgba(0,0,0,0.5); 
+            border: 2px solid var(--glass-border); 
+            border-radius: 30px; 
+            overflow: hidden; 
+            position: relative; 
+            backdrop-filter: blur(15px); 
+        }
+
+        #energy-fill { 
+            width: 100%; 
+            height: 100%; 
+            background: linear-gradient(90deg, var(--jim-red), var(--jim-blue)); 
+            transition: width 0.1s; 
+        }
+
+        .energy-text { 
+            position: absolute; 
+            width: 100%; 
+            top: 0; 
+            line-height: 50px; 
+            color: white; 
+            font-family: 'Bungee'; 
+            font-size: 22px; 
+        }
+
+        /* =========================================================================
+           QUIZ OVERLAY (ORIGINAL STYLE)
+           ========================================================================= */
+        #quiz-overlay { 
+            position: absolute; 
+            inset: 0; 
+            background: rgba(0,0,0,0.85); 
+            backdrop-filter: blur(20px); 
+            display: none; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            z-index: 10000; 
+        }
+
+        .modal { 
+            padding: 40px; 
+            border-radius: 45px; 
+            width: 700px; 
+            max-width: 90vw;
+            text-align: center; 
+            max-height: 85vh; 
+            overflow-y: auto; 
+        }
+        
+        .opt { 
+            background: rgba(255,255,255,0.08); 
+            border: 1px solid var(--glass-border); 
+            padding: 18px; 
+            margin: 8px 0; 
+            width: 100%; 
+            border-radius: 12px; 
+            cursor: pointer; 
+            font-size: 18px; 
+            font-weight: 700; 
+            color: white; 
+            transition: 0.2s; 
+        }
+
+        .opt.correct-flash { 
+            background: var(--jim-green) !important; 
+            border-color: white !important; 
+            box-shadow: 0 0 20px var(--jim-green); 
+        }
+
+        .opt.wrong-flash { 
+            background: var(--jim-red) !important; 
+            border-color: white !important; 
+            box-shadow: 0 0 20px var(--jim-red); 
+        }
+
+        /* =========================================================================
+           TOAST NOTIFICATIONS
+           ========================================================================= */
+        #checkpoint-toast { 
+            position: absolute; 
+            top: 160px; 
+            left: 50%; 
+            transform: translateX(-50%); 
+            font-family: 'Bungee'; 
+            font-size: 55px; 
+            color: white; 
+            opacity: 0; 
+            transition: 1s; 
+            z-index: 200; 
+            text-align: center;
+            width: 100%;
+            pointer-events: none;
+        }
+
+        #credit-toast {
+            position: absolute;
+            font-family: 'Bungee';
+            font-size: 40px;
+            color: var(--jim-gold);
+            opacity: 0;
+            z-index: 10001;
+            pointer-events: none;
+            text-shadow: 0 5px 15px rgba(0,0,0,0.8);
+            transition: all 1s ease-out;
+        }
+
+        #vignette { 
+            position: absolute; 
+            inset: 0; 
+            pointer-events: none; 
+            background: radial-gradient(circle, transparent 20%, rgba(30,0,0,1) 100%); 
+            opacity: 0; 
+            transition: opacity 5s; 
+            z-index: 50; 
+        }
+
+        /* =========================================================================
+           SHOP UI (ORIGINAL STYLE)
+           ========================================================================= */
+        #shop-screen {
+            background: var(--shop-bg);
+            backdrop-filter: blur(30px);
+        }
+
+        .shop-container {
+            width: 1100px;
+            max-width: 95vw;
+            height: 85vh;
+            display: flex;
+            flex-direction: column;
+            padding: 30px;
+            border-radius: 30px;
+        }
+
+        .shop-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid var(--glass-border);
+            padding-bottom: 20px;
+            margin-bottom: 20px;
+        }
+
+        .shop-title-container { display: flex; flex-direction: column; }
+        .shop-title { font-family: 'Bungee'; font-size: 45px; color: var(--jim-gold); margin: 0; text-shadow: 0 0 20px rgba(255, 215, 0, 0.3); }
+
+        .shop-tabs { display: flex; gap: 10px; margin-top: 10px; }
+        .tab-btn { background: rgba(255,255,255,0.1); border: 1px solid var(--glass-border); color: white; padding: 8px 20px; font-family: 'Bungee'; font-size: 16px; border-radius: 20px; cursor: pointer; transition: 0.2s; }
+        .tab-btn.active { background: var(--jim-blue); color: black; border-color: white; }
+
+        .shop-balance { background: rgba(255, 255, 255, 0.1); border: 2px solid var(--jim-gold); padding: 10px 30px; border-radius: 30px; font-family: 'Bungee'; font-size: 28px; color: white; display: flex; align-items: center; gap: 15px; box-shadow: 0 0 15px rgba(255, 215, 0, 0.2); }
+
+        .shop-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; overflow-y: auto; padding-right: 15px; padding-bottom: 20px; flex-grow: 1; }
+
+        .shop-card { background: rgba(255, 255, 255, 0.05); border: 1px solid var(--glass-border); border-radius: 20px; padding: 20px; display: flex; flex-direction: column; position: relative; transition: all 0.2s; }
+        .shop-card:hover { transform: translateY(-5px); background: rgba(255, 255, 255, 0.1); border-color: var(--jim-blue); box-shadow: 0 10px 25px rgba(0, 210, 255, 0.2); }
+
+        .shop-item-title { font-family: 'Bungee'; font-size: 20px; color: white; margin: 0 0 10px 0; line-height: 1.2; }
+        .shop-item-desc { font-size: 14px; color: #ccc; margin: 0 0 15px 0; line-height: 1.5; min-height: 45px; }
+
+        .shop-tier-box { display: flex; gap: 5px; margin-bottom: 15px; background: rgba(0,0,0,0.3); padding: 8px; border-radius: 8px; }
+        .tier-pip { flex: 1; height: 8px; background: rgba(255,255,255,0.1); border-radius: 4px; }
+        .tier-pip.filled { background: var(--jim-blue); box-shadow: 0 0 10px var(--jim-blue); }
+        .tier-pip.maxed { background: var(--jim-gold); box-shadow: 0 0 10px var(--jim-gold); }
+
+        .shop-buy-btn { background: rgba(0, 0, 0, 0.3); border: 1px solid var(--glass-border); color: white; padding: 15px; border-radius: 12px; font-family: 'Bungee'; font-size: 16px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; margin-top: auto; transition: 0.2s; }
+        .shop-buy-btn:hover:not(:disabled) { background: var(--jim-blue); border-color: var(--jim-blue); color: black; }
+        .shop-buy-btn:disabled { opacity: 0.4; cursor: not-allowed; background: rgba(0,0,0,0.8); border-color: transparent; }
+
+        .skin-preview { width: 100%; height: 100px; background: rgba(0,0,0,0.5); border-radius: 10px; margin-bottom: 15px; display: flex; justify-content: center; align-items: center; }
+        .skin-box { width: 40px; height: 40px; border-radius: 10px; position: relative; }
+        .shop-close-btn { background: transparent; border: 2px solid white; color: white; padding: 15px 40px; border-radius: 30px; font-family: 'Bungee'; font-size: 20px; cursor: pointer; align-self: center; margin-top: 20px; transition: 0.2s; }
+        .shop-close-btn:hover { background: white; color: black; }
+
+        /* =========================================================================
+           ACHIEVEMENTS UI
+           ========================================================================= */
+        .ach-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; text-align: left; margin-top: 20px; max-height: 50vh; overflow-y: auto;}
+        .ach-card { background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); padding: 15px; border-radius: 15px; display: flex; align-items: center; gap: 15px; opacity: 0.6; transition: 0.3s; }
+        .ach-card.unlocked { opacity: 1; border-color: var(--jim-gold); background: rgba(255,215,0,0.1); box-shadow: 0 0 15px rgba(255,215,0,0.2); }
+        .ach-icon { font-size: 30px; background: rgba(255,255,255,0.1); width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; border-radius: 50%; }
+        .ach-info h4 { margin: 0 0 5px 0; font-family: 'Bungee'; font-size: 16px; color: white; }
+        .ach-info p { margin: 0; font-size: 12px; color: #ccc; font-family: 'Inter'; }
+
+        /* =========================================================================
+           SCROLLBARS & AUTH OVERLAY
+           ========================================================================= */
+        ::-webkit-scrollbar { width: 10px; }
+        ::-webkit-scrollbar-track { background: rgba(0,0,0,0.3); border-radius: 5px; }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.3); border-radius: 5px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--jim-blue); }
+
+        #auth-overlay { display: flex; background: rgba(0,0,0,0.95); backdrop-filter: blur(10px); z-index: 10005; }
+        .auth-container { padding: 40px; border-radius: 30px; width: 450px; text-align: center; border: 2px solid var(--glass-border); box-shadow: 0 0 50px rgba(79, 172, 254, 0.2); max-height: 90vh; overflow-y: auto; }
+        
+        .auth-input { width: 85%; padding: 15px; margin: 10px 0; border-radius: 12px; border: 2px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.5); color: white; font-family: 'Inter', sans-serif; font-size: 16px; outline: none; transition: 0.2s; box-sizing: border-box; }
+        .auth-input:focus { border-color: var(--jim-blue); box-shadow: 0 0 15px rgba(79, 172, 254, 0.3); }
+        
+        .auth-btn-group { display: flex; gap: 15px; margin-top: 15px; justify-content: center; }
+        .auth-btn { padding: 15px 30px; border-radius: 15px; font-family: 'Bungee'; font-size: 18px; cursor: pointer; border: 2px solid var(--jim-blue); transition: 0.2s; flex: 1; }
+        .btn-signin { background: transparent; color: var(--jim-blue); }
+        .btn-signin:hover { background: rgba(79, 172, 254, 0.1); }
+        .btn-signup { background: var(--jim-blue); color: black; }
+        .btn-signup:hover { box-shadow: 0 0 20px rgba(79, 172, 254, 0.5); }
+
+        .leaderboard-entry { display: flex; justify-content: space-between; padding: 8px 15px; background: rgba(255,255,255,0.05); border-radius: 8px; margin-bottom: 5px; border: 1px solid var(--glass-border); font-family: 'Inter', sans-serif; font-weight: bold; }
+        .leaderboard-entry.top-1 { border-color: var(--jim-gold); color: var(--jim-gold); background: rgba(255, 215, 0, 0.1); }
+        .leaderboard-entry.top-2 { border-color: silver; color: silver; }
+        .leaderboard-entry.top-3 { border-color: #cd7f32; color: #cd7f32; }
+    </style>
+</head>
+<body>
+ <audio id="bg-music" loop>
+    <source src="gimkit.mp3" type="audio/mpeg">
+</audio>
+
+<div id="app">
+    <div id="vignette"></div>
+    <div id="checkpoint-toast">CHECKPOINT!</div>
+    <div id="credit-toast">+100 CREDITS</div>
+
+    <div id="auth-overlay" class="overlay">
+        <div class="auth-container glass-ui">
+            <h2 style="font-family:'Bungee'; color: var(--jim-blue); font-size: 35px; margin-top: 0; margin-bottom: 5px;">PILOT TERMINAL</h2>
+            <p style="color: #ccc; font-size: 14px; margin-bottom: 20px;">Access global telemetry network.</p>
+            
+            <input type="text" id="auth-user" class="auth-input" placeholder="USERNAME" autocomplete="off">
+            
+            <div style="position: relative; width: 85%; margin: 0 auto;">
+                <input type="password" id="auth-pass" class="auth-input" style="width: 100%; margin: 10px 0;" placeholder="PASSWORD">
+                <button onclick="togglePass()" style="position: absolute; right: 15px; top: 25px; background: none; border: none; cursor: pointer; color: #ccc; font-size: 16px; padding:0;">👁️</button>
+            </div>
+            
+            <div class="auth-btn-group" style="width: 85%; margin: 15px auto 0;">
+                <button class="auth-btn btn-signin" onclick="handleAuth('signin')">LOGIN</button>
+                <button class="auth-btn btn-signup" onclick="handleAuth('signup')">CREATE</button>
+              
+            </div>
+            
+            <p id="auth-msg" style="color: var(--jim-red); margin-top: 15px; font-weight: bold; min-height: 20px;"></p>
+
+            <div id="leaderboard-box" style="margin-top: 20px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 15px; width: 85%; margin-left: auto; margin-right: auto;">
+                <h3 style="font-family:'Bungee'; font-size: 18px; color: var(--jim-gold); margin-bottom: 10px;">GLOBAL TOP 10</h3>
+                <div id="leaderboard-list" style="font-size: 14px; text-align: left;">
+                    <div style="text-align:center; color:#ccc;">Fetching satellite data...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="start-menu" class="overlay" style="display: none;">
+        <h1 class="logo">japa jump</h1>
+        <p style="color: white; font-weight: 900; letter-spacing: 4px; opacity: 0.9;">SDG 13: CLIMATE ACTION</p>
+        <button class="play-btn" onclick="beginGame()">START CLIMB</button>
+        <div class="menu-btn-group">
+            <button class="instr-btn" onclick="showScreen('instr-screen')">INSTRUCTIONS</button>
+            <button class="shop-btn-main" onclick="openShop(false)">UPGRADE SHOP</button>
+            <button class="instr-btn" style="border-color: #4CAF50; color: #4CAF50;" onclick="syncAllData(); this.innerText='SAVED ✓'">SYNC CLOUD</button>
+            <button class="instr-btn" onclick="showScreen('achievements-screen')" style="border-color: var(--jim-gold); color: var(--jim-gold);">AWARDS</button>
+        </div>
+    </div>
+
+    <div id="instr-screen" class="overlay">
+        <div class="instr-box glass-ui" style="padding:40px; border-radius:40px; width:500px; text-align:left;">
+            <h2 style="font-family:'Bungee'; margin-top:0;">GUIDE</h2>
+            <p>🏃 <b>MOVE:</b> WASD / Arrows</p>
+            <p>🚀 <b>JUMP:</b> Space / W (Double-jump enabled)</p>
+            <p>🔥 <b>DEVIL ZONE:</b> 9,000 meters+. Platforms get tiny. Red sky.</p>
+            <p>💰 <b>CREDITS:</b> Answer questions right to earn Credits. Spend them in the Shop for permanent upgrades!</p>
+            <p>🏁 <b>WIN:</b> Land on the Golden Platform at 10,000 METERS.</p>
+            <button class="play-btn" style="width:100%; font-size:24px;" onclick="hideScreen('instr-screen')">GOT IT</button>
+        </div>
+    </div>
+
+    <div id="achievements-screen" class="overlay">
+        <div class="modal glass-ui" style="width: 800px; padding: 40px;">
+            <h2 style="font-family:'Bungee'; color: var(--jim-gold); font-size: 35px; margin: 0 0 20px 0;">PILOT AWARDS</h2>
+            <p style="color:white; opacity:0.8; margin-bottom:20px;">Complete feats of skill and dedication to unlock badges.</p>
+            <div class="ach-grid" id="ach-grid-container">
+                </div>
+            <button class="shop-close-btn" onclick="hideScreen('achievements-screen')">RETURN</button>
+        </div>
+    </div>
+
+    <div id="shop-screen" class="overlay">
+        <div class="shop-container glass-ui">
+            <div class="shop-header">
+                <div class="shop-title-container">
+                    <h2 class="shop-title">TECH SHOP</h2>
+                    <div class="shop-tabs">
+                        <button class="tab-btn active" id="tab-up" onclick="setShopTab('upgrades')">UPGRADES</button>
+                        <button class="tab-btn" id="tab-sk" onclick="setShopTab('skins')">SKINS</button>
+                    </div>
+                </div>
+                <div class="shop-balance">
+                    <span>CREDITS:</span>
+                    <span id="shop-balance-val" class="val-gold">0</span>
+                </div>
+            </div>
+            <div class="shop-grid" id="shop-grid-container"></div>
+            <button class="shop-close-btn" onclick="closeShop()">RETURN</button>
+        </div>
+    </div>
+
+    <div id="pause-screen" class="overlay" style="background: rgba(0,0,0,0.8); backdrop-filter: blur(10px);">
+        <h1 class="logo" style="font-size: 80px; color: #fff;">PAUSED</h1>
+        <div class="menu-btn-group" style="flex-direction: column; width: 300px; margin-top: 20px;">
+            <button class="instr-btn" style="margin-bottom:10px; border-color:var(--jim-blue); color:var(--jim-blue);" onclick="syncAllData(); this.innerText='SAVED ✓'">CLOUD SYNC</button>
+            <button class="play-btn" style="padding: 20px; font-size: 25px; margin:0;" onclick="togglePause()">RESUME</button>
+            <button class="shop-btn-main" style="margin:0;" onclick="openShop(true)">UPGRADE SHOP</button>
+            <button class="instr-btn" style="margin:0; border-color: var(--jim-red); color: var(--jim-red);" onclick="abortMission()">ABORT MISSION</button>
+        </div>
+    </div>
+
+    <div id="win-screen" class="overlay">
+        <h1 class="logo">HELL ESCAPED</h1>
+        <p style="color: white; font-weight: 900; font-size: 28px;">PLANET SAVED - MISSION COMPLETE</p>
+        <button class="play-btn" style="background: #ff4b2b; color: white;" onclick="location.reload()">PLAY AGAIN</button>
+    </div>
+
+    <div class="hud" id="main-hud">
+        <div class="hud-card glass-ui"><div class="label">Altitude</div><div id="alt-val" class="value">0m</div></div>
+        <div class="hud-card glass-ui"><div class="label">Highscore</div><div id="hi-val" class="value">0m</div></div>
+        <div class="hud-card glass-ui"><div class="label">Checkpoint</div><div id="zone-val" class="value">Start</div></div>
+        <div class="hud-card glass-ui" style="border: 2px solid var(--jim-gold);"><div class="label">Credits</div><div id="cred-val" class="value val-gold">0</div></div>
+        
+        <div class="hud-btn" onclick="togglePause()">
+            <div class="label">System</div>
+            <div class="value">PAUSE</div>
+        </div>
+    </div>
+
+    <div class="energy-hud" id="energy-hud">
+        <div class="bar-bg">
+            <div id="energy-fill"></div>
+            <div class="energy-text">ENERGY: <span id="fuel-num">1000</span> / <span id="fuel-max-num">1000</span></div>
+        </div>
+    </div>
+
+    <div id="quiz-overlay">
+        <div class="modal glass-ui">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h2 id="modal-title" style="font-family:'Bungee'; margin:0; font-size: 40px; color: var(--jim-red);">SYSTEM FAILURE</h2>
+                <div style="background: rgba(255,215,0,0.2); border: 2px solid var(--jim-gold); color: var(--jim-gold); padding: 5px 15px; border-radius: 10px; font-family: 'Bungee';">
+                    REWARD: +<span id="quiz-reward-amt">100</span> CR
+                </div>
+            </div>
+            <p id="q-text" style="font-size: 22px; font-weight: 900; margin: 30px 0;"></p>
+            <div id="opt-box"></div>
+        </div>
+    </div>
+    
+    <canvas id="stage"></canvas>
+        <div id="rot"><h1>ROTATE TO PLAY</h1></div>
+    <div id="mobile-ui" style="flex-direction: row;">
+        <div id="joy" class="m-btn">MOVE</div>
+        <div id="m-jump" class="m-btn" style="background:var(--jim-blue)">JUMP</div>
+    </div>
+
+    
+</div>
+
+<script>
+    const isMobile = ('ontouchstart' in window || navigator.maxTouchPoints > 0);
+    /* =========================================================================
+       MODULE 1: AUDIO SYNTHESIZER ENGINE
+       ========================================================================= */
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+             function startMusic() {
+    const music = document.getElementById('bg-music');
+    if (music && music.paused) {
+        music.volume = 0.20; // Set volume to 20%
+        music.play().catch(err => console.log("Music waiting for interaction."));
+    }
+}
+ 
+    
+    const SoundEngine = {
+        playTone: function(freq, type, duration, vol=0.1, slideFreq=null) {
+            if(!audioCtx || audioCtx.state === 'suspended') return;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = type;
+            osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+            
+            if(slideFreq) {
+                osc.frequency.exponentialRampToValueAtTime(slideFreq, audioCtx.currentTime + duration);
+            }
+            
+            gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
+            
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + duration);
+        },
+        jump: () => SoundEngine.playTone(150, 'square', 0.2, 0.05, 300),
+        doubleJump: () => SoundEngine.playTone(200, 'square', 0.25, 0.05, 400),
+        land: () => SoundEngine.playTone(80, 'triangle', 0.1, 0.08, 40),
+        coin: () => { 
+            SoundEngine.playTone(800, 'sine', 0.1, 0.05); 
+            setTimeout(() => SoundEngine.playTone(1200, 'sine', 0.2, 0.05), 100); 
+        },
+        error: () => SoundEngine.playTone(100, 'sawtooth', 0.4, 0.1, 50),
+        checkpoint: () => { 
+            SoundEngine.playTone(400, 'square', 0.1, 0.05); 
+            setTimeout(() => SoundEngine.playTone(600, 'square', 0.1, 0.05), 100); 
+            setTimeout(() => SoundEngine.playTone(800, 'square', 0.4, 0.05), 200); 
+        },
+        buy: () => SoundEngine.playTone(600, 'sine', 0.3, 0.05, 1000),
+        win: () => {
+            SoundEngine.playTone(523.25, 'square', 0.2, 0.1); // C5
+            setTimeout(() => SoundEngine.playTone(659.25, 'square', 0.2, 0.1), 200); // E5
+            setTimeout(() => SoundEngine.playTone(783.99, 'square', 0.4, 0.1), 400); // G5
+        }
+    };
+
+    // Unlock audio context on first interaction as browsers require it
+              // Unlock audio on first interaction
+      document.body.addEventListener('click', () => { 
+          if(audioCtx.state === 'suspended') {
+              audioCtx.resume();
+          }
+          startMusic(); // This triggers the gimkit.mp3
+      }, {once: true});
+
+    /* =========================================================================
+       MODULE 2: NETWORK & CLOUD SYNC (Google Apps Script Backend)
+       ========================================================================= */
+    const SAVE_KEY = 'japa_jump_v7_ultimate_save';
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxBo-bSKO-Bq71Ig-AtgiPlQdXgF5EqsB257DJpjDOsQjTydG4r16sWIhjJUkP5tGorsQ/exec'; 
+     const MASTER_SECRET = "dstanyftewyyrmfywnwdagfxydsmu"; // <--- ADDED SECRET
+
+ 
+    let currentUser = null;
+        let otherPlayers = {};
+    // REPLACE THE URL BELOW WITH YOUR RENDER URL (Make sure it starts with wss://)
+    const ws = new WebSocket('wss://japa-server.onrender.com');    
+       ws.onmessage = (e) => {
+        let p = JSON.parse(e.data);
+
+        // 1. Handle Chat Messages
+        if (p.type === 'chat') {
+            spawnFloater(`${p.id}: ${p.text}`, '#FFD700', p.x, p.y - 50); 
+            SoundEngine.coin(); 
+            return;
+        }
+
+        // 2. Update Ghost Data (Position, Skin, and Score)
+        // 2. Update Ghost Data (Position, Skin, and Score)
+      if (p.id && p.id !== currentUser) {
+          // If the packet has a score, update the local leaderboard rank
+          if (p.score !== undefined) {
+              if (!otherPlayers[p.id]) otherPlayers[p.id] = {};
+              otherPlayers[p.id].score = p.score;
+          }
+          // Update live movement data
+          otherPlayers[p.id] = { ...otherPlayers[p.id], ...p }; 
+          otherPlayers[p.id].lastSeen = Date.now();
+      }
+    };
+    let scoreSyncInterval = null;
+
+    function togglePass() {
+        const p = document.getElementById('auth-pass');
+        p.type = p.type === "password" ? "text" : "password";
+    }
+
+    async function updateLeaderboard() {
+        try {
+                const res = await fetch(SCRIPT_URL, { 
+                    method: 'POST', 
+                    body: JSON.stringify({ 
+                        secret: MASTER_SECRET, // <--- ADDED HERE
+                        action: 'getLeaderboard' 
+                    }) 
+                });     
+             const list = await res.json();
+            const container = document.getElementById('leaderboard-list');
+            if (!list || list.length === 0) {
+                container.innerHTML = '<div style="text-align:center; color:#ccc;">NO DATA FOUND IN SATELLITE.</div>'; 
+                return;
+            }
+            container.innerHTML = list.map((u, i) => {
+                let rC = i === 0 ? 'top-1' : (i === 1 ? 'top-2' : (i === 2 ? 'top-3' : ''));
+                return `<div class="leaderboard-entry ${rC}">
+                            <span><span style="opacity:0.5; margin-right:8px;">#${i+1}</span> ${u[0]}</span>
+                            <span>${u[2]}m</span>
+                        </div>`;
+            }).join('');
+        } catch (e) { 
+            document.getElementById('leaderboard-list').innerHTML = '<div style="text-align:center; color:var(--jim-red);">UPLINK FAILED.</div>';
+        }
+    }
+
+    async function handleAuth(action) {
+        const user = document.getElementById('auth-user').value.trim();
+        const pass = document.getElementById('auth-pass').value;
+        const msg = document.getElementById('auth-msg');
+
+        if (action === 'signup') {
+            if (localStorage.getItem('jam_jump_account_created')) {
+                msg.innerText = "DEVICE LIMIT REACHED: 1 ACCOUNT PER PILOT";
+                SoundEngine.error();
+                return;
+            }
+        }
+
+        if (!user || !pass) { 
+            msg.innerText = "CREDENTIALS REQUIRED"; 
+            SoundEngine.error(); 
+            return; 
+        }
+        
+        msg.style.color = "white"; 
+        msg.innerText = "ESTABLISHING SECURE CONNECTION...";
+        
+        try {
+            const response = await fetch(SCRIPT_URL, { 
+                method: 'POST', 
+                body: JSON.stringify({ 
+                    secret: MASTER_SECRET, // <--- ADDED HERE
+                    action, 
+                    username: user, 
+                    password: pass 
+                }) 
+            });
+            const result = await response.text();
+
+            if (result === "success") { 
+                localStorage.setItem('jam_jump_account_created', 'true');
+                msg.style.color = "var(--jim-green)"; 
+                msg.innerText = "PROFILE CREATED. PLEASE LOGIN."; 
+                SoundEngine.coin(); 
+            }
+            else if (result === "fail") { 
+                msg.style.color = "var(--jim-red)"; 
+                msg.innerText = "ACCESS DENIED."; 
+                SoundEngine.error(); 
+            }
+            else if (result.includes("|")) {
+                localStorage.setItem('remembered_user', user); localStorage.setItem('remembered_pass', pass);
+                const parts = result.split("|");
+                currentUser = user;
+                gameSave.highscore = parseInt(parts[0]);
+                gameSave.credits = parseFloat(parts[1]);
+
+                hideScreen('auth-overlay'); 
+                showScreen('start-menu');
+                
+                 const cloudInv = JSON.parse(parts[2]);
+                if (cloudInv.upgrades) gameSave.upgrades = cloudInv.upgrades;
+                if (cloudInv.skins) gameSave.skins = cloudInv.skins;
+                if (cloudInv.achievements) gameSave.achievements = cloudInv.achievements;
+
+                hideScreen('auth-overlay'); 
+                showScreen('start-menu');
+                updateHUDValues(); 
+                renderAchievements();
+                
+                localStorage.setItem(SAVE_KEY, JSON.stringify(gameSave));
+                
+                // 3 SECOND HEARTBEAT SYNC
+                setInterval(syncAllData, 3000); 
+                SoundEngine.checkpoint();
+            } else { 
+                msg.innerText = result; 
+                SoundEngine.error(); 
+            }
+        } catch (e) { 
+            msg.innerText = "SERVER TIMEOUT"; 
+            SoundEngine.error(); 
+        }
+    }
+
+   async function syncAllData() {
+        if (!currentUser) return;
+        const inventory = { 
+            upgrades: gameSave.upgrades, 
+            skins: gameSave.skins, 
+            achievements: gameSave.achievements 
+        };
+        try { 
+            await fetch(SCRIPT_URL, { 
+                method: 'POST', 
+                body: JSON.stringify({ 
+                    secret: MASTER_SECRET, // <--- ADDED HERE
+                    action: 'syncAll', 
+                    username: currentUser, 
+                    score: gameSave.highscore, // Use highscore, not current score
+                    credits: gameSave.credits, 
+                    inventory: inventory 
+                }) 
+            }); 
+        } catch(e) { console.warn("Syncing..."); }
+    }
+
+    function saveGame() {
+        localStorage.setItem(SAVE_KEY, JSON.stringify(gameSave));
+        updateHUDValues(); 
+        checkAchievements();
+        if (currentUser) {
+            syncAllData(); 
+        }
+    }
+
+    // Initialize Leaderboard on load
+    updateLeaderboard();
+
+    /* =========================================================================
+       MODULE 3: DATA MODELS (Upgrades, Skins, Achievements, Q_Bank)
+       ========================================================================= */
+    const DEFAULT_SAVE = {
+        highscore: 0, 
+        credits: 0, 
+        jumpsMade: 0, 
+        totalCrEarned: 0, 
+        quizzesPassed: 0,
+        upgrades: {
+            solar: 0, thrusters: 0, battery: 0, scrubbers: 0, radar: 0, recycler: 0, 
+            hazard: 0, multiplier: 0, hover: 0, bypass: 0, speed: 0, magnet: 0, 
+            plating: 0, cooling: 0, wind: 0, geo: 0, hydro: 0, ozone: 0, green: 0, 
+            smart: 0, albedo: 0, carbon: 0, kelp: 0, tidal: 0, glider: 0, shield: 0, 
+            fusion: 0, aero: 0, battery2: 0
+        },
+        skins: { 
+            unlocked: ['default'], 
+            equipped: 'default' 
+        },
+        achievements: []
+    };
+
+    let gameSave = JSON.parse(localStorage.getItem(SAVE_KEY)) || {};
+    gameSave = { ...DEFAULT_SAVE, ...gameSave };
+    gameSave.upgrades = { ...DEFAULT_SAVE.upgrades, ...(gameSave.upgrades || {}) };
+    gameSave.skins = { ...DEFAULT_SAVE.skins, ...(gameSave.skins || {}) };
+    if(!gameSave.achievements) gameSave.achievements = [];
+
+    function addCredits(amt) { 
+        gameSave.credits += amt; 
+        gameSave.totalCrEarned += amt; 
+        saveGame(); 
+    }
+
+    function spendCredits(amt) { 
+        if (gameSave.credits >= amt) { 
+            gameSave.credits -= amt; 
+            saveGame(); 
+            return true; 
+        } 
+        return false; 
+    }
+
+    // MULTILINE EXPANDED SHOP ITEMS DICTIONARY FOR BETTER READABILITY AND MAINTENANCE
+    const SHOP_ITEMS = {
+        solar: { 
+            name: 'Solar Panels', 
+            desc: 'Reduces moving energy drain.', 
+            max: 5, baseCost: 100, costMult: 1.5, 
+            getEffect: t => 1.0 - (t * 0.1) 
+        },
+        thrusters: { 
+            name: 'Ion Thrusters', 
+            desc: 'Increases jump power & lowers cost.', 
+            max: 5, baseCost: 200, costMult: 1.8, 
+            getEffect: t => ({ force: t * 1.5, costSave: t * 3 }) 
+        },
+        battery: { 
+            name: 'Supercapacitor', 
+            desc: 'Expands energy capacity (+300).', 
+            max: 5, baseCost: 250, costMult: 2.0, 
+            getEffect: t => 1000 + (t * 300) 
+        },
+        scrubbers: { 
+            name: 'Carbon Scrubbers', 
+            desc: 'Passively prints Credits moving.', 
+            max: 5, baseCost: 300, costMult: 2.2, 
+            getEffect: t => t * 0.05 
+        },
+        radar: { 
+            name: 'Quantum Radar', 
+            desc: 'Zooms camera out to see further.', 
+            max: 3, baseCost: 350, costMult: 2.0, 
+            getEffect: t => 1.0 - (t * 0.08) 
+        },
+        recycler: { 
+            name: 'Kinetic Recycler', 
+            desc: 'Restores energy when landing.', 
+            max: 5, baseCost: 400, costMult: 1.9, 
+            getEffect: t => t * 15 
+        },
+        hazard: { 
+            name: 'Hazard Shielding', 
+            desc: 'Reduces extreme Devil Zone drain.', 
+            max: 3, baseCost: 800, costMult: 2.5, 
+            getEffect: t => 1.0 - (t * 0.2) 
+        },
+        multiplier: { 
+            name: 'Credit Multiplier', 
+            desc: 'Increases Credit Quiz rewards.', 
+            max: 5, baseCost: 1000, costMult: 2.5, 
+            getEffect: t => 1.0 + (t * 0.5) 
+        },
+        hover: { 
+            name: 'Hover Tech', 
+            desc: 'Slightly reduces gravity.', 
+            max: 3, baseCost: 600, costMult: 2.0, 
+            getEffect: t => t * 0.05 
+        },
+        bypass: { 
+            name: 'Auto-Bypass', 
+            desc: '% chance to instantly pass Quiz.', 
+            max: 4, baseCost: 1200, costMult: 3.0, 
+            getEffect: t => t * 0.10 
+        },
+        speed: { 
+            name: 'Aero-Suit', 
+            desc: 'Increases max horizontal speed.', 
+            max: 4, baseCost: 500, costMult: 1.8, 
+            getEffect: t => 14 + (t * 1.5) 
+        },
+        magnet: { 
+            name: 'Platform Magnet', 
+            desc: 'Makes platforms slightly wider.', 
+            max: 3, baseCost: 700, costMult: 2.0, 
+            getEffect: t => t * 15 
+        },
+        plating: { 
+            name: 'Void Plating', 
+            desc: 'Restores energy if hitting void.', 
+            max: 3, baseCost: 1500, costMult: 2.5, 
+            getEffect: t => t * 100 
+        },
+        cooling: { 
+            name: 'Cooling System', 
+            desc: 'Reduces Double Jump cost penalty.', 
+            max: 5, baseCost: 450, costMult: 1.7, 
+            getEffect: t => t * 4 
+        },
+        wind: { 
+            name: 'Turbines', 
+            desc: 'Restores energy falling fast.', 
+            max: 3, baseCost: 600, costMult: 2.0, 
+            getEffect: t => t * 2 
+        },
+        geo: { 
+            name: 'Geo Core', 
+            desc: 'Passive slow energy regen everywhere.', 
+            max: 3, baseCost: 1500, costMult: 2.5, 
+            getEffect: t => t * 0.05 
+        },
+        hydro: { 
+            name: 'Hydro Pads', 
+            desc: 'Minor energy bump per Checkpoint.', 
+            max: 3, baseCost: 800, costMult: 2.0, 
+            getEffect: t => t * 50 
+        },
+        ozone: { 
+            name: 'Ozone Layer', 
+            desc: 'Makes Checkpoints massive platforms.', 
+            max: 2, baseCost: 1000, costMult: 2.0, 
+            getEffect: t => t * 100 
+        },
+        green: { 
+            name: 'Green Web', 
+            desc: 'Double Scrubber passive income.', 
+            max: 3, baseCost: 1200, costMult: 2.0, 
+            getEffect: t => Math.pow(2, t) 
+        },
+        smart: { 
+            name: 'Smart Jump', 
+            desc: 'Caps max jump energy cost.', 
+            max: 2, baseCost: 2000, costMult: 2.0, 
+            getEffect: t => t * 10 
+        },
+        albedo: { 
+            name: 'Albedo Effect', 
+            desc: 'Pushes Devil Zone 200m higher.', 
+            max: 3, baseCost: 1800, costMult: 2.0, 
+            getEffect: t => t * 200 
+        },
+        carbon: { 
+            name: 'Carbon Tax', 
+            desc: 'Flat credit bounty on Checkpoint.', 
+            max: 5, baseCost: 1100, costMult: 1.8, 
+            getEffect: t => t * 100 
+        },
+        kelp: { 
+            name: 'Kelp Jump', 
+            desc: 'Unlocks a Triple Jump!', 
+            max: 1, baseCost: 5000, costMult: 1.0, 
+            getEffect: t => t 
+        },
+        tidal: { 
+            name: 'Tidal Force', 
+            desc: 'Energy regen from horizontal air speed.', 
+            max: 3, baseCost: 1400, costMult: 2.0, 
+            getEffect: t => t * 0.1 
+        },
+        glider: { 
+            name: 'Atmo Glider', 
+            desc: 'Boosts max air speed limit.', 
+            max: 3, baseCost: 900, costMult: 2.0, 
+            getEffect: t => t * 2 
+        },
+        shield: { 
+            name: 'Sun Shield', 
+            desc: 'Reduces Hell mode visual dark.', 
+            max: 2, baseCost: 750, costMult: 2.0, 
+            getEffect: t => t * 0.3 
+        },
+        fusion: { 
+            name: 'Fusion Core', 
+            desc: 'Multiply Total Energy cap.', 
+            max: 3, baseCost: 3000, costMult: 2.5, 
+            getEffect: t => 1.0 + (t*0.2) 
+        },
+        aero: { 
+            name: 'Aero Dynamics', 
+            desc: 'Buff horizontal acceleration.', 
+            max: 4, baseCost: 650, costMult: 1.9, 
+            getEffect: t => t * 0.3 
+        },
+        battery2: { 
+            name: 'Aux Battery', 
+            desc: 'Adds Flat +500 to max Energy.', 
+            max: 5, baseCost: 2500, costMult: 2.0, 
+            getEffect: t => t * 500 
+        }
+    };
+
+    // MULTILINE EXPANDED SKINS DICTIONARY
+    const SKINS = {
+        'default': { n: 'Standard', c: '#4CAF50', a: '#FF9800', p: 0 },
+        'ocean': { n: 'Oceanic', c: '#0077be', a: '#00ffcc', p: 500 },
+        'magma': { n: 'Magma', c: '#ff4500', a: '#ffd700', p: 1500 },
+        'phantom': { n: 'Phantom', c: '#8a2be2', a: '#ff00ff', p: 3000 },
+        'cyber': { n: 'Cyber', c: '#00ffcc', a: '#ff00ff', p: 5000 },
+        'eco': { n: 'Eco-Suit', c: '#228b22', a: '#adff2f', p: 7500 },
+        'void': { n: 'Void', c: '#111111', a: '#ffffff', p: 15000 },
+        'ruby': { n: 'Ruby', c: '#e0115f', a: '#ffb6c1', p: 25000 },
+        'gold': { n: 'Gold', c: '#FFD700', a: '#ffffff', p: 50000 },
+        'diamond': { n: 'Diamond', c: '#b9f2ff', a: '#ffffff', p: 100000 }
+    };
+
+    // PILOT AWARDS (ACHIEVEMENTS) DICTIONARY
+    const ACHIEVEMENTS = {
+        'first_steps': { 
+            n: 'First Steps', 
+            d: 'Reach 500m.', 
+            icon: '🚶' 
+        },
+        'cloud_breaker': { 
+            n: 'Cloud Breaker', 
+            d: 'Reach 2,500m.', 
+            icon: '☁️' 
+        },
+        'stratosphere': { 
+            n: 'Stratosphere', 
+            d: 'Reach 5,000m.', 
+            icon: '✈️' 
+        },
+        'hell_walker': { 
+            n: 'Hell Walker', 
+            d: 'Survive the 9,000m Devil Zone.', 
+            icon: '🔥' 
+        },
+        'savior': { 
+            n: 'Planet Savior', 
+            d: 'Beat the game (10,000m).', 
+            icon: '🌍' 
+        },
+        'rich': { 
+            n: 'Funded', 
+            d: 'Earn a total of 10,000 CR.', 
+            icon: '💰' 
+        },
+        'hopper': { 
+            n: 'Kangaroo', 
+            d: 'Perform 1,000 total jumps.', 
+            icon: '🦘' 
+        },
+        'scholar': { 
+            n: 'Ecologist', 
+            d: 'Pass 50 System Failure Quizzes.', 
+            icon: '📚' 
+        }
+    };
+
+    // EXPANDED QUESTION BANK TO ENSURE HIGH VARIETY AND COMPREHENSIVE DATA (100+ lines effectively)
+    const Q_BANK = [
+        { q: "What is the primary greenhouse gas emitted by human activities?", a: ["Carbon Dioxide", "Methane", "Nitrous Oxide", "Ozone"], c: 0 },
+        { q: "Which renewable energy source harnesses the power of the sun?", a: ["Solar", "Geothermal", "Wind", "Hydroelectric"], c: 0 },
+        { q: "SDG 13 specifically calls for urgent action to combat what?", a: ["Climate Change", "Poverty", "Deforestation", "Ocean Pollution"], c: 0 },
+        { q: "What natural carbon sinks absorb roughly 25% of human CO2 emissions?", a: ["Oceans", "Deserts", "Ice Caps", "Cities"], c: 0 },
+        { q: "What is the most energy-efficient mode of long-distance passenger transport?", a: ["Trains", "Airplanes", "Cars", "Buses"], c: 0 },
+        { q: "Agriculture, particularly livestock, is a major source of which potent greenhouse gas?", a: ["Methane", "Carbon Monoxide", "Helium", "Radon"], c: 0 },
+        { q: "Which of these lightbulbs uses the least amount of electricity?", a: ["LED", "Incandescent", "Halogen", "Compact Fluorescent"], c: 0 },
+        { q: "Rising global temperatures are causing the rapid melting of what?", a: ["Glaciers", "Tectonic Plates", "The Core", "Coral Reefs"], c: 0 },
+        { q: "Ocean acidification, which harms coral, is caused by the ocean absorbing too much:", a: ["Carbon Dioxide", "Plastic", "Oil", "Salt"], c: 0 },
+        { q: "The Paris Agreement aims to keep global temperature rise below how many degrees Celsius?", a: ["2.0°C", "3.0°C", "1.5°C", "1.0°C"], c: 0 },
+        { q: "What term describes the reflectivity of Earth's surface, particularly ice?", a: ["Albedo", "Refraction", "Luminosity", "Opacity"], c: 0 },
+        { q: "Which renewable energy source utilizes the internal heat of the Earth?", a: ["Geothermal", "Biomass", "Tidal", "Nuclear"], c: 0 },
+        { q: "What everyday item is a major source of microplastic pollution in oceans?", a: ["Synthetic Clothing", "Glass Bottles", "Paper Straws", "Aluminum Cans"], c: 0 },
+        { q: "The term 'Carbon Footprint' refers to:", a: ["Total greenhouse gas emissions caused by an individual", "The physical size of coal deposits", "The amount of carbon in a human body", "Tire marks left by cars"], c: 0 },
+        { q: "Deforestation contributes to climate change primarily by:", a: ["Releasing stored carbon and reducing absorption", "Creating more wind", "Warming the soil directly", "Increasing Earth's rotation speed"], c: 0 },
+        { q: "Which sector is globally the largest consumer of freshwater?", a: ["Agriculture", "Manufacturing", "Domestic/Household", "Mining"], c: 0 },
+        { q: "What is a 'Carbon Sink'?", a: ["A natural environment that absorbs carbon", "A machine that destroys CO2", "A plumbing fixture made of coal", "A heavily polluted area"], c: 0 },
+        { q: "Which of these is a fossil fuel?", a: ["Coal", "Uranium", "Geothermal steam", "Hydrogen"], c: 0 },
+        { q: "Sea level rise is primarily driven by melting ice caps and what other factor?", a: ["Thermal expansion of water", "More rainfall over oceans", "Increased boat traffic", "Undersea volcanoes"], c: 0 },
+        { q: "What does the 'E' in EV stand for in the context of modern transportation?", a: ["Electric", "Environmental", "Efficient", "Energy"], c: 0 },
+        { q: "Which gas is responsible for the depletion of the ozone layer?", a: ["Chlorofluorocarbons (CFCs)", "Carbon Dioxide", "Oxygen", "Argon"], c: 0 },
+        { q: "Composting organic waste prevents it from entering landfills, where it would generate:", a: ["Methane", "Carbon Dioxide", "Nitrogen", "Sulfur Dioxide"], c: 0 },
+        { q: "What is the main environmental benefit of a 'Green Roof'?", a: ["Reduces urban heat island effect", "Attracts wildlife for hunting", "Reflects all sunlight back to space", "Provides free electricity"], c: 0 },
+        { q: "Which of these dietary choices generally has the highest carbon footprint?", a: ["Beef", "Poultry", "Lentils", "Fish"], c: 0 },
+        { q: "What international body evaluates climate change science?", a: ["IPCC", "WHO", "UNICEF", "NATO"], c: 0 }
+    ];
+
+    // ACHIEVEMENT CHECK LOGIC
+    function checkAchievements() {
+        let u = false;
+        
+        const grant = (id) => { 
+            if(!gameSave.achievements.includes(id)) { 
+                gameSave.achievements.push(id); 
+                showCreditToast(`AWARD: ${ACHIEVEMENTS[id].n}!`); 
+                SoundEngine.win(); 
+                u=true; 
+            } 
+        };
+        
+        if (gameSave.highscore >= 500) grant('first_steps');
+        if (gameSave.highscore >= 2500) grant('cloud_breaker');
+        if (gameSave.highscore >= 5000) grant('stratosphere');
+        if (gameSave.highscore >= 9000) grant('hell_walker');
+        if (gameSave.highscore >= 10000) grant('savior');
+        
+        if (gameSave.totalCrEarned >= 10000) grant('rich');
+        if (gameSave.jumpsMade >= 1000) grant('hopper');
+        if (gameSave.quizzesPassed >= 50) grant('scholar');
+
+        if(u) { 
+            saveGame(); 
+            renderAchievements(); 
+        }
+    }
+
+    function renderAchievements() {
+        const box = document.getElementById('ach-grid-container');
+        box.innerHTML = '';
+        
+        Object.keys(ACHIEVEMENTS).forEach(k => {
+            const a = ACHIEVEMENTS[k];
+            const unl = gameSave.achievements.includes(k);
+            
+            box.innerHTML += `
+                <div class="ach-card ${unl ? 'unlocked' : ''}">
+                    <div class="ach-icon">${unl ? a.icon : '🔒'}</div>
+                    <div class="ach-info">
+                        <h4>${a.n}</h4>
+                        <p>${unl ? a.d : '???'}</p>
+                    </div>
+                </div>`;
+        });
+    }
+
+    /* =========================================================================
+       MODULE 4: UI & MENUS (Original Screen Management)
+       ========================================================================= */
+    function showScreen(id) { 
+        document.getElementById(id).style.display = 'flex'; 
+    }
+    
+    function hideScreen(id) { 
+        document.getElementById(id).style.display = 'none'; 
+    }
+
+    let shopTab = 'upgrades';
+
+    function setShopTab(tab) {
+        shopTab = tab;
+        document.getElementById('tab-up').className = `tab-btn ${tab === 'upgrades' ? 'active' : ''}`;
+        document.getElementById('tab-sk').className = `tab-btn ${tab === 'skins' ? 'active' : ''}`;
+        renderShop();
+    }
+
+    function calculateCost(id) {
+        if (shopTab === 'skins') return SKINS[id].p;
+        const item = SHOP_ITEMS[id];
+        const tier = gameSave.upgrades[id];
+        if (tier >= item.max) return -1;
+        return Math.floor(item.baseCost * Math.pow(item.costMult, tier));
+    }
+
+    // FIX: Added 'async' keyword here to resolve the SyntaxError causing the crash.
+    async function buyItem(id) {
+        if (shopTab === 'skins') {
+            if (gameSave.skins.unlocked.includes(id)) {
+                gameSave.skins.equipped = id; 
+                saveGame(); await syncAllData();
+                saveGame(); 
+                renderShop(); 
+                SoundEngine.buy(); 
+                return;
+            }
+            if (spendCredits(SKINS[id].p)) {
+                gameSave.skins.unlocked.push(id); 
+                gameSave.skins.equipped = id; 
+                saveGame(); await syncAllData();
+                saveGame(); 
+                renderShop(); 
+                doConfetti(); 
+                SoundEngine.buy();
+            } else { 
+                SoundEngine.error(); 
+            }
+        } else {
+            const cost = calculateCost(id);
+            if (cost !== -1 && spendCredits(cost)) {
+                gameSave.upgrades[id]++; 
+                saveGame(); await syncAllData();
+                saveGame(); 
+                renderShop(); 
+                doConfetti(); 
+                SoundEngine.buy();
+            } else { 
+                SoundEngine.error(); 
+            }
+        }
+    }
+
+    function doConfetti() {
+        for(let i=0; i<40; i++) {
+            game.confetti.push({
+                x: window.innerWidth / 2 + (Math.random() - 0.5) * 400, 
+                y: window.innerHeight / 2 + (Math.random() - 0.5) * 400,
+                s: 5 + Math.random() * 8, 
+                v: -5 + Math.random() * 10, 
+                vx: (Math.random() - 0.5) * 10, 
+                c: `hsl(${Math.random() * 60 + 40}, 100%, 60%)`, 
+                life: 1.0
+            });
+        }
+        if(!game.active) requestAnimationFrame(renderShopConfetti);
+    }
+
+    function renderShop() {
+        const container = document.getElementById('shop-grid-container');
+        container.innerHTML = '';
+        document.getElementById('shop-balance-val').innerText = Math.floor(gameSave.credits);
+
+        if (shopTab === 'upgrades') {
+            Object.keys(SHOP_ITEMS).forEach(key => {
+                const item = SHOP_ITEMS[key];
+                const tier = gameSave.upgrades[key];
+                const cost = calculateCost(key);
+                const isMax = tier >= item.max;
+                const canAfford = !isMax && gameSave.credits >= cost;
+
+                let pipsHTML = '';
+                for(let i = 0; i < item.max; i++) {
+                    pipsHTML += `<div class="tier-pip ${i < tier ? (isMax ? 'maxed' : 'filled') : ''}"></div>`;
+                }
+
+                const card = document.createElement('div');
+                card.className = 'shop-card';
+                card.innerHTML = `
+                    <h3 class="shop-item-title">${item.name}</h3>
+                    <div class="shop-tier-box">${pipsHTML}</div>
+                    <p class="shop-item-desc">${item.desc}</p>
+                    <button class="shop-buy-btn" onclick="buyItem('${key}')" ${(!canAfford || isMax) ? 'disabled' : ''}>
+                        <span>${isMax ? 'MAXED' : 'UPGRADE'}</span>
+                        <span style="color: ${isMax ? '#666' : 'var(--jim-gold)'}; font-weight: bold;">${isMax ? '---' : cost + ' CR'}</span>
+                    </button>
+                `;
+                container.appendChild(card);
+            });
+        } else {
+            Object.keys(SKINS).forEach(key => {
+                const item = SKINS[key];
+                const unl = gameSave.skins.unlocked.includes(key);
+                const eq = gameSave.skins.equipped === key;
+                const can = unl || gameSave.credits >= item.p;
+                
+                let btnT = eq ? 'EQUIPPED' : (unl ? 'EQUIP' : 'ACQUIRE');
+                let costT = eq || unl ? '---' : item.p + ' CR';
+
+                const card = document.createElement('div');
+                card.className = 'shop-card';
+                card.innerHTML = `
+                    <h3 class="shop-item-title">${item.n}</h3>
+                    <div class="skin-preview">
+                        <div class="skin-box" style="background:${item.c}; border: 2px solid ${key==='void'?'white':'transparent'}">
+                            <div style="position:absolute; width:46px; height:16px; background:#222; top:-5px; left:-3px; border-radius:4px;"></div>
+                            <div style="position:absolute; width:8px; height:8px; background:${item.a}; top:0px; left:8px;"></div>
+                            <div style="position:absolute; width:8px; height:8px; background:${item.a}; top:0px; left:20px;"></div>
+                        </div>
+                    </div>
+                    <button class="shop-buy-btn" onclick="buyItem('${key}')" ${eq || (!unl && !can) ? 'disabled' : ''}>
+                        <span>${btnT}</span>
+                        <span style="color: var(--jim-gold); font-weight: bold;">${costT}</span>
+                    </button>
+                `;
+                container.appendChild(card);
+            });
+        }
+    }
+
+    let isMidRunPause = false;
+    let isPaused = false;
+    
+    function togglePause() {
+        if(!game.active && !isPaused) return; 
+        isPaused = !isPaused;
+        if(isPaused) {
+            game.active = false;
+            showScreen('pause-screen');
+        } else {
+            hideScreen('pause-screen');
+            game.active = true;
+            cancelAnimationFrame(game.raf);
+            game.raf = requestAnimationFrame(update);
+            player.vy = 0; player.onG = true; game.platforms.push({x: player.x - 175, y: player.y + 50, w: 400, h: 40, color: '#2ecc71', isCP: true});
+         
+        }
+    }
+
+    function abortMission() {
+        game.energy = 0; 
+        isPaused = false;
+        hideScreen('pause-screen');
+        game.active = true;
+        cancelAnimationFrame(game.raf);
+        game.raf = requestAnimationFrame(update);
+    }
+
+    function openShop(midRun = false) {
+        if(midRun) { hideScreen('pause-screen'); }
+        isMidRunPause = midRun; 
+        game.active = false; 
+        renderShop();
+        showScreen('shop-screen');
+        hideScreen('start-menu');
+    }
+
+    function closeShop() {
+        hideScreen('shop-screen');
+        if (isMidRunPause) { 
+            showScreen('pause-screen'); 
+        } else { 
+            showScreen('start-menu'); 
+        }
+    }
+
+    /* =========================================================================
+       MODULE 5: CORE GAME ENGINE & LOGIC
+       ========================================================================= */
+    const canvas = document.getElementById('stage');
+    const ctx = canvas.getContext('2d', { alpha: false }); 
+    
+    function resizeCanvas() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    }
+    
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    let game = {
+        active: false, 
+        quizActive: false,
+        energy: 1000, 
+        maxEnergy: 1000, 
+        score: 0, 
+        camX: 0, 
+        camY: -300, 
+        keys: {}, 
+        platforms: [], 
+        lastCPHeight: 0, 
+        voidLevel: 500, 
+        hellMode: false,
+        confetti: [], 
+        floaters: [], 
+        particles: [], 
+        bgStars: [], 
+        raf: null
+    };
+
+    const player = {
+        x: 2500, 
+        y: 0, 
+        vx: 0, 
+        vy: 0, 
+        w: 50, 
+        h: 50,
+        facing: 1, 
+        walk: 0, 
+        jumps: 0, 
+        maxJumps: 2, 
+        onG: false,
+        lastSafeX: 2500, 
+        lastSafeY: 0
+    };
+
+    function spawnFloater(text, color, px, py) {
+        game.floaters.push({ text: text, c: color, x: px, y: py, life: 1.0, vy: -2 });
+    }
+
+    function spawnParticles(px, py, count, color, isFire=false) {
+        for(let i=0; i<count; i++) {
+            game.particles.push({
+                x: px, 
+                y: py,
+                vx: (Math.random()-0.5)*10, 
+                vy: (Math.random()-0.5)*10 + (isFire?-5:0),
+                s: Math.random()*8 + 2, 
+                c: color, 
+                life: 1.0, 
+                decay: isFire ? 0.05 : 0.02
+            });
+        }
+    }
+
+    function generateEnvironment() {
+        game.bgStars = [];
+        for(let i=0; i<200; i++) {
+            game.bgStars.push({
+                x: Math.random() * canvas.width * 2 - canvas.width/2,
+                y: -12000 + Math.random() * 8000, 
+                s: Math.random() * 3,
+                a: Math.random()
+            });
+        }
+    }
+
+    function generateLevel() {
+        // Shared Seed: If online, everyone gets Seed 123. If alone, random.
+        let seed = Object.keys(otherPlayers).length > 0 ? 123 : Math.random();
+        let rnd = () => { seed = (seed * 16807) % 2147483647; return seed / 2147483647; };
+        
+        game.platforms = [];
+        const magnetBonus = SHOP_ITEMS.magnet.getEffect(gameSave.upgrades.magnet);
+        const ozoneBonus = SHOP_ITEMS.ozone.getEffect(gameSave.upgrades.ozone);
+        const albedoBonus = SHOP_ITEMS.albedo.getEffect(gameSave.upgrades.albedo);
+
+        game.platforms.push({x: 2350, y: 150, w: 300 + magnetBonus, h: 50, color: '#2ecc71'});
+        
+        let cy = 0, lastX = 2500; 
+        for(let i=0; i < 2000; i++) {
+            let alt = Math.max(0, Math.floor(-cy / 10)); 
+            let isHell = alt > (9000 + albedoBonus);
+            let isFinal = alt >= 10000;
+            let isCP = alt > 0 && Math.floor(alt / 500) > Math.floor(Math.max(0, Math.floor(-game.platforms[game.platforms.length-1]?.y || 0) / 10) / 500);         
+            
+            // USE rnd() INSTEAD OF Math.random() EVERYWHERE
+            let pW = isFinal ? 400 : (isHell ? (45 + rnd() * 10) : (80 + rnd() * 30));
+            pW += magnetBonus; 
+            if(isCP) pW += ozoneBonus;
+
+            let verticalGap = (isHell) ? 220 : (150 + rnd() * 80);
+            let drift = isHell ? 350 : 600;
+            let rx = isFinal ? 2300 : lastX + (rnd() * (drift * 2) - drift);
+            
+            if (rx < 1100) rx = 1300; 
+            if (rx > 3900) rx = 3700;
+            
+            game.platforms.push({ 
+             x: rx, y: cy, w: pW, h: 32, 
+             color: isFinal ? '#FFD700' : (isCP ? '#00d2ff' : (isHell ? '#ff1a1a' : '#ffffff')),
+             isHell: isHell, isFinal: isFinal, isCP: isCP
+            });
+
+            if(isFinal) break; 
+            lastX = rx; 
+            cy -= verticalGap; 
+        }
+    }
+
+    function beginGame() {
+    // 1. FORCE FULLSCREEN & LANDSCAPE
+    const docElm = document.documentElement;
+    if (docElm.requestFullscreen) {
+        docElm.requestFullscreen();
+    } else if (docElm.webkitRequestFullscreen) {
+        docElm.webkitRequestFullscreen(); // Safari/iOS
+    } else if (docElm.msRequestFullscreen) {
+        docElm.msRequestFullscreen();
+    }
+
+    // Attempt to lock to landscape to prevent UI cramping
+    if (screen.orientation && screen.orientation.lock) {
+        screen.orientation.lock("landscape").catch(() => {
+            console.log("Orientation lock not supported on this device.");
+        });
+    }
+
+    // 2. UI RESET
+    hideScreen('start-menu');
+    game.hellMode = false; 
+    document.getElementById('app').style.background = 'var(--jim-sky)';
+    document.getElementById('vignette').style.opacity = '0';
+    document.getElementById('energy-fill').classList.remove('energy-fill-warning');
+
+    // 3. STATS & UPGRADE CALCULATIONS
+    let b1 = SHOP_ITEMS.battery.getEffect(gameSave.upgrades.battery);
+    let b2 = SHOP_ITEMS.battery2.getEffect(gameSave.upgrades.battery2);
+    let fus = SHOP_ITEMS.fusion.getEffect(gameSave.upgrades.fusion);
+    
+    game.maxEnergy = (b1 + b2) * fus;
+    game.energy = game.maxEnergy;
+    document.getElementById('fuel-max-num').innerText = Math.floor(game.maxEnergy);
+    
+    // 4. POSITION & CAMERA RESET
+    game.camY = -300; 
+    game.voidLevel = 500; 
+    player.vx = 0; 
+    player.vy = 0;
+    
+    game.lastCPHeight = 0; 
+    player.lastSafeX = 2500; 
+    player.lastSafeY = 0; 
+    game.score = 0;
+
+    // 5. WORLD & PARTICLE GENERATION
+    game.floaters = []; 
+    game.particles = []; 
+    game.confetti = [];
+    
+    generateEnvironment();
+    generateLevel();
+    
+    // 6. START ENGINE
+    game.active = true; 
+    isPaused = false;
+    
+    updateHUDValues();
+    cancelAnimationFrame(game.raf); 
+    game.raf = requestAnimationFrame(update); 
+}
+
+    function update() {
+        if(!game.active || game.quizActive) return;
+
+        // FETCH ALL ACTIVE UPGRADE MODIFIERS
+        const solarMod = SHOP_ITEMS.solar.getEffect(gameSave.upgrades.solar);
+        const thrustMod = SHOP_ITEMS.thrusters.getEffect(gameSave.upgrades.thrusters);
+        const scrubMod = SHOP_ITEMS.scrubbers.getEffect(gameSave.upgrades.scrubbers);
+        const radarScale = SHOP_ITEMS.radar.getEffect(gameSave.upgrades.radar); 
+        const recyMod = SHOP_ITEMS.recycler.getEffect(gameSave.upgrades.recycler);
+        const hazMod = SHOP_ITEMS.hazard.getEffect(gameSave.upgrades.hazard);
+        const hovMod = SHOP_ITEMS.hover.getEffect(gameSave.upgrades.hover);
+        const speedLimit = SHOP_ITEMS.speed.getEffect(gameSave.upgrades.speed);
+        const coolMod = SHOP_ITEMS.cooling.getEffect(gameSave.upgrades.cooling);
+        const windMod = SHOP_ITEMS.wind.getEffect(gameSave.upgrades.wind);
+        const geoMod = SHOP_ITEMS.geo.getEffect(gameSave.upgrades.geo);
+        const greenMod = SHOP_ITEMS.green.getEffect(gameSave.upgrades.green);
+        const smartMod = SHOP_ITEMS.smart.getEffect(gameSave.upgrades.smart);
+        const albedoMod = SHOP_ITEMS.albedo.getEffect(gameSave.upgrades.albedo);
+        const carbonMod = SHOP_ITEMS.carbon.getEffect(gameSave.upgrades.carbon);
+        const kelpMod = SHOP_ITEMS.kelp.getEffect(gameSave.upgrades.kelp);
+        const tidalMod = SHOP_ITEMS.tidal.getEffect(gameSave.upgrades.tidal);
+        const gliderMod = SHOP_ITEMS.glider.getEffect(gameSave.upgrades.glider);
+        const shieldMod = SHOP_ITEMS.shield.getEffect(gameSave.upgrades.shield);
+        const aeroMod = SHOP_ITEMS.aero.getEffect(gameSave.upgrades.aero);
+        const hydroMod = SHOP_ITEMS.hydro.getEffect(gameSave.upgrades.hydro);
+
+        player.maxJumps = 2 + kelpMod;
+
+        // HELL MODE CHECK (WITH ALBEDO UPGRADE)
+        if (game.score >= (9000 + albedoMod) && !game.hellMode) {
+            game.hellMode = true;
+            document.getElementById('app').style.background = 'var(--jim-hell)'; 
+            document.getElementById('vignette').style.opacity = Math.max(0, 1 - shieldMod);
+            SoundEngine.error(); 
+        }
+
+        // INPUT HANDLING
+        // INPUT HANDLING
+        window.onkeydown = e => { 
+            // CHAT TRIGGER: Only resets keys AFTER the prompt is done
+            if (e.code === 'KeyT') { 
+                let m = prompt("CHAT:"); 
+                if(m) ws.send(JSON.stringify({type:'chat', id:currentUser, text:m, x:player.x, y:player.y})); 
+                game.keys = {}; // <--- MOVED INSIDE THE IF BLOCK
+                return; // Stop here so 'T' doesn't count as a movement key
+            }
+        
+            // NORMAL MOVEMENT
+            if(["ArrowUp","Space","ArrowLeft","ArrowRight","KeyW","KeyA","KeyS","KeyD","Escape"].includes(e.code)) e.preventDefault(); 
+            game.keys[e.code] = true; 
+        };
+        
+        window.onkeyup = e => { 
+            game.keys[e.code] = false; 
+            if(e.code === "Escape") togglePause(); 
+        };
+
+        const left = game.keys['ArrowLeft'] || game.keys['KeyA'];
+        const right = game.keys['ArrowRight'] || game.keys['KeyD'];
+        let hellDrainMult = game.hellMode ? hazMod : 1.0; 
+
+        // MOVEMENT & PASSIVES
+        if(left || right) {
+            game.energy -= (0.38 * solarMod * hellDrainMult); 
+            let accel = (isMobile ? 0.8 : 1.5) + aeroMod;
+            player.vx += left ? -accel : accel;
+            player.facing = left ? -1 : 1; 
+            player.walk += 0.35;
+            
+            // SCRUBBER UPGRADE + GREEN WEB MODIFIER
+            if(Math.random() < 0.05 && scrubMod > 0) {
+                let c = scrubMod * greenMod;
+                addCredits(c);
+                spawnFloater(`+${c.toFixed(1)} CR`, 'var(--jim-gold)', player.x, player.y - 30);
+            }
+        } else { 
+            player.vx = player.onG ? player.vx * 0.8 : player.vx * 0.95; 
+            player.walk = 0; 
+        }
+
+        // PASSIVE GEO REGEN
+        if(geoMod > 0 && Math.random() < 0.1) {
+            game.energy = Math.min(game.maxEnergy, game.energy + geoMod);
+        }
+        
+        // WIND TURBINE FALLING REGEN
+        if(player.vy > 12 && windMod > 0 && Math.random() < 0.15) {
+            game.energy = Math.min(game.maxEnergy, game.energy + windMod);
+            spawnFloater(`+WIND`, '#00ffcc', player.x, player.y);
+            spawnParticles(player.x+25, player.y, 1, '#00ffcc');
+        }
+        
+        // TIDAL FORCE HORIZONTAL SPEED REGEN
+        if (!player.onG && tidalMod > 0 && Math.abs(player.vx) > 6 && Math.random() < 0.1) {
+            let t = Math.abs(player.vx) * tidalMod * 0.05;
+            game.energy = Math.min(game.maxEnergy, game.energy + t);
+            spawnFloater(`+TIDAL`, 'var(--jim-blue)', player.x, player.y + 20);
+        }
+
+        // SPEED LIMIT CLAMPING WITH GLIDER BOOST
+        let lim = speedLimit + (player.onG ? 0 : gliderMod);
+        player.vx = Math.min(Math.max(player.vx, -lim), lim);
+        player.x += player.vx; 
+        
+        // HOVER TECH GRAVITY MODIFIER
+        player.vy += (0.8 - hovMod); 
+        player.y += player.vy;
+        player.onG = false;
+
+        // PLATFORM COLLISION
+        game.platforms.forEach(p => {
+            if(player.vy > 0 && player.x + 40 > p.x && player.x < p.x + p.w && player.y + player.h > p.y && player.y + player.h < p.y + p.h + 20) {
+                
+                // RECYCLER ENERGY GAIN ON LANDING
+                if(!player.onG) {
+                    SoundEngine.land();
+                    if(recyMod > 0) {
+                        game.energy = Math.min(game.maxEnergy, game.energy + recyMod);
+                        spawnFloater(`+${recyMod} EN`, 'var(--jim-green)', player.x, player.y);
+                    }
+                    spawnParticles(player.x+25, player.y+50, 5, '#ffffff');
+                }
+
+                player.y = p.y - player.h; 
+                player.vy = 0; 
+                player.onG = true; 
+                player.jumps = 0;
+                
+                if(p.isFinal) { 
+                    game.active = false; 
+                    doConfetti(); 
+                    SoundEngine.checkpoint(); 
+                    SoundEngine.coin(); 
+                    checkAchievements(); 
+                    showScreen('win-screen');
+                }
+
+                // CHECKPOINT LOGIC
+                // CHECKPOINT LOGIC (FIXED: Only updates if higher)
+                let cur = Math.max(0, Math.floor(-player.y / 10));
+                if (p.isCP && cur > game.lastCPHeight) {
+                    p.isCP = false; // Deactivates this platform's checkpoint status after triggering
+                    game.lastCPHeight = Math.floor(cur / 500) * 500;
+                    player.lastSafeX = p.x + p.w / 2; 
+                    player.lastSafeY = p.y;
+                    game.voidLevel = p.y + 1000; // Resets the death floor relative to your new checkpoint
+                    
+                    
+                    triggerCPToast(game.lastCPHeight);
+                    SoundEngine.checkpoint();
+                    
+                    // CARBON TAX REWARD
+                    if(carbonMod > 0) { 
+                        addCredits(carbonMod); 
+                        showCreditToast(`+${carbonMod} CARBON TAX!`); 
+                    }
+                    
+                    // HYDRO PADS BOOST (Move this here so it only triggers on NEW checkpoints)
+                    if(hydroMod > 0) {
+                        game.energy = Math.min(game.maxEnergy, game.energy + hydroMod);
+                        spawnFloater(`+${hydroMod} HYDRO`, '#0077be', player.x, player.y - 50);
+                    }
+                }
+            }
+        });
+
+        // JUMPING LOGIC
+        const jump = game.keys['ArrowUp'] || game.keys['Space'] || game.keys['KeyW'];
+        if(jump && !game.keys.locked) {
+            let cost = 0;
+            if(player.onG) { 
+                player.vy = -18.5 - thrustMod.force; 
+                cost = Math.max(2, 20 - thrustMod.costSave);
+                player.jumps = 1;
+                SoundEngine.jump();
+                spawnParticles(player.x+25, player.y+50, 10, '#ffffff');
+                gameSave.jumpsMade++;
+            }
+            else if(player.jumps < player.maxJumps) { 
+                player.vy = -16 - (thrustMod.force * 0.8); 
+                cost = Math.max(2, 28 - thrustMod.costSave - coolMod); 
+                player.jumps++;
+                SoundEngine.doubleJump();
+                spawnParticles(player.x+25, player.y+50, 15, '#00d2ff');
+                gameSave.jumpsMade++;
+            }
+            
+            if (cost > 0) {
+                if(smartMod > 0) cost = Math.min(cost, 28 - smartMod); 
+                game.energy -= cost;
+                game.keys.locked = true;
+            }
+        }
+        
+        if(!jump) {
+            game.keys.locked = false;
+        }
+
+        // CAMERA TRACKING
+        game.camX += (player.x - canvas.width/2 - game.camX) * 0.12;
+        game.camY += (player.y - canvas.height/2 - game.camY) * 0.12;
+
+        // VOID DEATH CHECK (PLATING RESTORE)
+        if(player.y > game.voidLevel) { 
+            let plateRestore = SHOP_ITEMS.plating.getEffect(gameSave.upgrades.plating);
+            if(plateRestore > 0) { 
+                game.energy = plateRestore; 
+                showCreditToast("VOID PLATING TRIGGERED!"); 
+                SoundEngine.checkpoint();
+            } else { 
+                game.energy = 0; 
+            }
+            player.x = player.lastSafeX - 25; 
+            player.y = player.lastSafeY - 60; 
+            player.vx = 0; 
+            player.vy = 0;
+            spawnParticles(player.x+25, player.y, 30, '#ff0055');
+        }
+
+        // VISUAL EFFECTS LOGIC
+        if(game.hellMode && Math.random() < 0.3) {
+            spawnParticles(player.x + (Math.random()-0.5)*800, player.y + 400, 1, '#ff4b2b', true);
+        }
+
+        // GAME OVER / QUIZ TRIGGER
+        let displayPct = Math.max(0, (game.energy / game.maxEnergy) * 100);
+        const bar = document.getElementById('energy-fill');
+        bar.style.width = displayPct + '%';
+        if(displayPct < 20) bar.classList.add('energy-fill-warning');
+        else bar.classList.remove('energy-fill-warning');
+
+        if(game.energy <= 0) { 
+            triggerQuiz(); 
+            return; 
+        }
+
+     
+        // Clean up disconnected players (vanish after 2 seconds of no data)
+        Object.keys(otherPlayers).forEach(id => {
+            if (Date.now() - otherPlayers[id].lastSeen > 2000) delete otherPlayers[id];
+        });
+
+        // Blast your live coordinates to the server
+        // Blast your FULL live coordinates & animations to the server
+        // Locate this block in your update() function
+if (ws.readyState === WebSocket.OPEN && currentUser && game.active) {
+    ws.send(JSON.stringify({
+        id: currentUser, 
+        x: player.x, 
+        y: player.y, 
+        score: game.score, // <--- ADD THIS LINE
+        skin: gameSave.skins.equipped,
+        facing: player.facing,
+        walk: player.walk,
+        thrusting: (gameSave.upgrades.thrusters > 0 && !player.onG)
+    }));
+}
+        // SCORE & SAVE
+        game.score = Math.max(0, Math.floor(-player.y / 10));
+        if(game.score > gameSave.highscore) { 
+            gameSave.highscore = game.score; 
+            saveGame(); // This forces the 3-second heartbeat to send the new 3000+ score immediately
+        }
+
+        draw();
+        game.raf = requestAnimationFrame(update);
+    }
+
+    function triggerCPToast(h) {
+        if(h === 0) return;
+        const toast = document.getElementById('checkpoint-toast');
+        toast.innerText = h + "m REACHED"; 
+        toast.classList.add('show-toast');
+        if(game.hellMode) {
+            toast.style.color = "var(--jim-red)"; 
+        } else {
+            toast.style.color = "#00ffcc";
+        }
+        setTimeout(() => toast.classList.remove('show-toast'), 2000);
+        document.getElementById('zone-val').innerText = h + "m";
+    }
+
+    function showCreditToast(msg) {
+        const toast = document.getElementById('credit-toast');
+        toast.innerText = msg;
+        toast.style.left = (window.innerWidth / 2 + (Math.random() - 0.5) * 200) + 'px';
+        toast.style.top = (window.innerHeight / 2 + (Math.random() - 0.5) * 100) + 'px';
+        toast.style.opacity = 1; 
+        toast.style.transform = 'translateY(-50px)';
+        
+        setTimeout(() => { 
+            toast.style.opacity = 0; 
+            toast.style.transform = 'translateY(-100px)'; 
+        }, 1500);
+    }
+
+    function updateHUDValues() {
+        document.getElementById('hi-val').innerText = (gameSave.highscore || 0) + 'm';
+        document.getElementById('cred-val').innerText = Math.floor(gameSave.credits || 0);
+        document.getElementById('shop-balance-val').innerText = Math.floor(gameSave.credits || 0);
+    }
+
+    /* =========================================================================
+       MODULE 6: RENDERING PIPELINE
+       ========================================================================= */
+    function renderShopConfetti() {
+        if(game.active || isPaused) return;
+        ctx.clearRect(0,0, canvas.width, canvas.height);
+        let alive = false;
+        
+        game.confetti.forEach((c, i) => {
+            c.x += c.vx; 
+            c.y += c.v; 
+            c.life -= 0.015;
+            
+            if (c.life > 0 && c.y < canvas.height) {
+                alive = true; 
+                ctx.globalAlpha = Math.max(0, c.life); 
+                ctx.fillStyle = c.c; 
+                ctx.fillRect(c.x, c.y, c.s, c.s);
+            } else { 
+                game.confetti.splice(i, 1); 
+            }
+        });
+        
+        ctx.globalAlpha = 1.0;
+        if(alive) requestAnimationFrame(renderShopConfetti);
+    }
+
+    function draw() {
+        // Draw Background Base
+        ctx.fillStyle = game.hellMode ? "#2a0000" : "#87CEEB"; 
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        
+        // QUANTUM RADAR IMPLEMENTATION
+        const radarZoom = SHOP_ITEMS.radar.getEffect(gameSave.upgrades.radar);
+        
+        ctx.save();
+        ctx.translate(canvas.width / 2, canvas.height / 2);
+        ctx.scale(radarZoom, radarZoom);
+        ctx.translate(-canvas.width / 2, -canvas.height / 2);
+
+        // Draw Environment (Stars/Parallax)
+        if(game.score > 2000) {
+            ctx.fillStyle = "white";
+            game.bgStars.forEach(s => {
+                let sx = s.x - (game.camX * 0.05); 
+                let sy = s.y - (game.camY * 0.05);
+                
+                while(sx < -canvas.width) sx += canvas.width*2;
+                while(sx > canvas.width*2) sx -= canvas.width*2;
+
+                if(sy > -500 && sy < canvas.height + 500) {
+                    ctx.globalAlpha = s.a;
+                    ctx.beginPath(); 
+                    ctx.arc(sx, sy, s.s, 0, Math.PI*2); 
+                    ctx.fill();
+                }
+            });
+            ctx.globalAlpha = 1.0;
+        }
+        
+        // DRAW PLATFORMS
+        game.platforms.forEach(o => {
+            let sx = o.x - game.camX, sy = o.y - game.camY;
+            if(sy < -600 || sy > canvas.height + 600) return; 
+            
+            ctx.fillStyle = o.color; 
+            if(o.isHell) { 
+                ctx.shadowBlur = 20; 
+                ctx.shadowColor = "red"; 
+            }
+            if(o.isFinal) { 
+                ctx.shadowBlur = 50; 
+                ctx.shadowColor = "gold"; 
+            }
+            
+            ctx.beginPath(); 
+            ctx.roundRect(sx, sy, o.w, o.h, 5); 
+            ctx.fill();
+            ctx.shadowBlur = 0;
+            
+            ctx.fillStyle = "rgba(0,0,0,0.3)"; 
+            ctx.beginPath(); 
+            ctx.roundRect(sx, sy + o.h/2, o.w, o.h/2, 5); 
+            ctx.fill();
+            
+            if(o.isCP && !o.isFinal) {
+                ctx.fillStyle = "rgba(0, 255, 204, 0.2)";
+                ctx.fillRect(sx, sy - 100, o.w, 100); 
+            }
+           if (o.isCP && !o.isFinal && Math.max(0, Math.floor(-o.y / 10)) > game.lastCPHeight) { ctx.font = "24px serif"; ctx.fillText("🚩", sx + o.w/2 - 10 + Math.sin(Date.now()/200)*5, sy - 10); }   
+        });
+        
+        // DRAW PLAYER SKINS
+        const skin = SKINS[gameSave.skins.equipped] || SKINS['default'];
+
+        ctx.save();
+        ctx.translate(player.x - game.camX + player.w/2, player.y - game.camY + player.h/2);
+        ctx.scale(player.facing, 1);
+        
+        ctx.fillStyle = game.hellMode && skin.n==='Standard' ? "#1a1a1a" : skin.c; 
+        
+        if(gameSave.skins.equipped === 'void') { 
+            ctx.strokeStyle='white'; 
+            ctx.lineWidth=2; 
+        }
+        
+        ctx.beginPath(); 
+        ctx.roundRect(-25, -25, 50, 50, 12); 
+        ctx.fill(); 
+        
+        if(gameSave.skins.equipped === 'void') {
+            ctx.stroke();
+        }
+
+        ctx.fillStyle = game.hellMode && skin.n==='Standard' ? "#800" : (skin.n==='Standard'?"#FF9800":"#222"); 
+        ctx.fillRect(-28, -28, 56, 18); 
+        
+        let leg = Math.sin(player.walk) * 15;
+        ctx.fillStyle = "#111"; 
+        ctx.fillRect(-18, 18, 14, 15 + leg); 
+        ctx.fillRect(4, 18, 14, 15 - leg); 
+        
+        ctx.fillStyle = game.hellMode && skin.n==='Standard' ? "red" : skin.a; 
+        ctx.fillRect(10, -5, 8, 8); 
+        ctx.fillRect(25, -5, 8, 8); 
+        
+        if(gameSave.upgrades.thrusters > 0 && !player.onG) {
+            ctx.fillStyle = "rgba(0, 210, 255, 0.7)"; 
+            ctx.beginPath(); 
+            ctx.moveTo(-15, 25);
+            ctx.lineTo(-5, 45 + Math.random()*20); 
+            ctx.lineTo(5, 25); 
+            ctx.fill(); 
+        }
+        ctx.restore();
+
+        // DRAW PARTICLES
+        game.particles.forEach((p, i) => {
+            p.x += p.vx; 
+            p.y += p.vy; 
+            p.life -= p.decay;
+            
+            if(p.life > 0) {
+                ctx.globalAlpha = Math.max(0, p.life);
+                ctx.fillStyle = p.c;
+                ctx.beginPath(); 
+                ctx.arc(p.x - game.camX, p.y - game.camY, p.s, 0, Math.PI*2); 
+                ctx.fill();
+            } else { 
+                game.particles.splice(i, 1); 
+            }
+        });
+        ctx.globalAlpha = 1.0;
+
+        // DRAW FLOATING TEXT
+        game.floaters.forEach((f, i) => {
+            f.y += f.vy; 
+            f.life -= 0.02;
+            
+            if(f.life > 0) {
+                ctx.globalAlpha = Math.max(0, f.life);
+                ctx.fillStyle = f.c;
+                ctx.font = "bold 22px Bungee";
+                ctx.fillText(f.text, f.x - game.camX, f.y - game.camY);
+            } else { 
+                game.floaters.splice(i, 1); 
+            }
+        });
+        ctx.globalAlpha = 1.0;
+
+        // DRAW CONFETTI
+        game.confetti.forEach((c, i) => {
+            c.y += c.v; 
+            c.x += c.vx; 
+            ctx.fillStyle = c.c; 
+            ctx.fillRect(c.x, c.y, c.s, c.s);
+            if(c.y > canvas.height) {
+                game.confetti.splice(i, 1);
+            }
+        });
+
+        /// DRAW MULTIPLAYER GHOSTS (World Space)
+        Object.values(otherPlayers).forEach(p => {
+            if(Math.abs(p.x - player.x) > 1500 || Math.abs(p.y - player.y) > 1000) return; 
+
+            ctx.save();
+            ctx.translate(p.x - game.camX + 25, p.y - game.camY + 25);
+            ctx.scale(p.facing || 1, 1);
+            
+            let ghostSkin = SKINS[p.skin] || SKINS['default'];
+            ctx.globalAlpha = 0.6;
+
+            // Ghost Body
+            ctx.fillStyle = game.hellMode && ghostSkin.n === 'Standard' ? "#1a1a1a" : ghostSkin.c;
+            if(p.skin === 'void') { ctx.strokeStyle='white'; ctx.lineWidth=2; }
+            ctx.beginPath();
+            ctx.roundRect(-25, -25, 50, 50, 12);
+            ctx.fill();
+            if(p.skin === 'void') ctx.stroke();
+
+            // Ghost Visor
+            ctx.fillStyle = game.hellMode && ghostSkin.n === 'Standard' ? "#800" : (ghostSkin.n === 'Standard' ? "#FF9800" : "#222");
+            ctx.fillRect(-28, -28, 56, 18); 
+
+            // Ghost Legs (Animated)
+            let leg = Math.sin(p.walk || 0) * 15;
+            ctx.fillStyle = "#111";
+            ctx.fillRect(-18, 18, 14, 15 + leg);
+            ctx.fillRect(4, 18, 14, 15 - leg);
+
+            // Ghost Eyes
+            ctx.fillStyle = game.hellMode && ghostSkin.n === 'Standard' ? "red" : ghostSkin.a;
+            ctx.fillRect(10, -5, 8, 8);
+            ctx.fillRect(25, -5, 8, 8);
+
+            // Thruster Flames
+            if(p.thrusting) {
+                ctx.fillStyle = "rgba(0, 210, 255, 0.7)";
+                ctx.beginPath();
+                ctx.moveTo(-15, 25);
+                ctx.lineTo(-5, 45 + Math.random()*20);
+                ctx.lineTo(5, 25);
+                ctx.fill();
+            }
+            ctx.restore();
+
+            // Floating Name Tag
+            ctx.save();
+            ctx.translate(p.x - game.camX + 25, p.y - game.camY + 25);
+            ctx.fillStyle = "white";
+            ctx.font = "bold 14px Bungee";
+            ctx.textAlign = "center";
+            ctx.shadowBlur = 5;
+            ctx.shadowColor = "black";
+            ctx.fillText(p.id.toUpperCase(), 0, -35); 
+            ctx.restore();
+        });
+
+        ctx.restore(); // Closes the Radar/Camera transform
+
+        // DRAW MINI LEADERBOARD (Screen Space - Outside Radar Zoom)
+        ctx.save();
+        ctx.fillStyle = "rgba(0,0,0,0.6)"; 
+        ctx.beginPath();
+        ctx.roundRect(canvas.width - 220, 100, 200, 140, 15); ctx.fill();
+        
+        ctx.fillStyle = "var(--jim-gold)"; ctx.font = "bold 12px Bungee";
+        ctx.textAlign = "left";
+        ctx.fillText("LIVE TOWER RANK", canvas.width - 205, 125);
+
+        let leaderboard = Object.values(otherPlayers)
+            .map(p => ({id: p.id, score: p.score || 0}))
+            .concat([{id: currentUser || "YOU", score: game.score}]);
+            
+        leaderboard.sort((a,b) => b.score - a.score).slice(0, 5).forEach((p, i) => {
+            ctx.fillStyle = (p.id === currentUser) ? "var(--jim-blue)" : "white";
+            ctx.font = "11px Inter";
+            ctx.fillText(`${i+1}. ${p.id.toUpperCase()}`, canvas.width - 205, 150 + i*18);
+            ctx.textAlign = "right";
+            ctx.fillText(`${p.score}m`, canvas.width - 35, 150 + i*18);
+            ctx.textAlign = "left";
+        });
+        ctx.restore();
+
+        // UPDATE HTML HUD
+        document.getElementById('alt-val').innerText = game.score + 'm';
+        document.getElementById('fuel-num').innerText = Math.max(0, Math.floor(game.energy));
+    }
+
+    /* =========================================================================
+       MODULE 7: SYSTEM FAILURE QUIZ
+       ========================================================================= */
+    function triggerQuiz() { 
+        SoundEngine.error();
+        
+        const bypassChance = SHOP_ITEMS.bypass.getEffect(gameSave.upgrades.bypass);
+        if (Math.random() < bypassChance) {
+            showCreditToast("AUTO-BYPASS TRIGGERED!"); 
+            game.energy = game.maxEnergy; 
+            SoundEngine.checkpoint();
+            return; 
+        }
+        
+        game.quizActive = true; 
+        showScreen('quiz-overlay'); 
+        displayQuestion(); 
+    }
+
+    function displayQuestion() {
+        const q = Q_BANK[Math.floor(Math.random() * Q_BANK.length)];
+        let answers = q.a.map((text, index) => ({ text, originalIndex: index }));
+        
+        answers.sort(() => Math.random() - 0.5);
+        
+        const multEffect = SHOP_ITEMS.multiplier.getEffect(gameSave.upgrades.multiplier);
+        
+        // Reward fixed exactly to 100 as base multiplier
+        const rewardAmount = Math.floor(100 * multEffect); 
+        
+        document.getElementById('quiz-reward-amt').innerText = rewardAmount;
+        document.getElementById('q-text').innerText = q.q;
+        
+        const box = document.getElementById('opt-box'); 
+        box.innerHTML = '';
+        
+        answers.forEach((ans) => {
+            const b = document.createElement('button'); 
+            b.className = 'opt glass-ui'; 
+            b.innerText = ans.text;
+            
+            b.onclick = () => {
+                Array.from(box.children).forEach(btn => btn.disabled = true);
+                
+                if(ans.originalIndex === q.c) {
+                    b.classList.add('correct-flash'); 
+                    addCredits(rewardAmount); 
+                    gameSave.quizzesPassed++;
+                    showCreditToast("+" + rewardAmount + " CR");
+                    SoundEngine.coin();
+                    
+                    setTimeout(() => { 
+
+                        
+                        player.vx = 0; 
+                        player.vy = 0;
+                     
+                        game.energy = game.maxEnergy; 
+                        game.quizActive = false; 
+                        hideScreen('quiz-overlay'); 
+                        cancelAnimationFrame(game.raf); 
+                        game.raf = requestAnimationFrame(update); 
+                    }, 1000);
+                } else {
+                    b.classList.add('wrong-flash');
+                    SoundEngine.error();
+                    Array.from(box.children).forEach(btn => { 
+                        if (btn.innerText === q.a[q.c]) {
+                            btn.classList.add('correct-flash'); 
+                        }
+                    });
+                    setTimeout(displayQuestion, 2000);
+                }
+            };
+            box.appendChild(b);
+        });
+    }
+
+                 const j = document.getElementById('joy'), mj = document.getElementById('m-jump');
+                
+                j.addEventListener('touchmove', (e) => {
+                    let r = j.getBoundingClientRect();
+                    let x = (e.touches[0].clientX - (r.left + r.width/2)) / (r.width/2);
+                    
+                    // SENSITIVITY FIX: 0.1 deadzone makes it feel much faster
+                    game.keys['KeyA'] = x < -0.1; 
+                    game.keys['KeyD'] = x > 0.1;
+                    
+                    // VISUAL FEEDBACK: The button now slides under your thumb
+                    let visualX = Math.max(-1, Math.min(1, x)) * 30;
+                    j.style.transform = `translateX(${visualX}px)`;
+                }, {passive: false});
+                
+                j.addEventListener('touchend', () => { 
+                    game.keys['KeyA'] = false; 
+                    game.keys['KeyD'] = false; 
+                    j.style.transform = `translateX(0px)`; // Snaps back to center
+                });
+                
+                mj.addEventListener('touchstart', (e) => { 
+                    e.preventDefault(); 
+                    game.keys['Space'] = true; 
+                }, {passive: false});
+                
+                mj.addEventListener('touchend', () => { 
+                    game.keys['Space'] = false; 
+                    game.keys.locked = false; 
+                });
+    // INIT
+    updateHUDValues();
+
+</script>
+</body>
+</html>
