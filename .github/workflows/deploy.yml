@@ -1,0 +1,26 @@
+name: Deploy Game
+on:
+  push:
+    branches: [main] # If your main branch is called 'master', change this to master
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout 🛎️
+        uses: actions/checkout@v4
+
+      - name: Inject Secrets 💉
+        run: |
+          # This replaces the placeholder text in your HTML with your actual Secrets
+          sed -i "s|PLACEHOLDER_SCRIPT_URL|${{ secrets.GIMKIT_SCRIPT_URL }}|g" index.html
+          sed -i "s|PLACEHOLDER_MASTER_SECRET|${{ secrets.GIMKIT_MASTER_SECRET }}|g" index.html
+
+      - name: Deploy to GitHub Pages 🚀
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: . # The folder your index.html is in
+          branch: gh-pages # The robot will create this branch for you
