@@ -722,8 +722,10 @@
        MODULE 2: NETWORK & CLOUD SYNC (Google Apps Script Backend)
        ========================================================================= */
     const SAVE_KEY = 'japa_jump_v7_ultimate_save';
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwfKKcOM3imJJ3_NsJ0489Bt0q0fkjC2kCfMLUSofJ-4PCorocxmydBeVKYa515MA2WXw/exec'; 
-    
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxBo-bSKO-Bq71Ig-AtgiPlQdXgF5EqsB257DJpjDOsQjTydG4r16sWIhjJUkP5tGorsQ/exec'; 
+     const MASTER_SECRET = "dstanyftewyyrmfywnwdagfxydsmu"; // <--- ADDED SECRET
+
+ 
     let currentUser = null;
         let otherPlayers = {};
     // REPLACE THE URL BELOW WITH YOUR RENDER URL (Make sure it starts with wss://)
@@ -739,11 +741,17 @@
         }
 
         // 2. Update Ghost Data (Position, Skin, and Score)
-        if (p.id && p.id !== currentUser) {
-            // Merges new telemetry (p) with existing data so the score isn't lost
-            otherPlayers[p.id] = { ...otherPlayers[p.id], ...p }; 
-            otherPlayers[p.id].lastSeen = Date.now();
-        }
+        // 2. Update Ghost Data (Position, Skin, and Score)
+      if (p.id && p.id !== currentUser) {
+          // If the packet has a score, update the local leaderboard rank
+          if (p.score !== undefined) {
+              if (!otherPlayers[p.id]) otherPlayers[p.id] = {};
+              otherPlayers[p.id].score = p.score;
+          }
+          // Update live movement data
+          otherPlayers[p.id] = { ...otherPlayers[p.id], ...p }; 
+          otherPlayers[p.id].lastSeen = Date.now();
+      }
     };
     let scoreSyncInterval = null;
 
@@ -754,8 +762,14 @@
 
     async function updateLeaderboard() {
         try {
-            const res = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'getLeaderboard' }) });
-            const list = await res.json();
+                const res = await fetch(SCRIPT_URL, { 
+                    method: 'POST', 
+                    body: JSON.stringify({ 
+                        secret: MASTER_SECRET, // <--- ADDED HERE
+                        action: 'getLeaderboard' 
+                    }) 
+                });     
+             const list = await res.json();
             const container = document.getElementById('leaderboard-list');
             if (!list || list.length === 0) {
                 container.innerHTML = '<div style="text-align:center; color:#ccc;">NO DATA FOUND IN SATELLITE.</div>'; 
@@ -799,6 +813,7 @@
             const response = await fetch(SCRIPT_URL, { 
                 method: 'POST', 
                 body: JSON.stringify({ 
+                    secret: MASTER_SECRET, // <--- ADDED HERE
                     action, 
                     username: user, 
                     password: pass 
@@ -863,6 +878,7 @@
             await fetch(SCRIPT_URL, { 
                 method: 'POST', 
                 body: JSON.stringify({ 
+                    secret: MASTER_SECRET, // <--- ADDED HERE
                     action: 'syncAll', 
                     username: currentUser, 
                     score: gameSave.highscore, // Use highscore, not current score
