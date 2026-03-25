@@ -47,7 +47,15 @@
                     z-index: 10000; 
                     pointer-events: none; 
                 }
-            
+                #main-hud .hud-card[style*="position:fixed; bottom:20px;"] { 
+                    position: absolute !important; 
+                    top: 100px !important; 
+                    bottom: auto !important; 
+                    transform: scale(0.8);
+                }
+                #main-hud .hud-card[style*="left:20px;"] { left: 5% !important; }
+                #main-hud .hud-card[style*="right:20px;"] { right: 5% !important; }
+             
                 .m-btn { 
                     width: 90px; 
                     height: 90px; 
