@@ -627,6 +627,13 @@
     </div>
 
     <div class="hud" id="main-hud">
+
+               <div class="hud-card glass-ui">
+           <div class="label">FOV</div>
+           <select id="zoom-sel" class="glass-ui" style="background:none; border:none; color:white; font-family:'Bungee'; font-size:18px; outline:none; cursor:pointer;" onchange="game.activeZoom = parseInt(this.value)">
+               <option value="0">100%</option>
+           </select>
+       </div>
         <div class="hud-card glass-ui"><div class="label">Altitude</div><div id="alt-val" class="value">0m</div></div>
         <div class="hud-card glass-ui"><div class="label">Highscore</div><div id="hi-val" class="value">0m</div></div>
         <div class="hud-card glass-ui"><div class="label">Checkpoint</div><div id="zone-val" class="value">Start</div></div>
@@ -1414,6 +1421,7 @@
                 container.appendChild(card);
             });
         }
+     refreshZoomList();
     }
 
     let isMidRunPause = false;
@@ -1586,6 +1594,7 @@
     }
 
     function beginGame() {
+     game.activeZoom = gameSave.upgrades.radar; refreshZoomList();
     // 1. FORCE FULLSCREEN & LANDSCAPE
     const docElm = document.documentElement;
     if (docElm.requestFullscreen) {
@@ -1991,8 +2000,7 @@ if (ws.readyState === WebSocket.OPEN && currentUser && game.active) {
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         
         // QUANTUM RADAR IMPLEMENTATION
-        const radarZoom = SHOP_ITEMS.radar.getEffect(gameSave.upgrades.radar);
-        
+        const radarZoom = SHOP_ITEMS.radar.getEffect(game.activeZoom || 0);        
         ctx.save();
         ctx.translate(canvas.width / 2, canvas.height / 2);
         ctx.scale(radarZoom, radarZoom);
@@ -2398,6 +2406,17 @@ if (ws.readyState === WebSocket.OPEN && currentUser && game.active) {
                  mj.style.transform = "scale(1)";
                  mj.style.filter = "brightness(1)";
              });
+
+
+                       function refreshZoomList() {
+               const sel = document.getElementById('zoom-sel');
+               const max = gameSave.upgrades.radar || 0;
+               sel.innerHTML = '';
+               for(let i = 0; i <= max; i++) {
+                   const pct = Math.round(Math.pow(0.6, i) * 100);
+                   sel.innerHTML += `<option value="${i}" ${i===(game.activeZoom||0)?'selected':''}>${pct}%</option>`;
+               }
+           }
     // INIT
     updateHUDValues();
 
