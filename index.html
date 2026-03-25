@@ -1573,7 +1573,7 @@
             let isFinal = alt >= 10000;
             let currentMile = Math.floor(alt / 2000);
             let isJackpot = false;
-            if (currentMile > lastJackpotMile && alt > 0) {
+               if (currentMile > lastJackpotMile) {
                 isJackpot = true;
                 lastJackpotMile = currentMile;
             }
@@ -1592,10 +1592,14 @@
             if (rx < 1100) rx = 1300; 
             if (rx > 3900) rx = 3700;
             
-            game.platforms.push({ 
-             x: rx, y: cy, w: pW, h: 32, 
-             color: isFinal ? '#FFD700' : (isCP ? '#00d2ff' : (isHell ? '#ff1a1a' : '#ffffff')),
-             isHell: isHell, isFinal: isFinal, isCP: isCP
+                        game.platforms.push({ 
+                x: rx, y: cy, w: pW, h: 32, 
+                // If it's a jackpot, make it Gold!
+                color: isFinal ? '#FFD700' : (isJackpot ? '#FFD700' : (isCP ? '#00d2ff' : (isHell ? '#ff1a1a' : '#ffffff'))),
+                isHell: isHell, 
+                isFinal: isFinal, 
+                isCP: isCP,
+                isJackpot: isJackpot // <--- THIS attaches the jackpot logic to the platform
             });
 
             if(isFinal) break; 
