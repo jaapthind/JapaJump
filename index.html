@@ -628,12 +628,12 @@
 
     <div class="hud" id="main-hud">
 
-               <div class="hud-card glass-ui">
-           <div class="label">FOV</div>
-           <select id="zoom-sel" class="glass-ui" style="background:none; border:none; color:white; font-family:'Bungee'; font-size:18px; outline:none; cursor:pointer;" onchange="game.activeZoom = parseInt(this.value)">
-               <option value="0">100%</option>
-           </select>
-       </div>
+                     <div class="hud-card glass-ui" style="pointer-events: auto;">
+          <div class="label">FOV</div>
+          <select id="zoom-sel" class="glass-ui" style="background:none; border:none; color:white; font-family:'Bungee'; font-size:18px; outline:none; cursor:pointer; pointer-events: auto;" onchange="game.activeZoom = parseInt(this.value)">
+              <option value="0">100%</option>
+          </select>
+      </div>
         <div class="hud-card glass-ui"><div class="label">Altitude</div><div id="alt-val" class="value">0m</div></div>
         <div class="hud-card glass-ui"><div class="label">Highscore</div><div id="hi-val" class="value">0m</div></div>
         <div class="hud-card glass-ui"><div class="label">Checkpoint</div><div id="zone-val" class="value">Start</div></div>
