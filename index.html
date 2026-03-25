@@ -630,9 +630,12 @@
            <div class="hud" id="main-hud">
     <div style="position:fixed; top:20px; width:100%; display:flex; justify-content:center; gap:10px; pointer-events:none;">
         <div class="hud-card glass-ui"><div class="label">ALT</div><div id="alt-val" class="value">0m</div></div>
+        <div class="hud-card glass-ui"><div class="label">BEST</div><div id="hi-val" class="value">0m</div></div>
         <div class="hud-card glass-ui" style="border:2px solid #FFD700;"><div class="label">CREDITS</div><div id="cred-val" class="value val-gold">0</div></div>
         <div class="hud-btn" onclick="togglePause()" style="pointer-events:auto;"><div class="label">SYSTEM</div><div class="value" style="font-size:18px;">PAUSE</div></div>
     </div>
+    
+    <div id="zone-display" style="display:none;"><span id="zone-val"></span></div>
 
     <div class="hud-card glass-ui" style="position:fixed; bottom:20px; left:20px; pointer-events:auto; min-width:80px;">
         <div class="label">FOV</div>
@@ -645,8 +648,6 @@
     </div>
 </div>
         
-    </div>
-
     <div class="energy-hud" id="energy-hud">
         <div class="bar-bg">
             <div id="energy-fill"></div>
