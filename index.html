@@ -1715,8 +1715,9 @@
         // MOVEMENT & PASSIVES
         if(left || right) {
             game.energy -= (0.38 * solarMod * hellDrainMult); 
-            let accel = (isMobile ? 0.8 : 1.5) + aeroMod;
-            player.vx += left ? -accel : accel;
+            let moveSensitivity = 0.5; // Change this if you want it faster/slower
+            let accel = ((isMobile ? 0.8 : 1.5) * moveSensitivity) + aeroMod;
+             player.vx += left ? -accel : accel;
             player.facing = left ? -1 : 1; 
             player.walk += 0.35;
             
