@@ -1707,6 +1707,8 @@
 }
 
     function update() {
+        if (!game.active || game.quizActive) return; // YOU WERE MISSING THIS LINE!
+
         // --- INSTANT REPLAY ENGINE (FIXED) ---
         player.hist = player.hist || [];
         if (!game.replaying) {
@@ -1726,12 +1728,22 @@
                 
                 game.raf = requestAnimationFrame(update); return;
             } else {
-                // PREVENTS THE FREEZE LOOP BY INSTANTLY FORCING THE QUIZ
-                game.replaying = false; player.hist = []; game.energy = 0; triggerQuiz(); return; 
+                game.replaying = false; 
+                player.hist = []; 
+                game.energy = 0; 
+                
+                // TELEPORT TO SAFE SPOT SO YOU DON'T DIE AGAIN AFTER QUIZ
+                player.x = player.lastSafeX - 25;
+                player.y = player.lastSafeY - 60;
+                player.vx = 0;
+                player.vy = 0;
+                
+                triggerQuiz(); 
+                return; 
             }
         }
         // -------------------------------------
-        // -----------------------------
+        
 
         // FETCH ALL ACTIVE UPGRADE MODIFIERS
         const solarMod = SHOP_ITEMS.solar.getEffect(gameSave.upgrades.solar);
@@ -1946,14 +1958,20 @@
         game.camX += (player.x - canvas.width/2 - game.camX) * 0.12;
         game.camY += (player.y - canvas.height/2 - game.camY) * 0.12;
 
+        
         // VOID DEATH CHECK (PLATING RESTORE)
-        // VOID DEATH CHECK (PLATING RESTORE)
-       // VOID DEATH CHECK (PLATING RESTORE)
-        if(player.y > game.voidLevel) { 
+        if(player.y > game.voidLevel) {
             let plateRestore = SHOP_ITEMS.plating.getEffect(gameSave.upgrades.plating);
             if(plateRestore <= 0) { 
-                if(!game.replaying) { game.replaying = true; game.replayIdx = 0; return; }
+                if(!game.replaying) { 
+                    game.replaying = true; 
+                    game.replayIdx = 0; 
+                    game.raf = requestAnimationFrame(update); // <--- ADDED THIS SO THE GAME DOESN'T FREEZE
+                    return; 
+                }
             }
+            if(plateRestore > 0) { 
+                // Lose 200 energy for falling, but never drop below your Plate Armor limit
             if(plateRestore > 0) { 
                 // Lose 200 energy for falling, but never drop below your Plate Armor limit
                 game.energy = Math.max(plateRestore, game.energy - 200); 
