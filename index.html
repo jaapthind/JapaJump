@@ -1707,22 +1707,30 @@
 }
 
     function update() {
-        if(!game.active || game.quizActive) return;
-        // --- INSTANT REPLAY ENGINE ---
+        // --- INSTANT REPLAY ENGINE (FIXED) ---
         player.hist = player.hist || [];
-        if(!game.replaying) {
-            player.hist.push({x:player.x, y:player.y, cx:game.camX, cy:game.camY});
-            if(player.hist.length > 90) player.hist.shift(); // Saves the last 1.5 seconds
+        if (!game.replaying) {
+            player.hist.push({x: player.x, y: player.y, cx: game.camX, cy: game.camY});
+            if (player.hist.length > 90) player.hist.shift();
         } else {
-            let f = player.hist[Math.floor(game.replayIdx += 0.3)]; // 0.3 is the slow-mo speed!
-            if(f) {
-                player.x=f.x; player.y=f.y; game.camX=f.cx; game.camY=f.cy; draw();
-                ctx.fillStyle="red"; ctx.font="40px Bungee"; ctx.fillText("🔴 SLOW-MO REPLAY", 50, 80);
-                game.raf=requestAnimationFrame(update); return;
+            let f = player.hist[Math.floor(game.replayIdx)];
+            game.replayIdx += 0.4; 
+            if (f) {
+                player.x = f.x; player.y = f.y; game.camX = f.cx; game.camY = f.cy; draw();
+                
+                // FLASHING REPLAY TEXT
+                if (Math.floor(Date.now() / 250) % 2 === 0) { 
+                    ctx.fillStyle = "red"; ctx.font = "bold 40px Bungee"; ctx.textAlign = "center";
+                    ctx.fillText("🔴 REPLAY", canvas.width / 2, 100);
+                }
+                
+                game.raf = requestAnimationFrame(update); return;
             } else {
-                game.replaying = false; game.energy = 0; player.hist = [];
+                // PREVENTS THE FREEZE LOOP BY INSTANTLY FORCING THE QUIZ
+                game.replaying = false; player.hist = []; game.energy = 0; triggerQuiz(); return; 
             }
         }
+        // -------------------------------------
         // -----------------------------
 
         // FETCH ALL ACTIVE UPGRADE MODIFIERS
@@ -1943,7 +1951,9 @@
        // VOID DEATH CHECK (PLATING RESTORE)
         if(player.y > game.voidLevel) { 
             let plateRestore = SHOP_ITEMS.plating.getEffect(gameSave.upgrades.plating);
-            if(plateRestore <= 0 && !game.replaying) { game.replaying = true; game.replayIdx = 0; return; }
+            if(plateRestore <= 0) { 
+                if(!game.replaying) { game.replaying = true; game.replayIdx = 0; return; }
+            }
             if(plateRestore > 0) { 
                 // Lose 200 energy for falling, but never drop below your Plate Armor limit
                 game.energy = Math.max(plateRestore, game.energy - 200); 
