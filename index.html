@@ -699,13 +699,7 @@
     /* =========================================================================
        MODULE 1: AUDIO SYNTHESIZER ENGINE
        ========================================================================= */
-          let audioCtx;
-      try {
-          const AudioContext = window.AudioContext || window.webkitAudioContext;
-          if (AudioContext) audioCtx = new AudioContext();
-      } catch (e) {
-          console.warn("Audio blocked pending user interaction.");
-      }
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
              function startMusic() {
     const music = document.getElementById('bg-music');
@@ -759,12 +753,12 @@
 
     // Unlock audio context on first interaction as browsers require it
               // Unlock audio on first interaction
-          document.body.addEventListener('click', () => { 
-        if(audioCtx && audioCtx.state === 'suspended') {
-            audioCtx.resume();
-        }
-        startMusic(); 
-    }, {once: true});
+      document.body.addEventListener('click', () => { 
+          if(audioCtx.state === 'suspended') {
+              audioCtx.resume();
+          }
+          startMusic(); // This triggers the gimkit.mp3
+      }, {once: true});
 
     /* =========================================================================
        MODULE 2: NETWORK & CLOUD SYNC (Google Apps Script Backend)
@@ -917,8 +911,7 @@
         }
     }
 
-   // REPLACE your current syncAllData with this:
-    async function syncAllData() {
+   async function syncAllData() {
         if (!currentUser) return;
         const inventory = { 
             upgrades: gameSave.upgrades, 
@@ -930,10 +923,10 @@
                 method: 'POST', 
                 body: JSON.stringify({ 
                     secret: MASTER_SECRET,
-                    origin: window.location.hostname,
+                    origin: window.location.hostname, // <--- ADD THIS LINE// <--- ADDED HERE
                     action: 'syncAll', 
                     username: currentUser, 
-                    score: gameSave.highscore, 
+                    score: gameSave.highscore, // Use highscore, not current score
                     credits: gameSave.credits, 
                     inventory: inventory 
                 }) 
@@ -976,12 +969,7 @@
         achievements: []
     };
 
-        let gameSave = {};
-    try {
-        gameSave = JSON.parse(localStorage.getItem(SAVE_KEY)) || {};
-    } catch(e) { 
-        console.warn("Save data disabled due to browser privacy settings."); 
-    }
+    let gameSave = JSON.parse(localStorage.getItem(SAVE_KEY)) || {};
     gameSave = { ...DEFAULT_SAVE, ...gameSave };
     gameSave.upgrades = { ...DEFAULT_SAVE.upgrades, ...(gameSave.upgrades || {}) };
     gameSave.skins = { ...DEFAULT_SAVE.skins, ...(gameSave.skins || {}) };
@@ -1535,6 +1523,9 @@
         quizActive: false,
         energy: 1000, 
         sens: 1.0,
+        hist: [], 
+        rep: false, 
+        repIdx: 0,
         maxEnergy: 1000, 
         score: 0, 
         camX: 0, 
@@ -1719,43 +1710,25 @@
 }
 
     function update() {
-        if (!game.active || game.quizActive) return; // YOU WERE MISSING THIS LINE!
-
-        // --- INSTANT REPLAY ENGINE (FIXED) ---
-        player.hist = player.hist || [];
-        if (!game.replaying) {
-            player.hist.push({x: player.x, y: player.y, cx: game.camX, cy: game.camY});
-            if (player.hist.length > 90) player.hist.shift();
-        } else {
-            let f = player.hist[Math.floor(game.replayIdx)];
-            game.replayIdx += 0.4; 
-            if (f) {
-                player.x = f.x; player.y = f.y; game.camX = f.cx; game.camY = f.cy; draw();
-                
-                // FLASHING REPLAY TEXT
-                if (Math.floor(Date.now() / 250) % 2 === 0) { 
-                    ctx.fillStyle = "red"; ctx.font = "bold 40px Bungee"; ctx.textAlign = "center";
-                    ctx.fillText("🔴 REPLAY", canvas.width / 2, 100);
-                }
-                
-                game.raf = requestAnimationFrame(update); return;
+        if(!game.active || game.quizActive) return;
+        // --- 2-SECOND REPLAY SYSTEM ---
+        if (game.rep) {
+            let s = game.hist[game.repIdx++];
+            if (s) {
+                Object.assign(player, s);
+                game.camX += (player.x - canvas.width/2 - game.camX) * 0.12;
+                game.camY += (player.y - canvas.height/2 - game.camY) * 0.12;
+                draw();
+                game.raf = requestAnimationFrame(update);
             } else {
-                game.replaying = false; 
-                player.hist = []; 
-                game.energy = 0; 
-                
-                // TELEPORT TO SAFE SPOT SO YOU DON'T DIE AGAIN AFTER QUIZ
-                player.x = player.lastSafeX - 25;
-                player.y = player.lastSafeY - 60;
-                player.vx = 0;
-                player.vy = 0;
-                
-                triggerQuiz(); 
-                return; 
+                game.rep = false; game.hist = [];
+                player.x = player.lastSafeX - 25; player.y = player.lastSafeY - 60;
+                triggerQuiz();
             }
+            return;
         }
-        // -------------------------------------
-        
+        game.hist.push({x: player.x, y: player.y, facing: player.facing, walk: player.walk});
+        if (game.hist.length > 120) game.hist.shift();
 
         // FETCH ALL ACTIVE UPGRADE MODIFIERS
         const solarMod = SHOP_ITEMS.solar.getEffect(gameSave.upgrades.solar);
@@ -1797,7 +1770,6 @@
         // INPUT HANDLING
         // INPUT HANDLING
         window.onkeydown = e => { 
-            if (e.target.tagName === 'INPUT') return; // <--- ADD THIS LINE!
             // CHAT TRIGGER: Only resets keys AFTER the prompt is done
             if (e.code === 'KeyT') { 
                 let m = prompt("CHAT:"); 
@@ -1971,32 +1943,23 @@
         game.camX += (player.x - canvas.width/2 - game.camX) * 0.12;
         game.camY += (player.y - canvas.height/2 - game.camY) * 0.12;
 
-        
         // VOID DEATH CHECK (PLATING RESTORE)
-        if(player.y > game.voidLevel) {
+        // VOID DEATH CHECK (PLATING RESTORE)
+       // VOID DEATH CHECK (PLATING RESTORE)
+        // VOID DEATH CHECK (PLATING RESTORE)
+        if(player.y > game.voidLevel) { 
             let plateRestore = SHOP_ITEMS.plating.getEffect(gameSave.upgrades.plating);
-            if(plateRestore <= 0) { 
-                if(!game.replaying) { 
-                    game.replaying = true; 
-                    game.replayIdx = 0; 
-                    game.raf = requestAnimationFrame(update); // <--- ADDED THIS SO THE GAME DOESN'T FREEZE
-                    return; 
-                }
-            }
             if(plateRestore > 0) { 
-                // Lose 200 energy for falling, but never drop below your Plate Armor limit
-            if(plateRestore > 0) { 
-                // Lose 200 energy for falling, but never drop below your Plate Armor limit
                 game.energy = Math.max(plateRestore, game.energy - 200); 
                 showCreditToast("VOID PLATING TRIGGERED!"); 
                 SoundEngine.checkpoint();
+                player.x = player.lastSafeX - 25; 
+                player.y = player.lastSafeY - 60; 
+                player.vx = 0; 
+                player.vy = 0;
             } else { 
                 game.energy = 0; 
             }
-            player.x = player.lastSafeX - 25; 
-            player.y = player.lastSafeY - 60; 
-            player.vx = 0; 
-            player.vy = 0;
             spawnParticles(player.x+25, player.y, 30, '#ff0055');
         }
 
@@ -2016,7 +1979,7 @@
         else bar.classList.remove('energy-fill-warning');
 
         if(game.energy <= 0) { 
-            triggerQuiz(); 
+            game.rep = true; game.repIdx = 0;
             return; 
         }
 
