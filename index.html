@@ -537,9 +537,6 @@
     <div id="credit-toast">+100 CREDITS</div>
 
     <div id="auth-overlay" class="overlay">
-               <div id="rank-news" style="display:none; width: 85%; background: rgba(255, 215, 0, 0.2); border: 1px solid var(--jim-gold); padding: 10px; border-radius: 12px; margin-bottom: 15px; font-family: 'Bungee'; font-size: 14px; color: #fff; text-align: center; animation: flow 2s infinite;">
-           <span id="news-text"></span>
-       </div>
         <div class="auth-container glass-ui">
             <h2 style="font-family:'Bungee'; color: var(--jim-blue); font-size: 35px; margin-top: 0; margin-bottom: 5px;">PILOT TERMINAL</h2>
             <p style="color: #ccc; font-size: 14px; margin-bottom: 20px;">Access global telemetry network.</p>
@@ -711,41 +708,7 @@
         music.play().catch(err => console.log("Music waiting for interaction."));
     }
 }
-
-
-         function checkRankMovement(newList, username) {
-         const newsBox = document.getElementById('rank-news');
-         const newsText = document.getElementById('news-text');
-         
-         // 1. Get the previous #1 player and your previous rank from memory
-         const lastFirstPlace = localStorage.getItem('last_leader_name');
-         const myLastRank = parseInt(localStorage.getItem('my_last_known_rank')) || 999;
-         
-         // 2. Find current status
-         const currentFirstPlace = newList[0] ? newList[0][0] : null;
-         const myCurrentRank = newList.findIndex(u => u[0] === username) + 1; // +1 because index starts at 0
-     
-         let message = "";
-     
-         // CASE A: The King has fallen (Someone took the #1 spot)
-         if (lastFirstPlace && currentFirstPlace && lastFirstPlace !== currentFirstPlace) {
-             message = `👑 THRONE SHIFT: ${currentFirstPlace} OVERTHREW ${lastFirstPlace}!`;
-         } 
-         // CASE B: You moved up the ladder
-         else if (myCurrentRank > 0 && myCurrentRank < myLastRank) {
-             message = `📈 RANK UP! YOU MOVED FROM #${myLastRank} TO #${myCurrentRank}!`;
-         }
-     
-         if (message) {
-             newsText.innerText = message;
-             newsBox.style.display = 'block';
-             SoundEngine.checkpoint(); // Play a sound for the news
-         }
-     
-         // 3. Update memory for next time
-         localStorage.setItem('last_leader_name', currentFirstPlace);
-         if (myCurrentRank > 0) localStorage.setItem('my_last_known_rank', myCurrentRank);
-     }
+ 
     
     const SoundEngine = {
         playTone: function(freq, type, duration, vol=0.1, slideFreq=null) {
@@ -917,14 +880,6 @@
                 localStorage.setItem('remembered_user', user); localStorage.setItem('remembered_pass', pass);
                 const parts = result.split("|");
                 currentUser = user;
-                                const listResponse = await fetch(SCRIPT_URL, { 
-                    method: 'POST', 
-                    body: JSON.stringify({ secret: MASTER_SECRET, action: 'getLeaderboard' }) 
-                });
-                const newList = await listResponse.json();
-                
-                // TRIGGER THE NEWS
-                checkRankMovement(newList, user);
                 gameSave.highscore = parseInt(parts[0]);
                 gameSave.credits = parseFloat(parts[1]);
 
@@ -1568,6 +1523,9 @@
         quizActive: false,
         energy: 1000, 
         sens: 1.0,
+        hist: [], 
+        rep: false, 
+        repIdx: 0,
         maxEnergy: 1000, 
         score: 0, 
         camX: 0, 
@@ -1753,6 +1711,24 @@
 
     function update() {
         if(!game.active || game.quizActive) return;
+        // --- 2-SECOND REPLAY SYSTEM ---
+        if (game.rep) {
+            let s = game.hist[game.repIdx++];
+            if (s) {
+                Object.assign(player, s);
+                game.camX += (player.x - canvas.width/2 - game.camX) * 0.12;
+                game.camY += (player.y - canvas.height/2 - game.camY) * 0.12;
+                draw();
+                game.raf = requestAnimationFrame(update);
+            } else {
+                game.rep = false; game.hist = [];
+                player.x = player.lastSafeX - 25; player.y = player.lastSafeY - 60;
+                triggerQuiz();
+            }
+            return;
+        }
+        game.hist.push({x: player.x, y: player.y, facing: player.facing, walk: player.walk});
+        if (game.hist.length > 120) game.hist.shift();
 
         // FETCH ALL ACTIVE UPGRADE MODIFIERS
         const solarMod = SHOP_ITEMS.solar.getEffect(gameSave.upgrades.solar);
@@ -1970,20 +1946,20 @@
         // VOID DEATH CHECK (PLATING RESTORE)
         // VOID DEATH CHECK (PLATING RESTORE)
        // VOID DEATH CHECK (PLATING RESTORE)
+        // VOID DEATH CHECK (PLATING RESTORE)
         if(player.y > game.voidLevel) { 
             let plateRestore = SHOP_ITEMS.plating.getEffect(gameSave.upgrades.plating);
             if(plateRestore > 0) { 
-                // Lose 200 energy for falling, but never drop below your Plate Armor limit
                 game.energy = Math.max(plateRestore, game.energy - 200); 
                 showCreditToast("VOID PLATING TRIGGERED!"); 
                 SoundEngine.checkpoint();
+                player.x = player.lastSafeX - 25; 
+                player.y = player.lastSafeY - 60; 
+                player.vx = 0; 
+                player.vy = 0;
             } else { 
                 game.energy = 0; 
             }
-            player.x = player.lastSafeX - 25; 
-            player.y = player.lastSafeY - 60; 
-            player.vx = 0; 
-            player.vy = 0;
             spawnParticles(player.x+25, player.y, 30, '#ff0055');
         }
 
@@ -2003,7 +1979,7 @@
         else bar.classList.remove('energy-fill-warning');
 
         if(game.energy <= 0) { 
-            triggerQuiz(); 
+            game.rep = true; game.repIdx = 0;
             return; 
         }
 
